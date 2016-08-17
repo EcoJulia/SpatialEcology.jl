@@ -2,4 +2,4 @@ julia 0.4
 
 RecipesBase
 NamedArrays
-ShapeFile.jl
+Shapefile.jl
