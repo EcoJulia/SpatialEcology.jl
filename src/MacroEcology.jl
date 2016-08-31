@@ -1,5 +1,6 @@
 module MacroEcology
 
-# package code goes here
+include("DataTypes.jl")
+include("PlotRecipes.jl")
 
 end # module
