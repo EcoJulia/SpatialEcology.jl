@@ -58,7 +58,7 @@ end
 function parseDataFrame(occ::DataFrames.DataFrame)
   if ncol(occ) == 3 && eltypes(occ)[3] <: String
     println("Data format recognized as Phylocom")
-    tmp = unstack(occ, 1, 2)
+    occ = unstack(occ, 1, 2)
   end
 
   if eltypes(occ)[1] <: String
@@ -68,23 +68,76 @@ function parseDataFrame(occ::DataFrames.DataFrame)
     sites = string.(1:nrow(occ))
   end
 
-  for i in 1:ncol(occ)
-    occ[i] = convert(Array, occ[i], 0)  #This takes out any NAs that may be in the data frame and replace with 0
-  end
-
-  try  # Let us see if it can be translated to a bool
-      occ = Matrix{Bool}(tmp)
+  try
+    occ = dataFrametoNamedMatrix(occ, sites, Bool)
   catch
-      occ = Matrix{Int}(tmp)  # This line means that this code is not completely type stable. So be it.
+    occ = dataFrametoNamedMatrix(occ, sites, Int) # This line means that this code is not completely type stable. So be it.
   end
 
-  occ = NamedArrays.NamedArray(occ, sites, string.(names(occ)))
   occ
+end
+
+function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:nrow(dat)), T::Type = Float64, replace = zero(T))
+  a = 0
+  for i in 1:ncol(dat)
+    a += sum(isna(dat[i]))
+    dat[i] = convert(Array, dat[i], replace)  #This takes out any NAs that may be in the data frame and replace with 0
+  end
+
+  a > 0 && println("$a NA values were replaced with $(replace)'s")
+  try
+    dat = Matrix{T}(dat)
+  catch
+    error("Cannot convert DataFrame to Matrix{$T}")
+  end
+
+  dat = NamedArrays.NamedArray(dat, sites, string.(names(dat)))
+  dat
+end
+
+function isgrid(coords::AbstractMatrix) = isgridvar(coords[:,1]) && isgridvar(coords[:,2])
+
+function isgridvar(coord::AbstractVector)
+  dists = diff(sort(unique(signif(coord, 8)))) # a bit hacky, prone to cause errors
+  freqs = freq(dists)
+  maxval = maximum(values(freqs))
+  smallest = minimum(dists[dists .> 0])
+  most_common = [k for (k,v) in freqs if v == maxval]
+  sum(dists .% smallest) == 0 & length(intersect([smallest], most_common)) > 0
+end
+
+
+function freq{T}(v::AbstractVector{T})
+  freqs = Dict{T, Int}()
+  for i in v
+    if haskey(freqs, i)
+      freqs[i] += 1
+    else
+      freqs[i] = 0
+    end
+  end
+  freqs
 end
 
 
 
-# constructor helper functions
+function match_commat_coords(occ::ComMatrix, coords::AbstractMatrix)
+ ## so far this does nothing TODO
+end
+
+function dropspecies(occ::ComMatrix, traits::DataFrames.DataFrame)
+  occurring = find(occupancy(occ) .> 0)
+  occ = occ[:, occurring]
+  traits = traits[occurring,:]
+end
+
+function dropsites(occ::ComMatrix, coords::AbstractMatrix, sitestats::DataFrames.DataFrame)
+  hasspecies = find(richness(occ) .> 0)
+  occ = occ[hasspecies,:]
+  coords = coords[hasspecies,:]
+  sitestats = sitestats[hasspecies,:]
+end 
+
 
 function createNodeBySpeciesMatrix(tree::Phylogenetics.Phylogeny)
    colname = tree.tipLabel

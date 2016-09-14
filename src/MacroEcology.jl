@@ -6,8 +6,10 @@ import NamedArrays
 
 include("DataTypes.jl")
 include("Constructors.jl")
+include("Commatrix_functions.jl")
 include("PlotRecipes.jl")
 
-export Assmbl, Assemblage, PhyloAssemblage, OccMatrix, AbundanceMatrix, PAMatrix #types and their constructors
+export Assmbl, Assemblage, PhyloAssemblage, OccMatrix, AbundanceMatrix, PAMatrix, #types and their constructors
+        Nspecies
 
 end # module
