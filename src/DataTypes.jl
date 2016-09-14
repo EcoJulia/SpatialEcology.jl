@@ -9,21 +9,22 @@ abstract Assmbl <: SpatialData
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
-type
 
 type SiteFields
     coords::NamedArrays.NamedMatrix{Float64}  #This should be spatialpoints - not yet implemented?
     cdtype::coordstype
     sitestats::DataFrames.DataFrame
-    shape::Nullable{ShapeFiles.ShapeFile}
+    shape::Nullable{Shapefile.Handle}
 
     # inner constructor
     function SiteFields(coords, cdtype = auto,
             sitestats = DataFrames.DataFrame(id = 1:size(coords,1)),
-            shape = Nullable{ShapeFiles.ShapeFile}())
+            shape = Nullable{Shapefile.Handle}())
 
         nrow(sitestats) == size(coords, 1) || throw(DimensionMismatch("Wrong number of rows in sitestat")) # a little check for the right number
-        cdtype == auto && cdtype = isgrid(coords) ? grid : points
+        if cdtype == auto
+            cdtype = isgrid(coords) ? grid : points
+        end
         new(coords, cdtype, sitestats, shape)
     end
 end
@@ -91,12 +92,12 @@ end
 #     coords::Matrix{Float64}  #This should be spatialpoints - not yet implemented?
 #     cdtype::coordstype
 #     sitestats::Dict{Symbol, DataFrames.DataFrame}
-#     shape::Nullable{ShapeFiles.ShapeFile}
+#     shape::Nullable{Shapefile.Handle}
 #
 #     # inner constructor
 #     function SiteData(coords, cdtype,
 #             sitestats = Dict(:sites => DataFrames.DataFrame(site = 1:size(coords,1))),
-#             shape = Nullable{ShapeFiles.ShapeFile}())
+#             shape = Nullable{Shapefile.Handle}())
 #
 #         [nrow(v) == size(coords, 1) || error("Wrong number of rows in $k") for (k,v) in sitestats] # a little check for the right number
 #         new(coords, cdtype, sitestats, shape)

@@ -51,7 +51,6 @@ function parsesingleDataFrame(occ::DataFrames.DataFrame)
           concatenation of coords and community matrix, coords must be specified")
       end
     end
-  end
   occ, coords
 end
 
@@ -95,7 +94,7 @@ function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:
   dat
 end
 
-function isgrid(coords::AbstractMatrix) = isgridvar(coords[:,1]) && isgridvar(coords[:,2])
+isgrid(coords::AbstractMatrix) = isgridvar(coords[:,1]) && isgridvar(coords[:,2])
 
 function isgridvar(coord::AbstractVector)
   dists = diff(sort(unique(signif(coord, 8)))) # a bit hacky, prone to cause errors
@@ -136,7 +135,18 @@ function dropsites(occ::ComMatrix, coords::AbstractMatrix, sitestats::DataFrames
   occ = occ[hasspecies,:]
   coords = coords[hasspecies,:]
   sitestats = sitestats[hasspecies,:]
-end 
+end
+
+function createsitenames(coords::AbstractMatrix)
+  size(coords, 2) == 2 || error("Only defined for matrices with two columns")
+  mapslices(x->"$(x[1])_$(x[2])", coords, 2)
+end
+
+function createsitenames(coords::DataFrames.DataFrame)
+  size(coords, 2) == 2 || error("Only defined for matrices with two columns")
+  ["$(coords[i,1])_$(coords[i,2])" for i in 1:nrow(coords)]
+end
+
 
 
 function createNodeBySpeciesMatrix(tree::Phylogenetics.Phylogeny)
@@ -155,14 +165,4 @@ function createNodeBySpeciesMatrix(tree::Phylogenetics.Phylogeny)
    loc(tree, basalNode(tree))
 
    nodespecies
-end
-
-function createsitenames(coords::AbstractMatrix)
-  size(coords, 2) == 2 || error("Only defined for matrices with two columns")
-  mapslices(x->"$(x[1])_$(x[2])", coords, 2)
-end
-
-function createsitenames(coords::DataFrames.DataFrame)
-  size(coords, 2) == 2 || error("Only defined for matrices with two columns")
-  ["$(coords[i,1])_$(coords[i,2])" for i in 1:nrow(coords)]
 end
