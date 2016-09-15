@@ -43,16 +43,6 @@ type OccFields{T}
     end
 end
 
-type PhyloFields
-    phylo::Phylo.Phylogeny
-    nodespecies::Matrix{Bool}
-
-    function PhyloFields(phylo, nodespecies)
-        (Ntip(phylo) == size(nodespecies, 1) && Nnode(phylo) == size(nodespecies, 2))
-            || throw(DimensionMismatch("Dimension mismatch between nodespecies matrix and phylogeny"))
-        new(phylo, nodespecies)
-    end
-end
 
 type SiteData <: SpatialData
     site::SiteFields
@@ -66,18 +56,6 @@ type Assemblage{T} <: Assmbl # A type to keep subtypes together, ensuring that t
     function Assemblage(site::SiteFields, occ::OccFields)
         size(occ.commatrix.occurrences, 1) == size(site.coords, 1) || error("Length mismatch between occurrence matrix and coordinates")
         new(site, occ)
-    end
-end
-
-type PhyloAssemblage{T} <: Assmbl # A type to keep subtypes together, ensuring that they are all aligned at all times
-    site::SiteFields
-    occ::OccFields{T}
-    phy::PhyloFields
-
-    function PhyloAssemblage(site, occ, phy)
-        size(occ.commatrix.occurrences, 1) == size(site.coords, 1) || throw(DimensionMismatch("Length mismatch between occurrence matrix and coordinates"))
-        Ntip(phy.Phylo) == size(occ.commatrix.occurrences, 2) || throw(DimensionMismatch("Occurrence matrix and phylogeny do not match in species numbers"))
-        new(site, occ, phy)
     end
 end
 

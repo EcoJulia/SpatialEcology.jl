@@ -1,16 +1,16 @@
 
 
-is01line{T <: Any}(vec::AbstractDataVector{T}) = false
-is01line{T <: Bool}(vec::AbstractDataVector{T}) = true
-is01line{T <: Number}(vec::AbstractDataVector{T}) = length(setdiff(vec, [0, 1])) == 0
+is01line{T <: Any}(vec::Union{AbstractVector{T},DataFrames.AbstractDataVector{T}}) = false
+is01line{T <: Bool}(vec::Union{AbstractVector{T},DataFrames.AbstractDataVector{T}}) = true
+is01line{T <: Number}(vec::Union{AbstractVector{T},DataFrames.AbstractDataVector{T}}) = length(setdiff(vec, [0, 1])) == 0
 
 
 function BenHoltMatrix(commatrix::DataFrames.DataFrame)
-  nc = ncol(commatrix)
+  nc = DataFrames.ncol(commatrix)
   nc < 4 && return 0
-  zeroonelines = vcat(colwise(is01line, commatrix)...)
+  zeroonelines = vcat(DataFrames.colwise(is01line, commatrix)...)
   sum(zeroonelines) == 0 && return 0
-  sum(zeroonelines[(nc-3):nc]) == 4 && return 0
+  sum(zeroonelines[(nc-3):nc]) == 4 || return 0
   minimum(find(zeroonelines))
 end
 
@@ -76,7 +76,14 @@ function parseDataFrame(occ::DataFrames.DataFrame)
   occ
 end
 
+function guess_xycols(dat::DataFrames.DataFrame)
+  numbers = map(x -> x<:Number, eltypes(dat))
+  sum(!numbers) == 1 || error("Site names cannot be numeric in the input matrix")
+  ((find(numbers)[1:2])...)
+end
+
 function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:nrow(dat)), T::Type = Float64, replace = zero(T))
+  colnames = string.(names(dat))
   a = 0
   for i in 1:ncol(dat)
     a += sum(isna(dat[i]))
@@ -85,12 +92,16 @@ function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:
 
   a > 0 && println("$a NA values were replaced with $(replace)'s")
   try
-    dat = Matrix{T}(dat)
+    dat = sparse(Matrix{T}(dat))
   catch
     error("Cannot convert DataFrame to Matrix{$T}")
   end
 
-  dat = NamedArrays.NamedArray(dat, sites, string.(names(dat)))
+  println(typeof(rownames))
+  println(rownames)
+  println(typeof(colnames))
+  println(colnames)
+  dat = NamedArrays.NamedArray(dat, (vec(rownames), colnames)) #the 'vec' is a bit hacky
   dat
 end
 
@@ -145,24 +156,4 @@ end
 function createsitenames(coords::DataFrames.DataFrame)
   size(coords, 2) == 2 || error("Only defined for matrices with two columns")
   ["$(coords[i,1])_$(coords[i,2])" for i in 1:nrow(coords)]
-end
-
-
-
-function createNodeBySpeciesMatrix(tree::Phylogenetics.Phylogeny)
-   colname = tree.tipLabel
-   rowname = ["$num" for num in nodeNumbers(tree)]
-   nodespecies = NamedArray(zeros(Int, nNode(tree), nTip(tree)), (rowname, colname))
-
-   function loc(tree::Phylogenetics.Phylogeny, node::Int)
-     if node <= nTip(tree)
-       return node
-     end
-     ret = [loc(tree, descendants(node, tree)[1])..., loc(tree, descendants(node, tree)[2])...]
-     nodespecies[node-nTip(tree), ret] = 1
-     ret
-   end
-   loc(tree, basalNode(tree))
-
-   nodespecies
 end
