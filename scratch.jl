@@ -16,18 +16,17 @@ occ, coords = parsesingleDataFrame(mam)
 
 occ = parseDataFrame(occ)
 
+occ = ComMatrix(occ)
+
+specnames(occ)
+
+occurring = find(occupancy(occ) .> 0)
+
+occ = occ[:, occurring]
+
+nspecies(occ)
+size(occ.occurrences)
+
 guess_xycols(coords)
 
 Assemblage(mam)
-
-methods(Assemblage)
-
-Assemblage(occ, coords)
-
-dat[3]
-
-
-
-dat = coords
-
-string.(names(mam))

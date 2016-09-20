@@ -82,7 +82,7 @@ function guess_xycols(dat::DataFrames.DataFrame)
   ((find(numbers)[1:2])...)
 end
 
-function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:nrow(dat)), T::Type = Float64, replace = zero(T))
+function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:nrow(dat)), T::Type = Float64, replace = zero(T); sparsematrix = true)
   colnames = string.(names(dat))
   a = 0
   for i in 1:ncol(dat)
@@ -92,16 +92,12 @@ function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:
 
   a > 0 && println("$a NA values were replaced with $(replace)'s")
   try
-    dat = sparse(Matrix{T}(dat))
+    dat = sparsematrix ? sparse(Matrix{T}(dat)) : Matrix{T}(dat)
   catch
     error("Cannot convert DataFrame to Matrix{$T}")
   end
 
-  println(typeof(rownames))
-  println(rownames)
-  println(typeof(colnames))
-  println(colnames)
-  dat = NamedArrays.NamedArray(dat, (vec(rownames), colnames)) #the 'vec' is a bit hacky
+  dat = NamedArrays.NamedArray(dat, (Vector{String}(rownames), Vector{String}(colnames))) #the vector conversion is a bit hacky
   dat
 end
 
@@ -131,17 +127,18 @@ end
 
 
 
-function match_commat_coords(occ::ComMatrix, coords::AbstractMatrix)
+function match_commat_coords!(occ::ComMatrix, coords::AbstractMatrix{Float64}, sitestats::DataFrames.DataFrame)
+  ()
  ## so far this does nothing TODO
 end
 
-function dropspecies(occ::ComMatrix, traits::DataFrames.DataFrame)
+function dropspecies!(occ::ComMatrix, traits::DataFrames.DataFrame)
   occurring = find(occupancy(occ) .> 0)
-  occ = occ[:, occurring]
+  occ = occ[:, occurring]  # so is this a problem
   traits = traits[occurring,:]
 end
 
-function dropsites(occ::ComMatrix, coords::AbstractMatrix, sitestats::DataFrames.DataFrame)
+function dropsites!(occ::ComMatrix, coords::AbstractMatrix, sitestats::DataFrames.DataFrame)
   hasspecies = find(richness(occ) .> 0)
   occ = occ[hasspecies,:]
   coords = coords[hasspecies,:]

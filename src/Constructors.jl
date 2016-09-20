@@ -34,11 +34,11 @@ function Assemblage(occ::NamedArrays.NamedArray, coords::DataFrames.DataFrame; d
       cdtype::coordstype = auto, shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
 
   if ncol(coords) == 2 && all(map(x -> x<:Number, eltypes(coords)))
-    coords = dataFrametoNamedMatrix(coords)
+    coords = dataFrametoNamedMatrix(coords, sparsematrix = false)
   elseif ncol(coords) == 3
     xind, yind = guess_xycols(coords)
     siteind = setdiff(1:3, [xind, yind])[1]
-    coords = dataFrametoNamedMatrix(coords[[xind, yind]], coords[siteind])
+    coords = dataFrametoNamedMatrix(coords[[xind, yind]], coords[siteind], sparsematrix = false)
   else
     error("coords must be a DataFrame with a column for sites and two columns for coordinates")
   end
@@ -47,7 +47,6 @@ function Assemblage(occ::NamedArrays.NamedArray, coords::DataFrames.DataFrame; d
 end
 
 function Assemblage(occ::NamedArrays.NamedArray, coords::AbstractMatrix;
-      sitestats::DataFrames.DataFrame = DataFrames.DataFrame,
       dropemptyspecies::Bool = true, dropemptysites::Bool = true, match_to_coords = true,
       cdtype::coordstype = auto, shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
 
@@ -62,11 +61,12 @@ Assemblage(occ::ComMatrix, sitedata::SiteData; dropemptyspecies::Bool = true,
 
 function Assemblage(occ::ComMatrix, coords::AbstractMatrix; dropemptyspecies::Bool = true,
       dropemptysites::Bool = true, match_to_coords = true,
+      traits = DataFrames.DataFrame(name = specnames), sitestats = DataFrames.DataFrame(sites = sitenames(occ)),
       cdtype::coordstype = auto, shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
 
     match_to_coords && match_commat_coords!(occ, coords, sitestats)
-    dropemptyspecies && dropspecies!(occ, coords, sitestats)
-    dropemptysites && dropsites!(occ, traits)
+    dropemptyspecies && dropspecies!(occ, traits)
+    dropemptysites && dropsites!(occ, coords, sitestats)
 
     Assemblage(SiteFields(coords, cdtype, sitestats, shape), OccFields(occ, traits))
   end
