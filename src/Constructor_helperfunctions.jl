@@ -104,7 +104,7 @@ end
 isgrid(coords::AbstractMatrix) = isgridvar(coords[:,1]) && isgridvar(coords[:,2])
 
 function isgridvar(coord::AbstractVector)
-  dists = diff(sort(unique(signif(coord, 8)))) # a bit hacky, prone to cause errors
+  dists = diff(sort(unique(signif.(vec(coord), 8)))) # a bit hacky, prone to cause errors
   freqs = freq(dists)
   maxval = maximum(values(freqs))
   smallest = minimum(dists[dists .> 0])
@@ -134,7 +134,7 @@ end
 
 function dropspecies!(occ::ComMatrix, traits::DataFrames.DataFrame)
   occurring = find(occupancy(occ) .> 0)
-  occ = occ[:, occurring]  # so is this a problem
+  occ = occ[:, occurring]
   traits = traits[occurring,:]
 end
 

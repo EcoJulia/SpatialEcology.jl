@@ -24,9 +24,16 @@ occurring = find(occupancy(occ) .> 0)
 
 occ = occ[:, occurring]
 
+traits
+
 nspecies(occ)
-size(occ.occurrences)
+size(occ)
 
 guess_xycols(coords)
 
 Assemblage(mam)
+
+specnames(occ)
+
+methods(OccFields)
+OccFields(occ)

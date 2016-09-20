@@ -4,7 +4,7 @@ import DataFrames
 import Bio.Phylo
 import NamedArrays
 import Shapefile
-import Base: getindex, setindex
+import Base: getindex, setindex!, size
 
 include("DataTypes.jl")
 include("Constructor_helperfunctions.jl")

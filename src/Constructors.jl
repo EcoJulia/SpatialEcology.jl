@@ -61,7 +61,7 @@ Assemblage(occ::ComMatrix, sitedata::SiteData; dropemptyspecies::Bool = true,
 
 function Assemblage(occ::ComMatrix, coords::AbstractMatrix; dropemptyspecies::Bool = true,
       dropemptysites::Bool = true, match_to_coords = true,
-      traits = DataFrames.DataFrame(name = specnames), sitestats = DataFrames.DataFrame(sites = sitenames(occ)),
+      traits = DataFrames.DataFrame(name = specnames(occ)), sitestats = DataFrames.DataFrame(sites = sitenames(occ)),
       cdtype::coordstype = auto, shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
 
     match_to_coords && match_commat_coords!(occ, coords, sitestats)
@@ -70,3 +70,6 @@ function Assemblage(occ::ComMatrix, coords::AbstractMatrix; dropemptyspecies::Bo
 
     Assemblage(SiteFields(coords, cdtype, sitestats, shape), OccFields(occ, traits))
   end
+
+
+  OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))

@@ -37,9 +37,9 @@ type OccFields{T}
     commatrix::ComMatrix{T}
     traits::DataFrames.DataFrame
 
-    function OccFields(commatrix, traits = DataFrames.DataFrame(id = 1:Nspecies(commatrix)))
+    function OccFields{T}(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame)
         nrow(traits) ==  nspecies(commatrix) || throw(DimensionMismatch("Wrong number of species in traits"))
-        new(occurrences, traits)
+        new(commatrix, traits)
     end
 end
 

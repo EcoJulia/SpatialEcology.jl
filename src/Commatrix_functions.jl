@@ -9,10 +9,12 @@ occupancy{T<:Int}(com::ComMatrix{T}) = sum(com.occurrences .> 0, 1)
 richness{T<:Bool}(com::ComMatrix{T}) = sum(com.occurrences, 2)
 richness{T<:Int}(com::ComMatrix{T}) = sum(com.occurrences .> 0, 2)
 
+function getindex(com::ComMatrix, inds...)
+    com.occurrences = getindex(com.occurrences, inds...)
+    com
+end
 
-#TODO specify getindex and setindex variations that just pass on to occurrences
+setindex!(com::ComMatrix, X, inds...) = setindex!(com.occurrences, X, inds...)
 
-getindex(com::ComMatrix, i) = getindex(com.occurrences, i)
-getindex(com::ComMatrix, i, j) = getindex(com.occurrences, i, j)
-setindex(com::ComMatrix, i) = setindex(com.occurrences, i)
-setindex(com::ComMatrix, i, j) = setindex(com.occurrences, i, j)
+size(com::ComMatrix) = size(com.occurrences)
+size(com::ComMatrix, dims...) = size(com.occurrences, dims...)
