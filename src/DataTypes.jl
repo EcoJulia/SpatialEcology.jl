@@ -5,7 +5,7 @@
 
 abstract OccData
 abstract SpatialData
-abstract Assmbl <: SpatialData
+abstract Assmbl <: SpatialData  #Not sure about this structure - so far no type inherits from occdata. Perhaps SimpleTraits.jl is/has a solution
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
@@ -29,31 +29,32 @@ type SiteFields
     end
 end
 
-type ComMatrix{T}
+type ComMatrix{T <: Union{Bool, Int}}
     occurrences::NamedArrays.NamedArray{T, 2}
 end
 
-type OccFields{T}
+type OccFields{T <: Union{Bool, Int}}
     commatrix::ComMatrix{T}
     traits::DataFrames.DataFrame
 
-    function OccFields{T}(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame)
+    function OccFields(commatrix, traits)
         nrow(traits) ==  nspecies(commatrix) || throw(DimensionMismatch("Wrong number of species in traits"))
         new(commatrix, traits)
     end
 end
 
 
+
 type SiteData <: SpatialData
     site::SiteFields
 end
 
-type Assemblage{T} <: Assmbl # A type to keep subtypes together, ensuring that they are all aligned at all times
+type Assemblage{T <: Union{Bool, Int}} <: Assmbl # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::SiteFields
     occ::OccFields{T}
 
     # inner constructor
-    function Assemblage(site::SiteFields, occ::OccFields)
+    function Assemblage(site, occ)
         size(occ.commatrix.occurrences, 1) == size(site.coords, 1) || error("Length mismatch between occurrence matrix and coordinates")
         new(site, occ)
     end

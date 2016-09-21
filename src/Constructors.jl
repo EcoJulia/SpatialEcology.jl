@@ -71,5 +71,7 @@ function Assemblage(occ::ComMatrix, coords::AbstractMatrix; dropemptyspecies::Bo
     Assemblage(SiteFields(coords, cdtype, sitestats, shape), OccFields(occ, traits))
   end
 
+Assemblage{T <: Union{Bool, Int}}(site::SiteFields, occ::OccFields{T}) = Assemblage{T}(site, occ)
 
-  OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
+OccFields{T <: Union{Bool, Int}}(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) = OccFields{T}(commatrix, traits)
+OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
