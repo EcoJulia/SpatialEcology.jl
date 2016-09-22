@@ -1,6 +1,8 @@
 
 Assemblage(assm::Assmbl) = Assemblage(assm.site, assm.occ) # Not a copy constructor - I think those are automatic? Just a function that will reduce derived types to the base type
 
+# I think all of the constructors should be able to take traits, sites, dropemptys etc.
+
 # a constructor that takes occ and coords as one single DataFrame format and separates them
 function Assemblage(occ::DataFrames.DataFrame; cdtype::coordstype = auto,
       shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
