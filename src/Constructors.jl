@@ -4,8 +4,10 @@ Assemblage(assm::Assmbl) = Assemblage(assm.site, assm.occ) # Not a copy construc
 # I think all of the constructors should be able to take traits, sites, dropemptys etc.
 
 # a constructor that takes occ and coords as one single DataFrame format and separates them
-function Assemblage(occ::DataFrames.DataFrame; cdtype::coordstype = auto,
-      shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
+function Assemblage(occ::DataFrames.DataFrame; dropemptyspecies::Bool = true,
+            dropemptysites::Bool = true, match_to_coords = true,
+            traits = DataFrames.DataFrame(name = specnames(occ)), sitestats = DataFrames.DataFrame(sites = sitenames(occ)),
+            cdtype::coordstype = auto, shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
 
   occ, coords = parsesingleDataFrame(occ)
   Assemblage(occ, coords, cdtype = cdtype, shape = shape)
@@ -57,23 +59,43 @@ end
 
 Assemblage(occ::ComMatrix, sitedata::SiteData; dropemptyspecies::Bool = true,
       dropemptysites::Bool = true, match_to_coords = true) =
-          Assemblage(occ, sitedata.SiteFields.coords, cdtype = sitedata.SiteFields.cdtype,
-          sitestats = sitedata.SiteFields.sitestats, shape = sitedata.SiteFields.shape,
+          Assemblage(occ, sitedata.site.coords, cdtype = sitedata.site.cdtype,
+          sitestats = sitedata.site.sitestats, shape = sitedata.site.shape,
           dropemptyspecies = dropemptyspecies, dropemptysites = dropemptysites, match_to_coords = match_to_coords)
 
-function Assemblage(occ::ComMatrix, coords::AbstractMatrix; dropemptyspecies::Bool = true,
-      dropemptysites::Bool = true, match_to_coords = true,
+function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
+      dropemptyspecies::Bool = true, dropemptysites::Bool = true, match_to_coords = true,
       traits = DataFrames.DataFrame(name = specnames(occ)), sitestats = DataFrames.DataFrame(sites = sitenames(occ)),
       cdtype::coordstype = auto, shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
 
-    match_to_coords && match_commat_coords!(occ, coords, sitestats)
-    dropemptyspecies && dropspecies!(occ, traits)
-    dropemptysites && dropsites!(occ, coords, sitestats)
+    if match_to_coords
+        occ, coords, sitestats = match_commat_coords!(occ, coords, sitestats)
+    end
+
+    if dropemptyspecies
+        occ, traits = dropspecies!(occ, traits)
+    end
+
+    if dropemptysites
+        occ, coords, sitestats = dropsites!(occ, coords, sitestats)
+    end
 
     Assemblage(SiteFields(coords, cdtype, sitestats, shape), OccFields(occ, traits))
   end
 
-Assemblage{T <: Union{Bool, Int}}(site::SiteFields, occ::OccFields{T}) = Assemblage{T}(site, occ)
+function Assemblage{T <: Union{Bool, Int}}(site::SiteFields, occ::OccFields{T};
+    dropemptyspecies::Bool = true, dropemptysites::Bool = true)
+
+    if dropemptyspecies
+        occ.commatrix, occ.traits = dropspecies!(occ.commatrix, occ.traits)
+    end
+
+    if dropemptysites
+        occ.commatrix, site.coords, site.sitestats = dropsites!(occ.commatrix, site.coords, site.sitestats)        
+    end
+
+    Assemblage{T}(site, occ)
+end
 
 OccFields{T <: Union{Bool, Int}}(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) = OccFields{T}(commatrix, traits)
 OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))

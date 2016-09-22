@@ -6,16 +6,20 @@ mam[3] = map(x->"$x", mam[3])
 mama = Assemblage(mam)
 ## Problems with saving
 
-using JLD
+import JLD.load
 # Go to here to begin with
-mamcop = load("mamobj.jld", "mamnod") #For some reason this does not work.
+mamcop = load("mamobj.jld", "mamnod")
 
 # these should be named vectors
 ric = richness(mamcop)
 occu = occupancy(mamcop)
 nspecies(mamcop)
-sitenames(mamcop) # This should be the actual sitenames - edit constructors?
+specnames(mamcop) # This should be the actual sitenames - edit constructors?
 maximum(richness(mamcop))
+
+println(createsummaryline(specnames(mamcop)))
+
+mamcop
 
 fieldnames(mamcop)
 

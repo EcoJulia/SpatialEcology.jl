@@ -23,12 +23,16 @@ size(com::ComMatrix, dims...) = size(com.occurrences, dims...)
 
 summary(com::ComMatrix) = "$(nsites(com))x$(nspecies(com)) $(typeof(com))"
 
+function createsummaryline{T<:AbstractString}(vec::Vector{T})
+    linefunc(vec) = mapreduce(x->x*", ", *, vec[1:(end-1)])*vec[end]
+    length(vec) < 6 && return linefunc(vec)
+    linefunc(vec[1:3])*"..."*linefunc(vec[(end-1):end])
+end
+
 function show(io::IO, com::ComMatrix)
-    println("Community matrix with $(records(com)) records of $(nspecies(com)) species in $(nsites(com)) sites")
-    println("Species names:")
-    println(mapreduce(x->x*", ", *, specnames(com))*"...")
-    println("Site names:")
-    println(mapreduce(x->x*", ", *, sitenames(com))*"...")
+    sp = createsummaryline(specnames(com))
+    si = createsummaryline(sitenames(com))
+    println("Community matrix with $(records(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
 
 richness(ocf::OccFields) = richness(ocf.commatrix)
@@ -47,19 +51,17 @@ nsites(asm::Assmbl) = nsites(asm.occ)
 nspecies(asm::Assmbl) = nspecies(asm.occ)
 records(asm::Assmbl) = records(asm.occ)
 
-function show(io::IO, asm::Assemblage)
-    println("Assemblage with $(records(asm)) $(coordtype(asm)) records of $(nspecies(asm)) species in $(nsites(asm)) sites")
-    println("Species names:")
-    println(mapreduce(x->x*", ", *, specnames(com))*"...")
-    println("Site names:")
-    println(mapreduce(x->x*", ", *, sitenames(com))*"...")
+
+function show(io::IO, com::Assemblage)
+    sp = createsummaryline(specnames(com))
+    si = createsummaryline(sitenames(com))
+    println("Assemblage with $(records(com)) $(coordtype(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
+
 
 nsites(sd::SpatialData) = size(sd.site.coords, 1)
 sitenames(sd::SpatialData) = NamedArrays.allnames(sd.site.coords)[1]
 
 function show(io::IO, sd::SiteData)
-    println("Spatial data set of type $(coordtype(sd)) with $(nsites(sd)) sites")
-    println("Site names:")
-    println(mapreduce(x->x*", ", *, sitenames(sd))*"...")
+    println("Spatial data set of type $(coordtype(sd)) with $(nsites(sd)) sites\n\nSite names:\n$(createsummarylines(sitenames(sd)))")
 end

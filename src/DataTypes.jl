@@ -21,7 +21,7 @@ type SiteFields
             sitestats = DataFrames.DataFrame(id = 1:size(coords,1)),
             shape = Nullable{Shapefile.Handle}())
 
-        nrow(sitestats) == size(coords, 1) || throw(DimensionMismatch("Wrong number of rows in sitestat")) # a little check for the right number
+        DataFrames.nrow(sitestats) == size(coords, 1) || throw(DimensionMismatch("Wrong number of rows in sitestat")) # a little check for the right number
         if cdtype == auto
             cdtype = isgrid(coords) ? grid : points
         end
@@ -38,7 +38,7 @@ type OccFields{T <: Union{Bool, Int}}
     traits::DataFrames.DataFrame
 
     function OccFields(commatrix, traits)
-        nrow(traits) ==  nspecies(commatrix) || throw(DimensionMismatch("Wrong number of species in traits"))
+        DataFrames.nrow(traits) ==  nspecies(commatrix) || throw(DimensionMismatch("Wrong number of species in traits"))
         new(commatrix, traits)
     end
 end
@@ -78,6 +78,6 @@ end
 #             sitestats = Dict(:sites => DataFrames.DataFrame(site = 1:size(coords,1))),
 #             shape = Nullable{Shapefile.Handle}())
 #
-#         [nrow(v) == size(coords, 1) || error("Wrong number of rows in $k") for (k,v) in sitestats] # a little check for the right number
+#         [DataFrames.nrow(v) == size(coords, 1) || error("Wrong number of rows in $k") for (k,v) in sitestats] # a little check for the right number
 #         new(coords, cdtype, sitestats, shape)
 # end

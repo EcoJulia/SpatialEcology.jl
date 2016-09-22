@@ -1,8 +1,22 @@
 ## Functions for subsetting data objects
 
-subset(occ:OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ)) = OccFields(occ.commatrix[sites, species], traits[species,])
-subset(site:SiteFields, sites = 1:nsites(occ)) = SiteFields(site.coords[sites, :], site.cdtype, site.sitestats[sites, :], site.shape)
+subset!(occ::OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ)) = OccFields(occ.commatrix[sites, species], occ.traits[species,:])
+subset(occ::OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ)) = subset!(deepcopy(occ), species, sites)
+
+subset!(site::SiteFields, sites = 1:nsites(occ)) = SiteFields(site.coords[sites, :], site.cdtype, site.sitestats[sites, :], site.shape)
+subset(site::SiteFields, sites = 1:nsites(occ)) = subset!(deepcopy(site), sites)
+
 subset(asm::Assemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropemptyspecies = true, dropemptysites = true) = Assemblage(subset(asm.site, sites), subset(asm.occ, species, sites), dropemptysites = dropemptysites, dropemptyspecies = dropemptyspecies)
+
+subset!(asm::Assemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropemptyspecies = true, dropemptysites = true) = Assemblage(subset!(asm.site, sites), subset!(asm.occ, species, sites), dropemptysites = dropemptysites, dropemptyspecies = dropemptyspecies)
+
+subset!(sp::SiteData, sites = 1:nsites(sp)) = SiteData(subset!(sp.site, sites))
+subset(sp::SiteData, sites = 1:nsites(sp)) = SiteData(subset(sp.site, sites))
+
+
+
+
+
 
 # @enum keepsite allsites occupied
 # @enum keepspecies allspecies present
@@ -15,7 +29,7 @@ subset(asm::Assemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropem
 #     keepspecies = false
 #     species == allspecies && keepspecies = true
 #     (keepspecies || species == present) && species = 1:nspecies(occ)
-# 
+#
 #     occ.commatrix = occ.commatrix[sites, species]  #There are three big allocations of the same array here - this code should be rewritten to use views instead so most can be done inplace
 #     keepspecies || occ.commatrix = occ.commatrix[:, occupancy(occ.commatrix) .> 0]
 #     keepsites || occ.commatrix = occ.commatrix[richness(occ.commatrix) .> 0, :]

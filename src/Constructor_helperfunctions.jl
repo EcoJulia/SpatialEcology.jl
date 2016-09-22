@@ -39,7 +39,7 @@ function parsesingleDataFrame(occ::DataFrames.DataFrame)
       println("Data format identified as Worldmap export file")
       coords = occ[4:5]
       coords[:sites] = createsitenames(coords)
-      occ = DataFrame(site = coords[:sites], abu = ones(Int, nrow(occ)), species = occ[1])
+      occ = DataFrame(site = coords[:sites], abu = ones(Int, DataFrames.nrow(occ)), species = occ[1])
       coords = unique(coords, :sites)
     else
       if (firstnumeric = BenHoltMatrix(occ)) > 1
@@ -64,7 +64,7 @@ function parseDataFrame(occ::DataFrames.DataFrame)
     sites = Vector(occ[1])
     occ = occ[2:end]
   else
-    sites = string.(1:nrow(occ))
+    sites = string.(1:DataFrames.nrow(occ))
   end
 
   try
@@ -82,7 +82,7 @@ function guess_xycols(dat::DataFrames.DataFrame)
   ((find(numbers)[1:2])...)
 end
 
-function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:nrow(dat)), T::Type = Float64, replace = zero(T); sparsematrix = true)
+function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:DataFrames.nrow(dat)), T::Type = Float64, replace = zero(T); sparsematrix = true)
   colnames = string.(names(dat))
   a = 0
   for i in 1:ncol(dat)
@@ -136,6 +136,7 @@ function dropspecies!(occ::ComMatrix, traits::DataFrames.DataFrame)
   occurring = find(occupancy(occ) .> 0)
   occ = occ[:, occurring]
   traits = traits[occurring,:]
+  occ, traits
 end
 
 function dropsites!(occ::ComMatrix, coords::AbstractMatrix, sitestats::DataFrames.DataFrame)
@@ -143,6 +144,7 @@ function dropsites!(occ::ComMatrix, coords::AbstractMatrix, sitestats::DataFrame
   occ = occ[hasspecies,:]
   coords = coords[hasspecies,:]
   sitestats = sitestats[hasspecies,:]
+  occ, coords, sitestats
 end
 
 function createsitenames(coords::AbstractMatrix)
@@ -152,5 +154,5 @@ end
 
 function createsitenames(coords::DataFrames.DataFrame)
   size(coords, 2) == 2 || error("Only defined for matrices with two columns")
-  ["$(coords[i,1])_$(coords[i,2])" for i in 1:nrow(coords)]
+  ["$(coords[i,1])_$(coords[i,2])" for i in 1:DataFrames.nrow(coords)]
 end
