@@ -68,9 +68,9 @@ function parseDataFrame(occ::DataFrames.DataFrame)
   end
 
   try
-    occ = dataFrametoNamedMatrix(occ, sites, Bool)
+    occ = dataFrametoNamedMatrix(occ, sites, Bool, dimnames = ("sites", "species"))
   catch
-    occ = dataFrametoNamedMatrix(occ, sites, Int) # This line means that this code is not completely type stable. So be it.
+    occ = dataFrametoNamedMatrix(occ, sites, Int, dimnames = ("sites", "coordinates")) # This line means that this code is not completely type stable. So be it.
   end
 
   occ
@@ -82,7 +82,7 @@ function guess_xycols(dat::DataFrames.DataFrame)
   ((find(numbers)[1:2])...)
 end
 
-function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:DataFrames.nrow(dat)), T::Type = Float64, replace = zero(T); sparsematrix = true)
+function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:DataFrames.nrow(dat)), T::Type = Float64, replace = zero(T); sparsematrix = true, dimnames = ("A", "B"))
   colnames = string.(names(dat))
   a = 0
   for i in 1:ncol(dat)
@@ -97,7 +97,7 @@ function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:
     error("Cannot convert DataFrame to Matrix{$T}")
   end
 
-  dat = NamedArrays.NamedArray(dat, (Vector{String}(rownames), Vector{String}(colnames))) #the vector conversion is a bit hacky
+  dat = NamedArrays.NamedArray(dat, (Vector{String}(rownames), Vector{String}(colnames)), dimnames) #the vector conversion is a bit hacky
   dat
 end
 
