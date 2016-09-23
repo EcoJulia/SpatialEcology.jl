@@ -101,30 +101,6 @@ function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:
   dat
 end
 
-isgrid(coords::AbstractMatrix) = isgridvar(coords[:,1]) && isgridvar(coords[:,2])
-
-function isgridvar(coord::AbstractVector)
-  dists = diff(sort(unique(signif.(vec(coord), 8)))) # a bit hacky, prone to cause errors
-  freqs = freq(dists)
-  maxval = maximum(values(freqs))
-  smallest = minimum(dists[dists .> 0])
-  most_common = [k for (k,v) in freqs if v == maxval]
-  sum(dists .% smallest) == 0 & length(intersect([smallest], most_common)) > 0
-end
-
-
-function freq{T}(v::AbstractVector{T})
-  freqs = Dict{T, Int}()
-  for i in v
-    if haskey(freqs, i)
-      freqs[i] += 1
-    else
-      freqs[i] = 0
-    end
-  end
-  freqs
-end
-
 
 
 function match_commat_coords!(occ::ComMatrix, coords::AbstractMatrix{Float64}, sitestats::DataFrames.DataFrame)
@@ -156,3 +132,42 @@ function createsitenames(coords::DataFrames.DataFrame)
   size(coords, 2) == 2 || error("Only defined for matrices with two columns")
   ["$(coords[i,1])_$(coords[i,2])" for i in 1:DataFrames.nrow(coords)]
 end
+
+
+function creategrid(coords::NamedArrays.NamedMatrix{Float64}, tolerance = sqrt(eps()))
+
+
+
+
+
+function gridvar(x)  # this code is 'borrowed' from sp:::points2grid in R, which is GPL2, so cannot be distributed in this package
+  sux = sort(unique(x))
+  difx = diff(sux)
+
+
+
+
+
+  isgrid(coords::AbstractMatrix) = isgridvar(coords[:,1]) && isgridvar(coords[:,2])
+
+  function isgridvar(coord::AbstractVector)
+    dists = diff(sort(unique(signif.(vec(coord), 8)))) # a bit hacky, prone to cause errors
+    freqs = freq(dists)
+    maxval = maximum(values(freqs))
+    smallest = minimum(dists[dists .> 0])
+    most_common = [k for (k,v) in freqs if v == maxval]
+    sum(dists .% smallest) == 0 & length(intersect([smallest], most_common)) > 0
+  end
+
+
+  function freq{T}(v::AbstractVector{T})
+    freqs = Dict{T, Int}()
+    for i in v
+      if haskey(freqs, i)
+        freqs[i] += 1
+      else
+        freqs[i] = 0
+      end
+    end
+    freqs
+  end

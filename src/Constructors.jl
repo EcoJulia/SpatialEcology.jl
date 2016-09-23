@@ -91,7 +91,7 @@ function Assemblage{T <: Union{Bool, Int}}(site::SiteFields, occ::OccFields{T};
     end
 
     if dropemptysites
-        occ.commatrix, site.coords, site.sitestats = dropsites!(occ.commatrix, site.coords, site.sitestats)        
+        occ.commatrix, site.coords, site.sitestats = dropsites!(occ.commatrix, site.coords, site.sitestats)
     end
 
     Assemblage{T}(site, occ)
@@ -99,3 +99,10 @@ end
 
 OccFields{T <: Union{Bool, Int}}(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) = OccFields{T}(commatrix, traits)
 OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
+
+function GridData(coords::NamedArrays.NamedMatrix{Float64},
+        sitestats::DataFrames.DataFrame = DataFrames.DataFrame(id = 1:size(coords,1)),
+        shape)
+    grid, coords = creategrid(coords)
+    GridData(coords, grid, sitestats, shape)
+end

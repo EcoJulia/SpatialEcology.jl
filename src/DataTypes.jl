@@ -10,24 +10,47 @@ abstract Assmbl <: SpatialData  #Not sure about this structure - so far no type 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
 
-type SiteFields
-    coords::NamedArrays.NamedMatrix{Float64}  #This should be spatialpoints - not yet implemented?
-    cdtype::coordstype
+abstract SiteFields
+
+type PointData <: SiteFields
+    coords::NamedArrays.NamedMatrix{Float64}
+    sitestats::DataFrames.DataFrame
+    shape::Nullable{Shapefile.Handle}
+    # inner constructor
+    function PointData(coords, sitestats = DataFrames.DataFrame(id = 1:size(coords,1)), shape = Nullable{Shapefile.Handle}())
+
+        DataFrames.nrow(sitestats) == size(coords, 1) || throw(DimensionMismatch("Wrong number of rows in sitestat")) # a little check for the right number
+        new(coords, sitestats, shape)
+    end
+end
+
+type GridData <: SiteFields
+    grid::GridTopology
+    ccoords::NamedArrays.NamedMatrix{Int}
     sitestats::DataFrames.DataFrame
     shape::Nullable{Shapefile.Handle}
 
-    # inner constructor
-    function SiteFields(coords, cdtype = auto,
-            sitestats = DataFrames.DataFrame(id = 1:size(coords,1)),
-            shape = Nullable{Shapefile.Handle}())
+    function GridData(coords, grid, sitestats = DataFrames.DataFrame(id = 1:size(coords,1)), shape = Nullable{Shapefile.Handle}())
 
         DataFrames.nrow(sitestats) == size(coords, 1) || throw(DimensionMismatch("Wrong number of rows in sitestat")) # a little check for the right number
-        if cdtype == auto
-            cdtype = isgrid(coords) ? grid : points
-        end
-        new(coords, cdtype, sitestats, shape)
+        new(coords, grid, sitestats, shape)
     end
 end
+
+#The outer constructor must take the same arguments as PointData and do the conversion
+
+#Also these fuckers should appear in an outer constructor
+sitestats = DataFrames.DataFrame(id = 1:size(coords,1)),
+shape = Nullable{Shapefile.Handle}())
+
+
+# Must go to outer SiteData constructor, or whatever constructs the sitefields objects
+if cdtype == auto
+    cdtype = isgrid(coords) ? grid : points
+end
+
+
+
 
 type ComMatrix{T <: Union{Bool, Int}}
     occurrences::NamedArrays.NamedArray{T, 2}
@@ -45,12 +68,13 @@ end
 
 
 
-type SiteData <: SpatialData
-    site::SiteFields
+type SiteData{S <: SiteFields} <: SpatialData
+    site::S
 end
 
-type Assemblage{T <: Union{Bool, Int}} <: Assmbl # A type to keep subtypes together, ensuring that they are all aligned at all times
-    site::SiteFields
+
+type Assemblage{T <: Union{Bool, Int}, S <: SiteFields} <: Assmbl # A type to keep subtypes together, ensuring that they are all aligned at all times
+    site::S
     occ::OccFields{T}
 
     # inner constructor
@@ -61,23 +85,20 @@ type Assemblage{T <: Union{Bool, Int}} <: Assmbl # A type to keep subtypes toget
 end
 
 
+type GridTopology
+    xmin::Number
+    xmax::Number
+    xcellsize::Number
+    xcells::Int
+    ymin::Number
+    ymax::Number
+    ycellsize::Number
+    ycells::Int
+end
 
-
-
-#############################################################
-
-
-# type SiteData <: SpatialData
-#     coords::Matrix{Float64}  #This should be spatialpoints - not yet implemented?
-#     cdtype::coordstype
-#     sitestats::Dict{Symbol, DataFrames.DataFrame}
-#     shape::Nullable{Shapefile.Handle}
-#
-#     # inner constructor
-#     function SiteData(coords, cdtype,
-#             sitestats = Dict(:sites => DataFrames.DataFrame(site = 1:size(coords,1))),
-#             shape = Nullable{Shapefile.Handle}())
-#
-#         [DataFrames.nrow(v) == size(coords, 1) || error("Wrong number of rows in $k") for (k,v) in sitestats] # a little check for the right number
-#         new(coords, cdtype, sitestats, shape)
-# end
+type Bbox
+    xmin::Number
+    xmax::Number
+    ymin::Number
+    ymax::Number
+end
