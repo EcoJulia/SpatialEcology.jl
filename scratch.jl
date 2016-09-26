@@ -1,8 +1,9 @@
 
-
 using DataFrames
-mam = readtable("/Users/michael/Google Drev/Mountain project/New Polygons/Species grid distributions/mammals_PA_matrix.csv")
+mam = readtable("/Users/michael/Google Drive/Mountain project/New Polygons/Species grid distributions/mammals_PA_matrix.csv")
 mam[3] = map(x->"$x", mam[3])
+
+
 mama = Assemblage(mam)
 ## Problems with saving
 

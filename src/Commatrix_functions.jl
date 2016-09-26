@@ -55,7 +55,7 @@ records(asm::Assmbl) = records(asm.occ)
 function show(io::IO, com::Assemblage)
     sp = createsummaryline(specnames(com))
     si = createsummaryline(sitenames(com))
-    println("Assemblage with $(records(com)) $(coordtype(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
+    println("Assemblage with $(records(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
 
 
@@ -63,5 +63,5 @@ nsites(sd::SpatialData) = size(sd.site.coords, 1)
 sitenames(sd::SpatialData) = NamedArrays.allnames(sd.site.coords)[1]
 
 function show(io::IO, sd::SiteData)
-    println("Spatial data set of type $(coordtype(sd)) with $(nsites(sd)) sites\n\nSite names:\n$(createsummarylines(sitenames(sd)))")
+    println("Spatial data set with $(nsites(sd)) sites\n\nSite names:\n$(createsummarylines(sitenames(sd)))")
 end

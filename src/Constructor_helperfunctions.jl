@@ -16,7 +16,7 @@ end
 
 
 function isWorldmapData(dat::DataFrames.DataFrame, latlong = true)
-  ncol(dat) == 5 || return false
+  DataFrames.ncol(dat) == 5 || return false
 
   if eltype(dat[:, 1]) <: String
     if eltype(dat[:, 4]) <: Number
@@ -55,7 +55,7 @@ function parsesingleDataFrame(occ::DataFrames.DataFrame)
 end
 
 function parseDataFrame(occ::DataFrames.DataFrame)
-  if ncol(occ) == 3 && eltypes(occ)[3] <: String
+  if DataFrames.ncol(occ) == 3 && eltypes(occ)[3] <: String
     println("Data format recognized as Phylocom")
     occ = unstack(occ, 1, 2)
   end
@@ -70,7 +70,7 @@ function parseDataFrame(occ::DataFrames.DataFrame)
   try
     occ = dataFrametoNamedMatrix(occ, sites, Bool, dimnames = ("sites", "species"))
   catch
-    occ = dataFrametoNamedMatrix(occ, sites, Int, dimnames = ("sites", "coordinates")) # This line means that this code is not completely type stable. So be it.
+    occ = dataFrametoNamedMatrix(occ, sites, Int, dimnames = ("sites", "species")) # This line means that this code is not completely type stable. So be it.
   end
 
   occ
@@ -85,7 +85,7 @@ end
 function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:DataFrames.nrow(dat)), T::Type = Float64, replace = zero(T); sparsematrix = true, dimnames = ("A", "B"))
   colnames = string.(names(dat))
   a = 0
-  for i in 1:ncol(dat)
+  for i in 1:DataFrames.ncol(dat)
     a += sum(isna(dat[i]))
     dat[i] = convert(Array, dat[i], replace)  #This takes out any NAs that may be in the data frame and replace with 0
   end
@@ -103,19 +103,19 @@ end
 
 
 
-function match_commat_coords!(occ::ComMatrix, coords::AbstractMatrix{Float64}, sitestats::DataFrames.DataFrame)
-  ()
+function match_commat_coords(occ::ComMatrix, coords::AbstractMatrix{Float64}, sitestats::DataFrames.DataFrame)
+  occ, coords, sitestats
  ## so far this does nothing TODO
 end
 
-function dropspecies!(occ::ComMatrix, traits::DataFrames.DataFrame)
+function dropspecies(occ::ComMatrix, traits::DataFrames.DataFrame)
   occurring = find(occupancy(occ) .> 0)
   occ = occ[:, occurring]
   traits = traits[occurring,:]
   occ, traits
 end
 
-function dropsites!(occ::ComMatrix, coords::AbstractMatrix, sitestats::DataFrames.DataFrame)
+function dropsites(occ::ComMatrix, coords::AbstractMatrix, sitestats::DataFrames.DataFrame)
   hasspecies = find(richness(occ) .> 0)
   occ = occ[hasspecies,:]
   coords = coords[hasspecies,:]
@@ -148,7 +148,7 @@ function gridvar(x, tolerance = sqrt(eps()))  # TODO this code is 'borrowed' fro
     rudifx = [extrema(unique(difx))...]
   end
 
-  err1 = diff(rudifx)
+  err1 = diff(rudifx)[1]
   if err1 > tolerance
     xx = rudifx ./ minimum(rudifx)
     err2 = maximum(abs(floor(xx) - xx))
@@ -158,7 +158,7 @@ function gridvar(x, tolerance = sqrt(eps()))  # TODO this code is 'borrowed' fro
 
   cellsize = mean(difx)
   min = minimum(sux)
-  cellnumber = Int(round(diff([extrema(sux)]) / cellsize) + 1)
+  cellnumber = Int(round(diff([extrema(sux)...])[1] / cellsize) + 1)
 
   min, cellsize, cellnumber
 end
@@ -174,26 +174,26 @@ end
 
 
 
-isgrid(coords::AbstractMatrix) = isgridvar(coords[:,1]) && isgridvar(coords[:,2])
-
-  function isgridvar(coord::AbstractVector)
-    dists = diff(sort(unique(signif.(vec(coord), 8)))) # a bit hacky, prone to cause errors
-    freqs = freq(dists)
-    maxval = maximum(values(freqs))
-    smallest = minimum(dists[dists .> 0])
-    most_common = [k for (k,v) in freqs if v == maxval]
-    sum(dists .% smallest) == 0 & length(intersect([smallest], most_common)) > 0
-  end
-
-
-  function freq{T}(v::AbstractVector{T})
-    freqs = Dict{T, Int}()
-    for i in v
-      if haskey(freqs, i)
-        freqs[i] += 1
-      else
-        freqs[i] = 0
-      end
-    end
-    freqs
-  end
+# isgrid(coords::AbstractMatrix) = isgridvar(coords[:,1]) && isgridvar(coords[:,2])
+#
+#   function isgridvar(coord::AbstractVector)
+#     dists = diff(sort(unique(signif.(vec(coord), 8)))) # a bit hacky, prone to cause errors
+#     freqs = freq(dists)
+#     maxval = maximum(values(freqs))
+#     smallest = minimum(dists[dists .> 0])
+#     most_common = [k for (k,v) in freqs if v == maxval]
+#     sum(dists .% smallest) == 0 & length(intersect([smallest], most_common)) > 0
+#   end
+#
+#
+#   function freq{T}(v::AbstractVector{T})
+#     freqs = Dict{T, Int}()
+#     for i in v
+#       if haskey(freqs, i)
+#         freqs[i] += 1
+#       else
+#         freqs[i] = 0
+#       end
+#     end
+#     freqs
+#   end

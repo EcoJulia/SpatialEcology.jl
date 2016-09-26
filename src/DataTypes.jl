@@ -13,11 +13,9 @@ abstract Assmbl <: SpatialData  #Not sure about this structure - so far no type 
 
 type GridTopology
     xmin::Number
-    xmax::Number
     xcellsize::Number
     xcells::Int
     ymin::Number
-    ymax::Number
     ycellsize::Number
     ycells::Int
 end
@@ -38,8 +36,8 @@ type PointData <: SiteFields
 end
 
 type GridData <: SiteFields
+    coords::NamedArrays.NamedMatrix{Int}
     grid::GridTopology
-    ccoords::NamedArrays.NamedMatrix{Int}
     sitestats::DataFrames.DataFrame
     shape::Nullable{Shapefile.Handle}
 
@@ -74,7 +72,7 @@ type SiteData{S <: SiteFields} <: SpatialData
 end
 
 
-type Assemblage{T <: Union{Bool, Int}, S <: SiteFields} <: Assmbl # A type to keep subtypes together, ensuring that they are all aligned at all times
+type Assemblage{S <: SiteFields, T <: Union{Bool, Int}} <: Assmbl # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::S
     occ::OccFields{T}
 
