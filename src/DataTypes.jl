@@ -10,6 +10,19 @@ abstract Assmbl <: SpatialData  #Not sure about this structure - so far no type 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
 
+
+type GridTopology
+    xmin::Number
+    xmax::Number
+    xcellsize::Number
+    xcells::Int
+    ymin::Number
+    ymax::Number
+    ycellsize::Number
+    ycells::Int
+end
+
+
 abstract SiteFields
 
 type PointData <: SiteFields
@@ -35,18 +48,6 @@ type GridData <: SiteFields
         DataFrames.nrow(sitestats) == size(coords, 1) || throw(DimensionMismatch("Wrong number of rows in sitestat")) # a little check for the right number
         new(coords, grid, sitestats, shape)
     end
-end
-
-#The outer constructor must take the same arguments as PointData and do the conversion
-
-#Also these fuckers should appear in an outer constructor
-sitestats = DataFrames.DataFrame(id = 1:size(coords,1)),
-shape = Nullable{Shapefile.Handle}())
-
-
-# Must go to outer SiteData constructor, or whatever constructs the sitefields objects
-if cdtype == auto
-    cdtype = isgrid(coords) ? grid : points
 end
 
 
@@ -82,18 +83,6 @@ type Assemblage{T <: Union{Bool, Int}, S <: SiteFields} <: Assmbl # A type to ke
         size(occ.commatrix.occurrences, 1) == size(site.coords, 1) || error("Length mismatch between occurrence matrix and coordinates")
         new(site, occ)
     end
-end
-
-
-type GridTopology
-    xmin::Number
-    xmax::Number
-    xcellsize::Number
-    xcells::Int
-    ymin::Number
-    ymax::Number
-    ycellsize::Number
-    ycells::Int
 end
 
 type Bbox

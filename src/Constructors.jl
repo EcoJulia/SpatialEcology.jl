@@ -80,7 +80,7 @@ function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
         occ, coords, sitestats = dropsites!(occ, coords, sitestats)
     end
 
-    Assemblage(SiteFields(coords, cdtype, sitestats, shape), OccFields(occ, traits))
+    Assemblage(createSiteFields(coords, cdtype, sitestats, shape), OccFields(occ, traits))
   end
 
 function Assemblage{T <: Union{Bool, Int}}(site::SiteFields, occ::OccFields{T};
@@ -97,12 +97,28 @@ function Assemblage{T <: Union{Bool, Int}}(site::SiteFields, occ::OccFields{T};
     Assemblage{T}(site, occ)
 end
 
+function createSiteFields(coords::AbstractMatrix, cdtype::coordstype = auto,  #by design, this is not type stable, but maybe that is OK for type constructors
+        sitestats = DataFrames.DataFrame(sites = sitenames(occ)),
+        shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
+
+    cdtype == points && return PointData(coords, sitestats, shape)
+    cdtype == grid && return GridData(coords, sitestats, shape)
+    if cdtype == auto
+        try
+            return GridData(coords, sitestats, shape)
+        catch
+            return PointData(coords, sitestats, shape)
+        end
+    end
+end
+
+
 OccFields{T <: Union{Bool, Int}}(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) = OccFields{T}(commatrix, traits)
 OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
 
 function GridData(coords::NamedArrays.NamedMatrix{Float64},
         sitestats::DataFrames.DataFrame = DataFrames.DataFrame(id = 1:size(coords,1)),
-        shape)
+        shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
     grid, coords = creategrid(coords)
     GridData(coords, grid, sitestats, shape)
 end

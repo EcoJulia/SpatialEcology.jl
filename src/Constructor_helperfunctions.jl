@@ -134,21 +134,47 @@ function createsitenames(coords::DataFrames.DataFrame)
 end
 
 
-function creategrid(coords::NamedArrays.NamedMatrix{Float64}, tolerance = sqrt(eps()))
+creategrid(coords::NamedArrays.NamedMatrix{Float64}, tolerance = sqrt(eps())) =
+    GridTopology(gridvar(coords[:,1], tolerance)..., gridvar(coords[:,2], tolerance)...)
 
 
-
-
-
-function gridvar(x)  # this code is 'borrowed' from sp:::points2grid in R, which is GPL2, so cannot be distributed in this package
+function gridvar(x, tolerance = sqrt(eps()))  # TODO this code is 'borrowed' from sp:::points2grid in R, which is GPL2, so cannot be distributed in this package
   sux = sort(unique(x))
   difx = diff(sux)
+  length(difx) == 0 && error("Cannot make a grid with width 1 in the current implementation") #TODO
+  rudifx = [extrema(unique(difx))...]
+  if rudifx[1]/rudifx[2] < tolerance
+    difx = difx[difx .> rudifx[2] * tolerance]
+    rudifx = [extrema(unique(difx))...]
+  end
+
+  err1 = diff(rudifx)
+  if err1 > tolerance
+    xx = rudifx ./ minimum(rudifx)
+    err2 = maximum(abs(floor(xx) - xx))
+    err2  > tolerance && error("Cannot be converted to grid, as coordinate intervals are not constant. Try adjusting the tolerance (currently $tolerance)")
+    difx = difx[difx .< rudifx[1] + tolerance]
+  end
+
+  cellsize = mean(difx)
+  min = minimum(sux)
+  cellnumber = Int(round(diff([extrema(sux)]) / cellsize) + 1)
+
+  min, cellsize, cellnumber
+end
 
 
 
 
 
-  isgrid(coords::AbstractMatrix) = isgridvar(coords[:,1]) && isgridvar(coords[:,2])
+
+
+
+
+
+
+
+isgrid(coords::AbstractMatrix) = isgridvar(coords[:,1]) && isgridvar(coords[:,2])
 
   function isgridvar(coord::AbstractVector)
     dists = diff(sort(unique(signif.(vec(coord), 8)))) # a bit hacky, prone to cause errors
