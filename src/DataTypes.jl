@@ -78,7 +78,7 @@ type Assemblage{S <: SiteFields, T <: Union{Bool, Int}} <: Assmbl # A type to ke
 
     # inner constructor
     function Assemblage(site, occ)
-        size(occ.commatrix.occurrences, 1) == size(site.coords, 1) || error("Length mismatch between occurrence matrix and coordinates")
+        size(occ.commatrix.occurrences, 1) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
         new(site, occ)
     end
 end

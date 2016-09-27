@@ -109,20 +109,35 @@ function match_commat_coords(occ::ComMatrix, coords::AbstractMatrix{Float64}, si
  ## so far this does nothing TODO
 end
 
-function dropspecies(occ::ComMatrix, traits::DataFrames.DataFrame)
+function dropspecies!(occ::OccFields)
   occurring = find(occupancy(occ) .> 0)
-  occ = occ[:, occurring]
-  traits = traits[occurring,:]
-  occ, traits
+  occ.commatrix = occ.commatrix[:, occurring]
+  occ.traits = occ.traits[occurring,:]
 end
 
-function dropsites(occ::ComMatrix, coords::AbstractMatrix, sitestats::DataFrames.DataFrame)
-  hasspecies = find(richness(occ) .> 0)
-  occ = occ[hasspecies,:]
-  coords = coords[hasspecies,:]
-  sitestats = sitestats[hasspecies,:]
-  occ, coords, sitestats
+
+function dropbyindex!(site::PointData, indicestokeep)
+  site.coords = site.coords[indicestokeep,:]
+  site.sitestats = site.sitestats[indicestokeep,:]
 end
+
+maxrange(x) = diff([extrema(x)...])[1]
+
+function dropbyindex!(site::GridData, indicestokeep)
+  site.indices = site.indices[indicestokeep,:]
+  site.sitestats = site.sitestats[indicestokeep,:]
+  site.grid.xmin = xrange(site.grid)[minimum(site.indices[:,1])]
+  site.grid.ymin = yrange(site.grid)[minimum(site.indices[:,2])]
+  site.grid.xcells = maxrange(site.indices[:,1]) + 1
+  site.grid.ycells = maxrange(site.indices[:,2]) + 1
+end
+
+function dropsites!(occ::OccFields, site::SiteFields)
+  hasspecies = find(richness(occ) .> 0)
+  occ.commatrix = occ.commatrix[hasspecies,:]
+  dropbyindex!(site, hasspecies)
+end
+
 
 function createsitenames(coords::AbstractMatrix)
   size(coords, 2) == 2 || error("Only defined for matrices with two columns")
@@ -159,11 +174,10 @@ function gridvar(x, tolerance = sqrt(eps()))  # TODO this code is 'borrowed' fro
 
   cellsize = mean(difx)
   min = minimum(sux)
-  cellnumber = Int(round(diff([extrema(sux)...])[1] / cellsize) + 1)
+  cellnumber = Int(round(maxrange(sux) / cellsize) + 1)
 
   min, cellsize, cellnumber
 end
-
 
 
 function getindices(coords::NamedArrays.NamedMatrix{Float64}, grid::GridTopology, tolerance = 2*sqrt(eps()))
@@ -173,9 +187,7 @@ function getindices(coords::NamedArrays.NamedMatrix{Float64}, grid::GridTopology
 end
 
 
-
-
-
+### OLD CODE
 
 
 # isgrid(coords::AbstractMatrix) = isgridvar(coords[:,1]) && isgridvar(coords[:,2])

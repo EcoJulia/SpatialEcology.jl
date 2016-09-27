@@ -7,9 +7,9 @@ mam[3] = map(x->"$x", mam[3])
 mama = Assemblage(mam)
 ## Problems with saving
 
-import JLD.load
+import JLD
 # Go to here to begin with
-mamcop = load("mamobj.jld", "mamnod")
+mamcop = JLD.load("mamobj.jld", "mamnod")
 
 # these should be named vectors
 ric = richness(mamcop)

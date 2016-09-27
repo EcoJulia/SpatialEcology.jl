@@ -60,14 +60,6 @@ function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
         occ, coords, sitestats = match_commat_coords(occ, coords, sitestats)
     end
 
-    if dropemptyspecies
-        occ, traits = dropspecies(occ, traits)
-    end
-
-    if dropemptysites
-        occ, coords, sitestats = dropsites(occ, coords, sitestats)
-    end
-
     Assemblage(createSiteFields(coords, cdtype, sitestats, shape), OccFields(occ, traits))
   end
 
@@ -75,11 +67,11 @@ function Assemblage{T <: Union{Bool, Int}, S <: SiteFields}(site::S, occ::OccFie
     dropemptyspecies::Bool = true, dropemptysites::Bool = true)
 
     if dropemptyspecies
-        occ.commatrix, occ.traits = dropspecies(occ.commatrix, occ.traits)
+        dropspecies!(occ)
     end
 
     if dropemptysites
-        occ.commatrix, site.coords, site.sitestats = dropsites(occ.commatrix, site.coords, site.sitestats) #TODO so does the grid topology also need to be updated here? I think so, as the cellnumber and bbox should not be the same. The dropsites function need to be polymorphic
+        dropsites!(occ, site)
     end
 
     Assemblage{S}{T}(site, occ)

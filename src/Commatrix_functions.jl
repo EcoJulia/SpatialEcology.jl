@@ -59,8 +59,8 @@ function show(io::IO, com::Assemblage)
 end
 
 
-nsites(sd::SpatialData) = size(sd.site.coords, 1)
-sitenames(sd::SpatialData) = NamedArrays.allnames(sd.site.coords)[1]
+nsites(sd::SpatialData) = size(coordinates(sd.site), 1)
+sitenames(sd::SpatialData) = NamedArrays.allnames(coordinates(sd.site))[1]
 
 function show(io::IO, sd::SiteData)
     println("Spatial data set with $(nsites(sd)) sites\n\nSite names:\n$(createsummarylines(sitenames(sd)))")

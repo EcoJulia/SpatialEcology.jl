@@ -3,11 +3,10 @@
 subset!(occ::OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ)) = OccFields(occ.commatrix[sites, species], occ.traits[species,:])
 subset(occ::OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ)) = subset!(deepcopy(occ), species, sites)
 
-subset!(site::SiteFields, sites = 1:nsites(occ)) = SiteFields(site.coords[sites, :], site.cdtype, site.sitestats[sites, :], site.shape)
+subset!(site::SiteFields, sites = 1:nsites(occ)) = dropbyindex!(site, sites) #TODO maybe replace dropbyindex with subset! to begin with
 subset(site::SiteFields, sites = 1:nsites(occ)) = subset!(deepcopy(site), sites)
 
 subset(asm::Assemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropemptyspecies = true, dropemptysites = true) = Assemblage(subset(asm.site, sites), subset(asm.occ, species, sites), dropemptysites = dropemptysites, dropemptyspecies = dropemptyspecies)
-
 subset!(asm::Assemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropemptyspecies = true, dropemptysites = true) = Assemblage(subset!(asm.site, sites), subset!(asm.occ, species, sites), dropemptysites = dropemptysites, dropemptyspecies = dropemptyspecies)
 
 subset!(sp::SiteData, sites = 1:nsites(sp)) = SiteData(subset!(sp.site, sites))
