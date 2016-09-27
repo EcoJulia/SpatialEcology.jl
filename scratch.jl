@@ -1,6 +1,6 @@
 
 using DataFrames
-mam = readtable("/Users/michael/Google Drev/Mountain project/New Polygons/Species grid distributions/mammals_PA_matrix.csv")
+mam = readtable("/Users/michael/Google Drive/Mountain project/New Polygons/Species grid distributions/mammals_PA_matrix.csv")
 mam[3] = map(x->"$x", mam[3])
 
 
@@ -31,7 +31,7 @@ end
 
 import JLD
 # Go to here to begin with
-mamcop = JLD.load("mamobj.jld", "mamnod")
+mam = load("mamobj.jld", "mam")
 
 # these should be named vectors
 ric = richness(mamcop)

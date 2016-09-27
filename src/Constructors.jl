@@ -69,11 +69,9 @@ function Assemblage{T <: Union{Bool, Int}, S <: SiteFields}(site::S, occ::OccFie
     if dropemptyspecies
         dropspecies!(occ)
     end
-
     if dropemptysites
         dropsites!(occ, site)
     end
-
     Assemblage{S}{T}(site, occ)
 end
 
