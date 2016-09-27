@@ -81,8 +81,8 @@ function createSiteFields(coords::AbstractMatrix, cdtype::coordstype = auto,  #b
         sitestats = DataFrames.DataFrame(sites = sitenames(occ)),
         shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
 
-    cdtype == points && return PointData(coords, sitestats, shape)
-    cdtype == grid && return GridData(coords, sitestats, shape)
+    cdtype == pointdata && return PointData(coords, sitestats, shape)
+    cdtype == griddata && return GridData(coords, sitestats, shape)
     if cdtype == auto
         try
             return GridData(coords, sitestats, shape)

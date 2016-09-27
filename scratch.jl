@@ -7,6 +7,28 @@ mam[3] = map(x->"$x", mam[3])
 mama = Assemblage(mam)
 ## Problems with saving
 
+
+using JLD
+
+jldopen("mamobj.jld", "w") do file
+   addrequire(file, MacroEcology)
+   write(file, "mam", mama)
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import JLD
 # Go to here to begin with
 mamcop = JLD.load("mamobj.jld", "mamnod")

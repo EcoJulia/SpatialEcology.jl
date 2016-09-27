@@ -14,12 +14,13 @@ include("Commatrix_functions.jl")
 include("Gettersandsetters.jl")
 include("Gridfunctions.jl")
 include("Subsetting.jl")
-include("PlotRecipes.jl")
+#include("PlotRecipes.jl")
 
 export SiteData, ComMatrix, Assemblage, coordtype #types and their constructors
 export nspecies, nsites, occupancy, richness, records, sitenames, specnames
 export setindex!, getindex, size, show, summary
 export coords, subset!, subset, addshape!, deleteshape!
+export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these
 #export DataFrames, NamedArrays
 
 end # module

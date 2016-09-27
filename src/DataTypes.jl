@@ -1,6 +1,6 @@
 
 
-@enum coordstype auto grid points
+@enum coordstype auto griddata pointdata
 #@enum inputdatatype auto phylocom worldmapfile benholtmatrix
 
 abstract OccData
