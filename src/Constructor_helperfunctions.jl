@@ -54,6 +54,7 @@ function parsesingleDataFrame(occ::DataFrames.DataFrame)
   occ, coords
 end
 
+
 function parseDataFrame(occ::DataFrames.DataFrame)
   if DataFrames.ncol(occ) == 3 && eltypes(occ)[3] <: String
     println("Data format recognized as Phylocom")
@@ -165,8 +166,11 @@ end
 
 
 
-
-
+function getindices(coords::NamedArrays.NamedMatrix{Float64}, grid::GridTopology, tolerance = 2*sqrt(eps()))
+  index1 = 1 + floor(Int,(coords[:,1] .- grid.xmin) ./ grid.xcellsize .+ tolerance)
+  index2 = 1 + floor(Int,(coords[:,2] .- grid.ymin) ./ grid.ycellsize .+ tolerance)
+  NamedArrays.NamedArray(hcat(index1, index2), allnames(coords), dimnames(coords))
+end
 
 
 

@@ -36,15 +36,15 @@ type PointData <: SiteFields
 end
 
 type GridData <: SiteFields
-    coords::NamedArrays.NamedMatrix{Int}
+    indices::NamedArrays.NamedMatrix{Int}
     grid::GridTopology
     sitestats::DataFrames.DataFrame
     shape::Nullable{Shapefile.Handle}
 
-    function GridData(coords, grid, sitestats = DataFrames.DataFrame(id = 1:size(coords,1)), shape = Nullable{Shapefile.Handle}())
+    function GridData(indices, grid, sitestats = DataFrames.DataFrame(id = 1:size(coords,1)), shape = Nullable{Shapefile.Handle}())
 
-        DataFrames.nrow(sitestats) == size(coords, 1) || throw(DimensionMismatch("Wrong number of rows in sitestat")) # a little check for the right number
-        new(coords, grid, sitestats, shape)
+        DataFrames.nrow(sitestats) == size(indices, 1) || throw(DimensionMismatch("Wrong number of rows in sitestat")) # a little check for the right number
+        new(indices, grid, sitestats, shape)
     end
 end
 

@@ -9,6 +9,7 @@ function Assemblage(occ::DataFrames.DataFrame; kwargs...)
   Assemblage(occ, coords, kwargs...)
 end
 
+
 # a constructor that takes occ as a DataFrame #should this just be kwargs...?
 function Assemblage(occ::DataFrames.DataFrame, coords::Union{AbstractMatrix, DataFrames.DataFrame}; kwargs...)
   occ = parseDataFrame(occ)
@@ -106,6 +107,7 @@ OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(c
 function GridData(coords::NamedArrays.NamedMatrix{Float64},
         sitestats::DataFrames.DataFrame = DataFrames.DataFrame(id = 1:size(coords,1)),
         shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
-    grid, coords = creategrid(coords) #so we need the coords
-    GridData(coords, grid, sitestats, shape)
+    grid = creategrid(coords)
+    indices = getindices(coords, grid)
+    GridData(indices, grid, sitestats, shape)
 end
