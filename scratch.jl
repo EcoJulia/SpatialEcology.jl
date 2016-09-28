@@ -11,7 +11,7 @@ mama = Assemblage(mam)
 using JLD
 
 jldopen("mamobj.jld", "w") do file
-   addrequire(file, MacroEcology)
+   addrequire(file, SpatialEcology)
    write(file, "mam", mama)
 end
 

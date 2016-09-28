@@ -1,4 +1,4 @@
-using MacroEcology
+using SpatialEcology
 using Base.Test
 
 # write your own tests here
@@ -8,5 +8,3 @@ using Base.Test
 function tes{T <: Union{Int, Bool}}(x::AbstractMatrix{T})
     println("success")
 end
-
-tst = OccMatrix(zeros(Int, 2, 2))

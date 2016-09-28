@@ -1,9 +1,12 @@
 __precompile__()
 module SpatialEcology
 
-using DataFrames
-import Bio.Phylo
-using NamedArrays
+using Reexport
+@reexport using DataFrames
+@reexport using NamedArrays
+
+#import Bio.Phylo
+import RecipesBase
 import Shapefile
 import Base: getindex, setindex!, size, show, summary
 
@@ -11,7 +14,7 @@ include("DataTypes.jl")
 include("Constructor_helperfunctions.jl")
 include("Constructors.jl")
 include("Commatrix_functions.jl")
-include("Gettersandsetters.jl")
+include("GetandSetdata.jl")
 include("Gridfunctions.jl")
 include("Subsetting.jl")
 #include("PlotRecipes.jl")
@@ -21,6 +24,5 @@ export nspecies, nsites, occupancy, richness, records, sitenames, specnames
 export setindex!, getindex, size, show, summary
 export coords, subset!, subset, addshape!, deleteshape!
 export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these
-#export DataFrames, NamedArrays
 
 end # module

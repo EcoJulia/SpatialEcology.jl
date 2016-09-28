@@ -1,4 +1,4 @@
-The MacroEcology.jl package is licensed under the MIT "Expat" License:
+The SpatialEcology.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2016: Michael K. Borregaard.
 >

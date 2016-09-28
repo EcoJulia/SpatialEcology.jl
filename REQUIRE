@@ -4,4 +4,5 @@ RecipesBase
 NamedArrays
 Shapefile
 DataFrames
-Bio
+Reexport
+#Bio
