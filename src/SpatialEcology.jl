@@ -1,5 +1,5 @@
 __precompile__()
-module MacroEcology
+module SpatialEcology
 
 using DataFrames
 import Bio.Phylo
