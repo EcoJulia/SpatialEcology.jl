@@ -6,14 +6,14 @@ Assemblage(assm::Assmbl) = Assemblage(assm.site, assm.occ) # Not a copy construc
 # a constructor that takes occ and coords as one single DataFrame format and separates them
 function Assemblage(occ::DataFrames.DataFrame; kwargs...)
   occ, coords = parsesingleDataFrame(occ)
-  Assemblage(occ, coords, kwargs...)
+  Assemblage(occ, coords; kwargs...)
 end
 
 
 # a constructor that takes occ as a DataFrame #should this just be kwargs...?
 function Assemblage(occ::DataFrames.DataFrame, coords::Union{AbstractMatrix, DataFrames.DataFrame}; kwargs...)
   occ = parseDataFrame(occ)
-  Assemblage(occ, coords, kwargs...)
+  Assemblage(occ, coords; kwargs...)
 end
 
 # a constructor that takes occ as a normal matrix
@@ -22,9 +22,9 @@ end
 #      dropemptyspecies::Bool = true, dropemptysites::Bool = true, match_to_coords = true,
 #      shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
 
-function Assemblage(occ::AbstractMatrix, coords::Union{AbstractMatrix, DataFrames.DataFrame}, sites::Vector{String}, species::Vector{String}, kwargs...)
+function Assemblage(occ::AbstractMatrix, coords::Union{AbstractMatrix, DataFrames.DataFrame}, sites::Vector{String}, species::Vector{String}; kwargs...)
   occ = NamedArrays.NamedArray(occ, (sites, species))
-  Assemblage(occ, coords, kwargs...)
+  Assemblage(occ, coords; kwargs...)
 end
 
 # a constructor that takes coords as a data.frame
@@ -40,10 +40,10 @@ elseif DataFrames.ncol(coords) == 3
     error("coords must be a DataFrame with a column for sites and two columns for coordinates")
   end
 
-  Assemblage(occ, coords, kwargs...)
+  Assemblage(occ, coords; kwargs...)
 end
 
-Assemblage(occ::NamedArrays.NamedArray, coords::AbstractMatrix; kwargs...) = Assemblage(ComMatrix(occ), coords, kwargs...)
+Assemblage(occ::NamedArrays.NamedArray, coords::AbstractMatrix; kwargs...) = Assemblage(ComMatrix(occ), coords; kwargs...)
 
 
 #Assemblage(occ::ComMatrix, sitedata::SiteData; kwargs...) =
@@ -51,7 +51,7 @@ Assemblage(occ::NamedArrays.NamedArray, coords::AbstractMatrix; kwargs...) = Ass
 #          sitestats = sitedata.site.sitestats, shape = sitedata.site.shape,
 #          kwargs...)
 
-Assemblage(occ::ComMatrix, coords::AbstractMatrix, kwargs...) = Assemblage(occ, NamedArrays.NamedArray(coords), kwargs...)
+Assemblage(occ::ComMatrix, coords::AbstractMatrix; kwargs...) = Assemblage(occ, NamedArrays.NamedArray(coords); kwargs...)
 
 function Assemblage(occ::ComMatrix, coords::NamedArrays.NamedArray;
       dropemptyspecies::Bool = true, dropemptysites::Bool = true, match_to_coords = true,
