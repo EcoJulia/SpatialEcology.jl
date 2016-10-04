@@ -51,7 +51,9 @@ Assemblage(occ::NamedArrays.NamedArray, coords::AbstractMatrix; kwargs...) = Ass
 #          sitestats = sitedata.site.sitestats, shape = sitedata.site.shape,
 #          kwargs...)
 
-function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
+Assemblage(occ::ComMatrix, coords::AbstractMatrix, kwargs...) = Assemblage(occ, NamedArrays.NamedArray(coords), kwargs...)
+
+function Assemblage(occ::ComMatrix, coords::NamedArrays.NamedArray;
       dropemptyspecies::Bool = true, dropemptysites::Bool = true, match_to_coords = true,
       traits = DataFrames.DataFrame(name = specnames(occ)), sitestats = DataFrames.DataFrame(sites = sitenames(occ)),
       cdtype::coordstype = auto, shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())

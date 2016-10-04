@@ -8,6 +8,7 @@ using Reexport
 #import Bio.Phylo
 import RecipesBase
 import Shapefile
+import RCall: @R_str, rcopy
 import Base: getindex, setindex!, size, show, summary
 
 include("DataTypes.jl")
@@ -17,6 +18,7 @@ include("Commatrix_functions.jl")
 include("GetandSetdata.jl")
 include("Gridfunctions.jl")
 include("Subsetting.jl")
+include("RObjects.jl")
 #include("PlotRecipes.jl")
 
 export SiteData, ComMatrix, Assemblage, coordtype #types and their constructors
