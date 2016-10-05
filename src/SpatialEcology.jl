@@ -19,7 +19,7 @@ include("GetandSetdata.jl")
 include("Gridfunctions.jl")
 include("Subsetting.jl")
 include("RObjects.jl")
-#include("PlotRecipes.jl")
+include("PlotRecipes.jl")
 
 export SiteData, ComMatrix, Assemblage, coordtype #types and their constructors
 export nspecies, nsites, occupancy, richness, records, sitenames, specnames
