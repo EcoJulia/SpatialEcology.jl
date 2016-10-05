@@ -10,6 +10,8 @@ end
 function getRobject(name::String)
     R"""
     obj = get($name)
+    if(!inherits(obj, "distrib_data"))
+        stop(paste(name, "is not a distrib_data object!"))
     obj$shape <- NULL
     #if(!is.null(obj$shape)){
     #    if(inherits(obj$shape, "RasterLayer"))
