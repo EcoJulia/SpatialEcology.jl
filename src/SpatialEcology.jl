@@ -26,5 +26,5 @@ export nspecies, nsites, occupancy, richness, records, sitenames, specnames
 export setindex!, getindex, size, show, summary
 export coords, subset!, subset, addshape!, deleteshape!
 export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these
-
+export getRobject
 end # module

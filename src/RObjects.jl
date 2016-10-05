@@ -1,4 +1,12 @@
 
+function getRobject(file::String, name::String)
+    R"""
+    library(nodiv)
+    load($file)
+    """
+    getRobject(name)
+end
+
 function getRobject(name::String)
     R"""
     obj = get($name)

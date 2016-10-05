@@ -16,9 +16,9 @@ jldopen("mamobj.jld", "w") do file
 end
 
 
-
-
-
+# an easy way to get an object to work with
+rdat = getRobject("/Users/michael/Documents/Projects/Current Projects/Core Corvoids/Data/corvids_Grid_nodiv.RData", "corvids")
+corv = Assemblage(rdat)
 
 
 
