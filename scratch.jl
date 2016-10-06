@@ -27,8 +27,9 @@ data(coquettes)
 """
 coq = Assemblage(getRobject("coquettes"))
 
-
-
+# 4-degree mammals
+mam4 = getRobject("/Users/michael/Google Drev/Genetic diversity/Resubmission/terrestrial mammals data object.RData", "ter")
+mam4 = Assemblage(mam4)
 
 
 import JLD
