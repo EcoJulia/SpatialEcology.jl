@@ -22,7 +22,7 @@ function getRobject(name::String)
                 rgdal::writeOGR(obj$shape, ".", "tempshapefile", driver = "ESRI Shapefile", overwrite_layer = T)
             } else {
                 if(requireNamespace("maptools")){
-                    maptools::writePolyShape(obj$shape, "tempshapefile")
+                    maptools::writePolyShape(obj$shape, "tempshapefile")  #TODO It should really be in a temp directory, that can just be removed afterwards
                     obj$tempshapefile <- TRUE
                 } else print("Shapefile dropped as rgdal or maptools were not installed")
             }
