@@ -14,6 +14,16 @@ RecipesBase.@recipe function f(var::AbstractVector, grd::GridData)
     convert_to_image(var, grd)
 end
 
+RecipesBase.@recipe function f(var::AbstractVector, pnt::PointData)
+    seriestype := :scatter
+    aspect_ratio --> :equal
+    grid --> false
+    marker_z := var
+    legend --> false
+    cd = coordinates(pnt)
+    cd[:,1], cd[:,2]
+end
+
 RecipesBase.@recipe function f(asm::Assemblage)
     richness(asm), asm.site
 end
