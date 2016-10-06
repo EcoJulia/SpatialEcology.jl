@@ -94,7 +94,7 @@ function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:
   colnames = string.(names(dat))
   a = 0
   for i in 1:DataFrames.ncol(dat)
-    a += sum(isna(dat[i]))
+    a += sum(DataFrames.isna(dat[i]))
     dat[i] = convert(Array, dat[i], replace)  #This takes out any NAs that may be in the data frame and replace with 0
   end
 

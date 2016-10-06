@@ -9,6 +9,7 @@ using Reexport
 import RecipesBase
 import Shapefile
 import RCall: @R_str, rcopy
+import PlotUtils: register_gradient_colors, sample_evenly, @colorant_str
 import Base: getindex, setindex!, size, show, summary
 
 include("DataTypes.jl")
@@ -20,6 +21,7 @@ include("Gridfunctions.jl")
 include("Subsetting.jl")
 include("RObjects.jl")
 include("PlotRecipes.jl")
+include("ColorGradients.jl")
 
 export SiteData, ComMatrix, Assemblage, coordtype #types and their constructors
 export nspecies, nsites, occupancy, richness, records, sitenames, specnames

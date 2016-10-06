@@ -5,5 +5,6 @@ NamedArrays
 Shapefile
 DataFrames
 Reexport
-RCall #this should be changed
+PlotUtils
+RCall #this should be changed as this is heavy-handed - there is an issue for this on RCall
 #Bio
