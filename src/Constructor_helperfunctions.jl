@@ -109,8 +109,6 @@ function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:
   dat
 end
 
-
-
 function match_commat_coords(occ::ComMatrix, coords::AbstractMatrix{Float64}, sitestats::DataFrames.DataFrame)
   occ, coords, sitestats
  ## so far this does nothing TODO
@@ -121,7 +119,6 @@ function dropspecies!(occ::OccFields)
   occ.commatrix = occ.commatrix[:, occurring]
   occ.traits = occ.traits[occurring,:]
 end
-
 
 function dropbyindex!(site::PointData, indicestokeep)
   site.coords = site.coords[indicestokeep,:]
@@ -145,7 +142,6 @@ function dropsites!(occ::OccFields, site::SiteFields)
   dropbyindex!(site, hasspecies)
 end
 
-
 function createsitenames(coords::AbstractMatrix)
   size(coords, 2) == 2 || error("Only defined for matrices with two columns")
   mapslices(x->"$(x[1])_$(x[2])", coords, 2)
@@ -156,10 +152,8 @@ function createsitenames(coords::DataFrames.DataFrame)
   ["$(coords[i,1])_$(coords[i,2])" for i in 1:DataFrames.nrow(coords)]
 end
 
-
 creategrid(coords::NamedArrays.NamedMatrix{Float64}, tolerance = sqrt(eps())) =
     GridTopology(gridvar(coords[:,1], tolerance)..., gridvar(coords[:,2], tolerance)...)
-
 
 function gridvar(x, tolerance = sqrt(eps()))  # TODO this code is 'borrowed' from sp:::points2grid in R, which is GPL2, so cannot be distributed in this package
   sux = sort(unique(x))
@@ -186,37 +180,8 @@ function gridvar(x, tolerance = sqrt(eps()))  # TODO this code is 'borrowed' fro
   min, cellsize, cellnumber
 end
 
-
 function getindices(coords::NamedArrays.NamedMatrix{Float64}, grid::GridTopology, tolerance = 2*sqrt(eps()))
   index1 = 1 + floor(Int,(coords[:,1] .- grid.xmin) ./ grid.xcellsize .+ tolerance)
   index2 = 1 + floor(Int,(coords[:,2] .- grid.ymin) ./ grid.ycellsize .+ tolerance)
   NamedArrays.NamedArray(hcat(index1, index2), allnames(coords), dimnames(coords))
 end
-
-
-### OLD CODE
-
-
-# isgrid(coords::AbstractMatrix) = isgridvar(coords[:,1]) && isgridvar(coords[:,2])
-#
-#   function isgridvar(coord::AbstractVector)
-#     dists = diff(sort(unique(signif.(vec(coord), 8)))) # a bit hacky, prone to cause errors
-#     freqs = freq(dists)
-#     maxval = maximum(values(freqs))
-#     smallest = minimum(dists[dists .> 0])
-#     most_common = [k for (k,v) in freqs if v == maxval]
-#     sum(dists .% smallest) == 0 & length(intersect([smallest], most_common)) > 0
-#   end
-#
-#
-#   function freq{T}(v::AbstractVector{T})
-#     freqs = Dict{T, Int}()
-#     for i in v
-#       if haskey(freqs, i)
-#         freqs[i] += 1
-#       else
-#         freqs[i] = 0
-#       end
-#     end
-#     freqs
-#   end

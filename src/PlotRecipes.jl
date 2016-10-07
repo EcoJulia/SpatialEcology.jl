@@ -14,6 +14,10 @@ RecipesBase.@recipe function f(var::AbstractVector, grd::GridData)
     convert_to_image(var, grd)
 end
 
+RecipesBase.@recipe function f(sit::SiteFields)
+    ones(nsites(sit)), sit
+end
+
 RecipesBase.@recipe function f(var::AbstractVector, pnt::PointData)
     seriestype := :scatter
     aspect_ratio --> :equal

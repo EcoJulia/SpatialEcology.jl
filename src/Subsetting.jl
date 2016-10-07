@@ -1,10 +1,18 @@
 ## Functions for subsetting data objects
 
 subset!(occ::OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ)) = OccFields(occ.commatrix[sites, species], occ.traits[species,:])
-subset(occ::OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ)) = subset!(deepcopy(occ), species, sites)
+function subset(occ::OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ))
+    ret = deepcopy(occ)
+    subset!(ret, species, sites)
+    ret
+end
 
 subset!(site::SiteFields, sites = 1:nsites(occ)) = dropbyindex!(site, sites) #TODO maybe replace dropbyindex with subset! to begin with
-subset(site::SiteFields, sites = 1:nsites(occ)) = subset!(deepcopy(site), sites)
+function subset(site::SiteFields, sites = 1:nsites(occ))
+    ret = deepcopy(site)
+    subset!(ret, sites)
+    ret
+end
 
 subset(asm::Assemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropemptyspecies = true, dropemptysites = true) = Assemblage(subset(asm.site, sites), subset(asm.occ, species, sites), dropemptysites = dropemptysites, dropemptyspecies = dropemptyspecies)
 subset!(asm::Assemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropemptyspecies = true, dropemptysites = true) = Assemblage(subset!(asm.site, sites), subset!(asm.occ, species, sites), dropemptysites = dropemptysites, dropemptyspecies = dropemptyspecies)
