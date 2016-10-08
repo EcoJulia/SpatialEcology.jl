@@ -9,7 +9,8 @@ using Reexport
 import RecipesBase
 import Shapefile
 import RCall: @R_str, rcopy
-import PlotUtils: register_gradient_colors, sample_evenly, @colorant_str, _gradients
+import PlotUtils
+import PlotUtils: @colorant_str
 import Base: getindex, setindex!, size, show, summary
 
 include("DataTypes.jl")
@@ -30,5 +31,5 @@ export setindex!, getindex, size, show, summary
 export coords, subset!, subset, addshape!, deleteshape!
 export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these
 export getRobject
-export _gradients
+export registercolors
 end # module
