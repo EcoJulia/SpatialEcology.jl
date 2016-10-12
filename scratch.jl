@@ -7,8 +7,7 @@ amp = Assemblage(amp)
 ## Problems with saving
 
 plot(amp)
-histogram(richness(amp))
-
+histogram(log10(occupancy(amp)), bins = 10)
 
 
 using JLD
