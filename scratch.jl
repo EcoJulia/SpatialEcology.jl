@@ -1,11 +1,14 @@
 
-using DataFrames
-mam = readtable("/Users/michael/Google Drive/Mountain project/New Polygons/Species grid distributions/mammals_PA_matrix.csv")
-mam[3] = map(x->"$x", mam[3])
 
+amp = readtable("data/amph_Europe.csv")
+amp[3] = map(x->"$x", amp[3])
 
-mama = Assemblage(mam)
+amp = Assemblage(amp)
 ## Problems with saving
+
+plot(amp)
+histogram(richness(amp))
+
 
 
 using JLD
@@ -14,6 +17,14 @@ jldopen("mamobj.jld", "w") do file
    addrequire(file, SpatialEcology)
    write(file, "mam", mama)
 end
+
+
+
+
+
+
+
+
 
 
 # an easy way to get an object to work with
