@@ -10,7 +10,7 @@ abstract Assmbl <: SpatialData  #Not sure about this structure - so far no type 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
 
-
+# I could do a lot more with immutable types if I had a clearer view/copy implementation
 type GridTopology
     xmin::Number
     xcellsize::Number
@@ -26,12 +26,11 @@ abstract SiteFields
 type PointData <: SiteFields
     coords::NamedArrays.NamedMatrix{Float64}
     sitestats::DataFrames.DataFrame
-    shape::Nullable{Shapefile.Handle}
     # inner constructor
-    function PointData(coords, sitestats = DataFrames.DataFrame(id = 1:size(coords,1)), shape = Nullable{Shapefile.Handle}())
+    function PointData(coords, sitestats = DataFrames.DataFrame(id = 1:size(coords,1)))
 
         DataFrames.nrow(sitestats) == size(coords, 1) || throw(DimensionMismatch("Wrong number of rows in sitestat")) # a little check for the right number
-        new(coords, sitestats, shape)
+        new(coords, sitestats)
     end
 end
 
@@ -39,12 +38,11 @@ type GridData <: SiteFields
     indices::NamedArrays.NamedMatrix{Int}
     grid::GridTopology
     sitestats::DataFrames.DataFrame
-    shape::Nullable{Shapefile.Handle}
 
-    function GridData(indices, grid, sitestats = DataFrames.DataFrame(id = 1:size(coords,1)), shape = Nullable{Shapefile.Handle}())
+    function GridData(indices, grid, sitestats = DataFrames.DataFrame(id = 1:size(coords,1)))
 
         DataFrames.nrow(sitestats) == size(indices, 1) || throw(DimensionMismatch("Wrong number of rows in sitestat")) # a little check for the right number
-        new(indices, grid, sitestats, shape)
+        new(indices, grid, sitestats)
     end
 end
 
@@ -67,12 +65,12 @@ end
 
 
 
-type SiteData{S <: SiteFields} <: SpatialData
+immutable SiteData{S <: SiteFields} <: SpatialData
     site::S
 end
 
 
-type Assemblage{S <: SiteFields, T <: Union{Bool, Int}} <: Assmbl # A type to keep subtypes together, ensuring that they are all aligned at all times
+immutable Assemblage{S <: SiteFields, T <: Union{Bool, Int}} <: Assmbl # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::S
     occ::OccFields{T}
 
@@ -83,7 +81,7 @@ type Assemblage{S <: SiteFields, T <: Union{Bool, Int}} <: Assmbl # A type to ke
     end
 end
 
-type Bbox
+immutable Bbox
     xmin::Number
     xmax::Number
     ymin::Number

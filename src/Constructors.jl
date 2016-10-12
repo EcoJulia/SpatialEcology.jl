@@ -19,8 +19,7 @@ end
 # a constructor that takes occ as a normal matrix
 #function Assemblage(occ::AbstractMatrix, coords::Union{AbstractMatrix, DataFrames.DataFrame},
 #      sites::Vector{String}, species::Vector{String}; cdtype::coordstype = auto,
-#      dropemptyspecies::Bool = true, dropemptysites::Bool = true, match_to_coords = true,
-#      shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
+#      dropemptyspecies::Bool = true, dropemptysites::Bool = true, match_to_coords = true)
 
 function Assemblage(occ::AbstractMatrix, coords::Union{AbstractMatrix, DataFrames.DataFrame}, sites::Vector{String}, species::Vector{String}; kwargs...)
   occ = NamedArrays.NamedArray(occ, (sites, species))
@@ -45,24 +44,18 @@ end
 
 Assemblage(occ::NamedArrays.NamedArray, coords::AbstractMatrix; kwargs...) = Assemblage(ComMatrix(occ), coords; kwargs...)
 
-
-#Assemblage(occ::ComMatrix, sitedata::SiteData; kwargs...) =
-#          Assemblage(occ, sitedata.site.coords, cdtype = sitedata.site.cdtype,
-#          sitestats = sitedata.site.sitestats, shape = sitedata.site.shape,
-#          kwargs...)
-
 Assemblage(occ::ComMatrix, coords::AbstractMatrix; kwargs...) = Assemblage(occ, NamedArrays.NamedArray(coords); kwargs...)
 
 function Assemblage(occ::ComMatrix, coords::NamedArrays.NamedArray;
       dropemptyspecies::Bool = true, dropemptysites::Bool = true, match_to_coords = true,
       traits = DataFrames.DataFrame(name = specnames(occ)), sitestats = DataFrames.DataFrame(sites = sitenames(occ)),
-      cdtype::coordstype = auto, shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
+      cdtype::coordstype = auto)
 
     if match_to_coords
         occ, coords, sitestats = match_commat_coords(occ, coords, sitestats)
     end
 
-    Assemblage(createSiteFields(coords, cdtype, sitestats, shape), OccFields(occ, traits))
+    Assemblage(createSiteFields(coords, cdtype, sitestats), OccFields(occ, traits))
   end
 
 function Assemblage{T <: Union{Bool, Int}, S <: SiteFields}(site::S, occ::OccFields{T};
@@ -78,16 +71,15 @@ function Assemblage{T <: Union{Bool, Int}, S <: SiteFields}(site::S, occ::OccFie
 end
 
 function createSiteFields(coords::AbstractMatrix, cdtype::coordstype = auto,  #by design, this is not type stable, but maybe that is OK for type constructors
-        sitestats = DataFrames.DataFrame(sites = sitenames(occ)),
-        shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
+        sitestats = DataFrames.DataFrame(sites = sitenames(occ)))
 
-    cdtype == pointdata && return PointData(coords, sitestats, shape)
-    cdtype == griddata && return GridData(coords, sitestats, shape)
+    cdtype == pointdata && return PointData(coords, sitestats)
+    cdtype == griddata && return GridData(coords, sitestats)
     if cdtype == auto
         try
-            return GridData(coords, sitestats, shape)
+            return GridData(coords, sitestats)
         catch
-            return PointData(coords, sitestats, shape)
+            return PointData(coords, sitestats)
         end
     end
 end
@@ -97,9 +89,8 @@ OccFields{T <: Union{Bool, Int}}(commatrix::ComMatrix{T}, traits::DataFrames.Dat
 OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
 
 function GridData(coords::NamedArrays.NamedMatrix{Float64},
-        sitestats::DataFrames.DataFrame = DataFrames.DataFrame(id = 1:size(coords,1)),
-        shape::Nullable{Shapefile.Handle} = Nullable{Shapefile.Handle}())
+        sitestats::DataFrames.DataFrame = DataFrames.DataFrame(id = 1:size(coords,1)))
     grid = creategrid(coords)
     indices = getindices(coords, grid)
-    GridData(indices, grid, sitestats, shape)
+    GridData(indices, grid, sitestats)
 end
