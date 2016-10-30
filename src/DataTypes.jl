@@ -6,6 +6,11 @@
 abstract OccData
 abstract SpatialData
 abstract Assmbl <: SpatialData  #Not sure about this structure - so far no type inherits from occdata. Perhaps SimpleTraits.jl is/has a solution
+# this is here because we also need phylogeny assemblages
+abstract AbstractAssemblage <: Assmbl
+abstract AbstractOccFields
+abstract AbstractSiteFields
+abstract AbstactComMatrix
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
@@ -20,8 +25,16 @@ type GridTopology
     ycells::Int
 end
 
+type Bbox
+    xmin::Number
+    xmax::Number
+    ymin::Number
+    ymax::Number
+end
 
-abstract SiteFields
+
+abstract SiteFields <: AbstractSiteFields
+abstract SubSiteFields <: AbstractSiteFields
 
 type PointData <: SiteFields
     coords::NamedArrays.NamedMatrix{Float64}
@@ -48,12 +61,11 @@ end
 
 
 
-
 type ComMatrix{T <: Union{Bool, Int}}
-    occurrences::NamedArrays.NamedArray{T, 2}
+    occurrences::NamedArrays.NamedArray{T, 2} #this is sparse
 end
 
-type OccFields{T <: Union{Bool, Int}}
+type OccFields{T <: Union{Bool, Int}} <: AbstractOccFields
     commatrix::ComMatrix{T}
     traits::DataFrames.DataFrame
 
@@ -64,13 +76,13 @@ type OccFields{T <: Union{Bool, Int}}
 end
 
 
-
-immutable SiteData{S <: SiteFields} <: SpatialData
+# Not really sure what this type is for
+type SiteData{S <: SiteFields} <: SpatialData
     site::S
 end
 
 
-immutable Assemblage{S <: SiteFields, T <: Union{Bool, Int}} <: Assmbl # A type to keep subtypes together, ensuring that they are all aligned at all times
+type Assemblage{S <: SiteFields, T <: Union{Bool, Int}} <: AbstractAssemblage # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::S
     occ::OccFields{T}
 
@@ -79,11 +91,4 @@ immutable Assemblage{S <: SiteFields, T <: Union{Bool, Int}} <: Assmbl # A type 
         size(occ.commatrix.occurrences, 1) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
         new(site, occ)
     end
-end
-
-immutable Bbox
-    xmin::Number
-    xmax::Number
-    ymin::Number
-    ymax::Number
 end

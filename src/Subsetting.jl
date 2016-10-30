@@ -1,5 +1,47 @@
 ## Functions for subsetting data objects
 
+#SubDataTypes
+
+# Definition is the same, but importantly this keeps a Named Subarray
+type SubComMatrix{T <: Union{Bool, Int}} <: AbstractComMatrix
+    occurrences::NamedArrays.NamedArray{T, 2} #Not sure how to specify this is a Named Subarray
+end
+
+type SubOccFields{T <: Union{Bool, Int}} <: AbstractOccFields
+    commatrix::SubComMatrix{T}
+    traits::DataFrames.SubDataFrame
+end
+
+type SubAssemblage{S <: SubSiteFields, T <: Union{Bool, Int}} <: AbstractAssemblage # A type to keep subtypes together, ensuring that they are all aligned at all times
+    site::S
+    occ::SubOccFields{T}
+end
+
+type SubGridData <: SubSiteFields
+    indices::NamedArrays.NamedMatrix{Int} #SubArray
+    grid::GridTopology
+    sitestats::DataFrames.SubDataFrame
+end
+
+type SubPointData <: SubSiteFields
+    coords::NamedArrays.NamedMatrix{Float64} #SubArray
+    sitestats::DataFrames.SubDataFrame
+end
+
+
+
+# creating views
+view(occ:OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ)) = subOccFields(view(occ.commatrix, sites, species), sub(occ.traits,species))
+# The SiteFields things are missing as of yet - need to go by the dropbyindex functionality
+
+view(com::ComMatrix, sites, species) = SubComMatrix(view(com.occurrences, sites, species))
+
+view(grd::GridData, sites) = SubGridData(view(grd.indices, sites), )
+
+
+
+
+######## OLD #####################
 subset!(occ::OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ)) = OccFields(occ.commatrix[sites, species], occ.traits[species,:])
 function subset(occ::OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ))
     ret = deepcopy(occ)

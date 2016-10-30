@@ -9,7 +9,16 @@ using Reexport
 import RecipesBase
 import RCall: @R_str, rcopy
 import PlotUtils: @colorant_str, register_gradient_colors, sample_evenly
-import Base: getindex, setindex!, size, show, summary
+import Base: getindex, setindex!, size, show, summary, view
+
+
+export SiteData, ComMatrix, Assemblage, coordtype, DispersionField #types and their constructors
+export nspecies, nsites, occupancy, richness, records, sitenames, specnames, coordinates
+export setindex!, getindex, size, show, summary
+export coords, subset!, subset
+export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these
+export getRobject
+export registercolors
 
 include("DataTypes.jl")
 include("Constructor_helperfunctions.jl")
@@ -23,11 +32,5 @@ include("PlotRecipes.jl")
 include("Colorgradients.jl")
 include("DispersionFields.jl")
 
-export SiteData, ComMatrix, Assemblage, coordtype, DispersionField #types and their constructors
-export nspecies, nsites, occupancy, richness, records, sitenames, specnames, coordinates
-export setindex!, getindex, size, show, summary
-export coords, subset!, subset
-export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these
-export getRobject
-export registercolors
+
 end # module
