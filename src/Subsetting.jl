@@ -12,62 +12,63 @@ type SubOccFields{T <: Union{Bool, Int}} <: AbstractOccFields
     traits::DataFrames.SubDataFrame
 end
 
-type SubGridData <: SubSiteFields
+type SubGridData <: AbstractGridData
     indices::NamedArrays.NamedMatrix{Int} #SubArray
     grid::GridTopology
     sitestats::DataFrames.SubDataFrame
 end
 
-type SubPointData <: SubSiteFields
+type SubPointData <: AbstractPointData
     coords::NamedArrays.NamedMatrix{Float64} #SubArray
     sitestats::DataFrames.SubDataFrame
 end
 
-type SubAssemblage{S <: SubSiteFields, T <: Union{Bool, Int}} <: AbstractAssemblage # A type to keep subtypes together, ensuring that they are all aligned at all times
+type SubAssemblage{S <: Union{SubGridData, SubPointData}, T <: Union{Bool, Int}} <: AbstractAssemblage # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::S
     occ::SubOccFields{T}
 end
 
+type SubSiteData{S <: Union{SubGridData, SubPointData}} <: AbstractSiteData
+    site::S
+end
 
 
 
 # creating views
-view(occ:AbstractOccFields; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubOccFields(view(occ.commatrix, sites, species), sub(occ.traits,species))
+view(occ::AbstractOccFields; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubOccFields(view(occ.commatrix, sites, species), sub(occ.traits,species))
 # The SiteFields things are missing as of yet - need to go by the dropbyindex functionality
 
-view(com::AbstractComMatrix; sites, species) = SubComMatrix(view(com.occurrences, sites, species))
+view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com)) = SubComMatrix(view(com.occurrences, sites = sites, species = species))
 
 view(pd::AbstractPointData, sites) = SubPointData(view(pd.coords, sites), view(pd.sitestats, sites))
 
 function view(gd::AbstractGridData, sites)
-    grid = creategrid(coords)
-    indices = getindices(coords, grid)
-
     indices = view(gd.indices, sites, :)
-    grid = 
-
+    grid = subsetgrid(indices, gd.grid)
     SubGridData(indices, grid, view(gd.sitestats, sites))
 end
 
+view(sp::AbstractSiteData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
+
 # the alternative to :occupied and :occurring is :all in both cases
-function view(asm::AbstractAssemblage; species = 1:nspecies(asm), sites = 1:nsites(asm); keepsites = :occupied, keepspecies = :occurring)
+function view(asm::AbstractAssemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), keepsites = :occupied, keepspecies = :occurring)
     occ = view(asm.occ, species, sites)
     site = view(asm.site, sites = sites)
 
-    if keepsites = :occupied
+    if keepsites == :occupied
         hasspecies = find(richness(occ) .> 0)
         occ = view(occ, sites = hasspecies)
         site = view(site, sites = hasspecies)
     else
-        if ! keepsites = :all
+        if ! keepsites == :all
             error("keepsites must be :occupied or :all")
         end
     end
 
-    if keepspecies = :occurring
+    if keepspecies == :occurring
         occ = view(occ, species = find(occupancy(occ) .> 0))
     else
-        if ! keepspecies = :all
+        if ! keepspecies == :all
             error("keepspecies must be :occupied or :all")
         end
     end
@@ -76,32 +77,44 @@ function view(asm::AbstractAssemblage; species = 1:nspecies(asm), sites = 1:nsit
 end
 
 
+## TODO Need the copy functions before this is truly useful
 
+
+
+# Helper functions
+
+function subsetgrid(indices, grid)
+  xmin = xrange(grid)[minimum(indices[:,1])]
+  ymin = yrange(grid)[minimum(indices[:,2])]
+  xcells = maxrange(indices[:,1]) + 1
+  ycells = maxrange(indices[:,2]) + 1
+  GridTopology(xmin, grid.xcellsize, xcells, ymin, grid.ycellsize, ycells)
+end
 
 
 
 
 ######## OLD #####################
-subset!(occ::OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ)) = OccFields(occ.commatrix[sites, species], occ.traits[species,:])
-function subset(occ::OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ))
-    ret = deepcopy(occ)
-    subset!(ret, species, sites)
-    ret
-end
-
-subset!(site::SiteFields, sites = 1:nsites(occ)) = dropbyindex!(site, sites) #TODO maybe replace dropbyindex with subset! to begin with
-function subset(site::SiteFields, sites = 1:nsites(occ))
-    ret = deepcopy(site)
-    subset!(ret, sites)
-    ret
-end
-
-subset(asm::Assemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropemptyspecies = true, dropemptysites = true) = Assemblage(subset(asm.site, sites), subset(asm.occ, species, sites), dropemptysites = dropemptysites, dropemptyspecies = dropemptyspecies)
-subset!(asm::Assemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropemptyspecies = true, dropemptysites = true) = Assemblage(subset!(asm.site, sites), subset!(asm.occ, species, sites), dropemptysites = dropemptysites, dropemptyspecies = dropemptyspecies)
-
-subset!(sp::SiteData, sites = 1:nsites(sp)) = SiteData(subset!(sp.site, sites))
-subset(sp::SiteData, sites = 1:nsites(sp)) = SiteData(subset(sp.site, sites))
-
+# subset!(occ::OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ)) = OccFields(occ.commatrix[sites, species], occ.traits[species,:])
+# function subset(occ::OccFields, species = 1:nspecies(occ), sites = 1:nsites(occ))
+#     ret = deepcopy(occ)
+#     subset!(ret, species, sites)
+#     ret
+# end
+#
+# subset!(site::SiteFields, sites = 1:nsites(occ)) = dropbyindex!(site, sites) #TODO maybe replace dropbyindex with subset! to begin with
+# function subset(site::SiteFields, sites = 1:nsites(occ))
+#     ret = deepcopy(site)
+#     subset!(ret, sites)
+#     ret
+# end
+#
+# subset(asm::Assemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropemptyspecies = true, dropemptysites = true) = Assemblage(subset(asm.site, sites), subset(asm.occ, species, sites), dropemptysites = dropemptysites, dropemptyspecies = dropemptyspecies)
+# subset!(asm::Assemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropemptyspecies = true, dropemptysites = true) = Assemblage(subset!(asm.site, sites), subset!(asm.occ, species, sites), dropemptysites = dropemptysites, dropemptyspecies = dropemptyspecies)
+#
+# subset!(sp::SiteData, sites = 1:nsites(sp)) = SiteData(subset!(sp.site, sites))
+# subset(sp::SiteData, sites = 1:nsites(sp)) = SiteData(subset(sp.site, sites))
+#
 
 
 

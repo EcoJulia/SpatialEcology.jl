@@ -9,8 +9,8 @@ abstract Assmbl <: SpatialData  #Not sure about this structure - so far no type 
 # this is here because we also need phylogeny assemblages
 abstract AbstractAssemblage <: Assmbl
 abstract AbstractOccFields
-abstract AbstractSiteFields
-abstract AbstactComMatrix
+abstract AbstractComMatrix
+abstract SiteFields
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
@@ -33,10 +33,9 @@ type Bbox
 end
 
 
-abstract SiteFields <: AbstractSiteFields
-abstract SubSiteFields <: AbstractSiteFields
+abstract AbstractPointData <: SiteFields
 
-type PointData <: SiteFields
+type PointData <: AbstractPointData
     coords::NamedArrays.NamedMatrix{Float64}
     sitestats::DataFrames.DataFrame
     # inner constructor
@@ -47,7 +46,9 @@ type PointData <: SiteFields
     end
 end
 
-type GridData <: SiteFields
+abstract AbstractGridData <: SiteFields
+
+type GridData <: AbstractGridData
     indices::NamedArrays.NamedMatrix{Int}
     grid::GridTopology
     sitestats::DataFrames.DataFrame
@@ -75,9 +76,9 @@ type OccFields{T <: Union{Bool, Int}} <: AbstractOccFields
     end
 end
 
-
+abstract AbstractSiteData <: SpatialData
 # Not really sure what this type is for
-type SiteData{S <: SiteFields} <: SpatialData
+type SiteData{S <: SiteFields} <: AbstractSiteData
     site::S
 end
 
