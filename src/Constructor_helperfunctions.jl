@@ -125,6 +125,16 @@ function dropbyindex!(site::PointData, indicestokeep)
   site.sitestats = site.sitestats[indicestokeep,:]
 end
 
+# these functions will be removed eventually
+function dropbyindex!(site::GridData, indicestokeep)
+  site.indices = site.indices[indicestokeep,:]
+  site.sitestats = site.sitestats[indicestokeep,:]
+  site.grid.xmin = xrange(site.grid)[minimum(site.indices[:,1])]
+  site.grid.ymin = yrange(site.grid)[minimum(site.indices[:,2])]
+  site.grid.xcells = maxrange(site.indices[:,1]) + 1
+  site.grid.ycells = maxrange(site.indices[:,2]) + 1
+  site.indices = site.indices - minimum(site.indices) + 1
+end
 
 function dropsites!(occ::OccFields, site::SiteFields)
   hasspecies = find(richness(occ) .> 0)
