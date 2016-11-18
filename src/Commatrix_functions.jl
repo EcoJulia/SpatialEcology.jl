@@ -14,16 +14,16 @@ nsites(sd::SpatialData) = size(coordinates(sd.site), 1)
 nsites(sd::SiteFields) = DataFrames.nrow(sd.sitestats)
 
 
-specnames(com::ComMatrix) = NamedArrays.allnames(com.occurrences)[2]
+specnames(com::ComMatrix) = NamedArrays.names(com.occurrences)[2]
 specnames(ocf::OccFields) = specnames(ocf.commatrix)
 specnames(asm::Assmbl) = specnames(asm.occ)
 
 
-sitenames(com::ComMatrix) = NamedArrays.allnames(com.occurrences)[1]
+sitenames(com::ComMatrix) = NamedArrays.names(com.occurrences)[1]
 sitenames(ocf::OccFields) = sitenames(ocf.commatrix)
 sitenames(asm::Assmbl) = sitenames(asm.occ)
 sitenames(sd::SpatialData) = sitenames(sd.site)
-sitenames(sd::SiteFields) = NamedArrays.allnames(coordinates(sd))[1]
+sitenames(sd::SiteFields) = NamedArrays.names(coordinates(sd))[1]
 
 
 

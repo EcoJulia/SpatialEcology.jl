@@ -115,7 +115,7 @@ function match_commat_coords(occ::ComMatrix, coords::AbstractMatrix{Float64}, si
 end
 
 function dropspecies!(occ::OccFields)
-  occurring = find(occupancy(occ) .> 0)
+  occurring = occupancy(occ) .> 0
   occ.commatrix = occ.commatrix[:, occurring]
   occ.traits = occ.traits[occurring,:]
 end
@@ -183,5 +183,5 @@ end
 function getindices(coords::NamedArrays.NamedMatrix{Float64}, grid::GridTopology, tolerance = 2*sqrt(eps()))
   index1 = 1 + floor(Int,(coords[:,1] .- grid.xmin) ./ grid.xcellsize .+ tolerance)
   index2 = 1 + floor(Int,(coords[:,2] .- grid.ymin) ./ grid.ycellsize .+ tolerance)
-  NamedArrays.NamedArray(hcat(index1, index2), allnames(coords), dimnames(coords))
+  NamedArrays.NamedArray(hcat(index1, index2), NamedArrays.names(coords), dimnames(coords))
 end
