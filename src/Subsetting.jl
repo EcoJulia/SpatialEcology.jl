@@ -42,10 +42,12 @@ view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com)) =
 
 view(pd::AbstractPointData, sites) = SubPointData(view(pd.coords, sites), view(pd.sitestats, sites))
 
+
+# TODO Make sure that indices are 1-based! check this with a subset! #NOTE have tried to fix that now by not altering grid - remember that for the copy function!
 function view(gd::AbstractGridData, sites)
     indices = view(gd.indices, sites, :)
-    grid = subsetgrid(indices, gd.grid)
-    SubGridData(indices, grid, view(gd.sitestats, sites))
+    #grid = subsetgrid(indices, gd.grid)
+    SubGridData(indices, gd.grid, view(gd.sitestats, sites))
 end
 
 view(sp::AbstractSiteData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
