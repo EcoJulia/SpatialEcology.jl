@@ -72,7 +72,7 @@ function parseDataFrame(occ::DataFrames.DataFrame)
     sites = Vector(occ[1])
     occ = occ[2:end]
   else
-    sites = string.(1:DataFrames.nrow(occ))
+    sites = string.(1:DataFrames.nrow(occ)) #todo this means that occ will not have the right names in many cases - fix later
   end
 
   try
@@ -104,7 +104,7 @@ function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:
      dat[:,i][rep] = replace
  end
 
- dat = convert(Array{T}, dat)
+ dat = convert(Array{T}, dat)  # for some reason it really complains about this
 
   a > 0 && println("$a NA values were replaced with $(replace)'s")
   try
