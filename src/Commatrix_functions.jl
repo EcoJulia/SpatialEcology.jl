@@ -28,20 +28,20 @@ sitenames(sd::SiteFields) = NamedArrays.names(coordinates(sd))[1]
 
 
 occupancy{T<:Bool}(com::ComMatrix{T}) = sum(com.occurrences, 1)[1,:]
-occupancy{T<:Int}(com::ComMatrix{T}) = sum(com.occurrences .> 0, 1)[1,:]
+occupancy{T<:Int}(com::ComMatrix{T}) = mapslices(x->sum(i > 0 for i in x), com.occurrences, 1)[1,:]
 occupancy(ocf::OccFields) = occupancy(ocf.commatrix)
 occupancy(asm::Assmbl) = occupancy(asm.occ)
 
 
 
 richness{T<:Bool}(com::ComMatrix{T}) = sum(com.occurrences, 2)[:,1]
-richness{T<:Int}(com::ComMatrix{T}) = sum(com.occurrences .> 0, 2)[:,1]
+richness{T<:Int}(com::ComMatrix{T}) = mapslices(x->sum(i > 0 for i in x), com.occurrences, 2)[:,1]
 richness(ocf::OccFields) = richness(ocf.commatrix)
 richness(asm::Assmbl) = richness(asm.occ)
 
 
 
-records{T<:Int}(com::ComMatrix{T}) = sum(com.occurrences .> 0)
+records{T<:Int}(com::ComMatrix{T}) = sum(i > 0 for i in com.occurrences)
 records{T<:Bool}(com::ComMatrix{T}) = sum(com.occurrences)
 records(ocf::OccFields) = records(ocf.commatrix)
 records(asm::Assmbl) = records(asm.occ)
@@ -83,11 +83,13 @@ end
 
 
 
+# why did I do this?
+#function getindex(com::ComMatrix, inds...)
+#    com.occurrences = getindex(com.occurrences, inds...)
+#    com
+#end
 
-function getindex(com::ComMatrix, inds...)
-    com.occurrences = getindex(com.occurrences, inds...)
-    com
-end
+getindex(com::ComMatrix, inds...) = getindex(com.occurrences, inds...)
 
 setindex!(com::ComMatrix, X, inds...) = setindex!(com.occurrences, X, inds...)
 
