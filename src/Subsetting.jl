@@ -43,6 +43,8 @@ view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com)) =
 view(pd::AbstractPointData, sites) = SubPointData(view(pd.coords, sites), view(pd.sitestats, sites))
 
 
+#I need proper show functions for the views to make it nice.
+
 # TODO Make sure that indices are 1-based! check this with a subset! #NOTE have tried to fix that now by not altering grid - remember that for the copy function!
 function view(gd::AbstractGridData, sites)
     indices = view(gd.indices, sites, :)
