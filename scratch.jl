@@ -64,3 +64,13 @@ fieldnames(mamcop.site)
 fieldnames(mamcop.occ)
 
 #TODO need to write proper doc strings - use what is already in the R package
+
+
+
+using SpatialEcology
+using JLD
+ll = load("/Users/michael/Desktop/mammals.jld","mammalsdata");
+a = Assemblage(ll[:,4:10], ll[:,1:3])
+## The issue is how to deal when it is not 0/1, throws error e.g. at 1051 I think
+
+@time a= Assemblage(ll[:,[1:3;1000:1030]])
