@@ -77,8 +77,10 @@ function parseDataFrame(occ::DataFrames.DataFrame)
 
   try
     occ = dataFrametoNamedMatrix(occ, sites, Bool, dimnames = ("sites", "species"))
+    println("Matrix data assumed to be presence-absence")
   catch
     occ = dataFrametoNamedMatrix(occ, sites, Int, dimnames = ("sites", "species")) # This line means that this code is not completely type stable. So be it.
+    println("Matrix data assumed to be abundances, minimum $(minimum(occ)), maximum $(maximum(occ))")
   end
 
   occ
