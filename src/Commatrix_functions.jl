@@ -1,5 +1,15 @@
 
+# the forward macro was copied in from Lazy.jl at the suggestion of @MikeInnes
+macro forward(ex, fs)
+  @capture(ex, T_.field_) || error("Syntax: @forward T.x f, g, h")
+  T = esc(T)
+  fs = isexpr(fs, :tuple) ? map(esc, fs.args) : [esc(fs)]
+  :($([:($f(x::$T, args...) = (Base.@_inline_meta; $f(x.$field, args...)))
+       for f in fs]...);
+    nothing)
+end
 
+#TODO apply this everywhere below
 
 nspecies(com::ComMatrix) = size(com.occurrences, 2)
 nspecies(ocf::OccFields) = nspecies(ocf.commatrix)
