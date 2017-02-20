@@ -19,8 +19,9 @@ end
 
 
 
-
-
+aa = readtable("/Users/michael/Documents/Data/As used in Wallace paper/Data from Ben/mammals_PA_matrix.csv")
+using JLD
+save("data/mammals.jld", "mammalsdata", aa)
 
 
 

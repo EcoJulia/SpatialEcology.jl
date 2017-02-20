@@ -64,7 +64,7 @@ end
 
 function parseDataFrame(occ::DataFrames.DataFrame)
   if DataFrames.ncol(occ) == 3 && eltypes(occ)[3] <: String
-    println("Data format recognized as Phylocom")
+    println("Data format identified as Phylocom")
     occ = unstack(occ, 1, 2)
   end
 
@@ -136,6 +136,10 @@ function dropbyindex!(site::PointData, indicestokeep)
 end
 
 # these functions will be removed eventually
+maxrange(x) = diff([extrema(x)...])[1]
+
+# remember here - something wrong with the indices, make sure they are based from 1!
+
 function dropbyindex!(site::GridData, indicestokeep)
   site.indices = site.indices[indicestokeep,:]
   site.sitestats = site.sitestats[indicestokeep,:]

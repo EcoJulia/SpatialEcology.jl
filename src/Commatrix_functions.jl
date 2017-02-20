@@ -18,6 +18,7 @@ nspecies(asm::Assmbl) = nspecies(asm.occ)
 
 
 nsites(com::ComMatrix) = size(com.occurrences, 1)
+
 nsites(ocf::OccFields) = nsites(ocf.commatrix)
 nsites(asm::Assmbl) = nsites(asm.occ)
 nsites(sd::SpatialData) = size(coordinates(sd.site), 1)
@@ -34,8 +35,6 @@ sitenames(ocf::OccFields) = sitenames(ocf.commatrix)
 sitenames(asm::Assmbl) = sitenames(asm.occ)
 sitenames(sd::SpatialData) = sitenames(sd.site)
 sitenames(sd::SiteFields) = NamedArrays.names(coordinates(sd))[1]
-
-
 
 occupancy{T<:Bool}(com::ComMatrix{T}) = sum(com.occurrences, 1)[1,:]
 occupancy{T<:Int}(com::ComMatrix{T}) = mapslices(x->sum(i > 0 for i in x), com.occurrences, 1)[1,:]
@@ -90,8 +89,6 @@ end
 function show(io::IO, sd::SiteData)
     println("Spatial data set with $(nsites(sd)) sites\n\nSite names:\n$(createsummarylines(sitenames(sd)))")
 end
-
-
 
 # why did I do this?
 #function getindex(com::ComMatrix, inds...)
