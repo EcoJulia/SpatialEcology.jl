@@ -10,7 +10,7 @@ function Assemblage(occ::DataFrames.DataFrame; kwargs...)
 end
 
 
-# a constructor that takes occ as a DataFrame #should this just be kwargs...?
+# a constructor that takes occ as a DataFrame
 function Assemblage(occ::DataFrames.DataFrame, coords::Union{AbstractMatrix, DataFrames.DataFrame}; kwargs...)
   occ = parseDataFrame(occ)
   Assemblage(occ, coords; kwargs...)

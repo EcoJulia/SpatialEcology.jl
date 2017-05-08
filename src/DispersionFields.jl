@@ -1,5 +1,5 @@
 
-type DispersionField
+type DispersionField <: SpatialData
     site::SiteFields
     DFmat::NamedMatrix{Int}
 

@@ -1,25 +1,25 @@
 
-
-is01line{T <: Any}(vec::Union{AbstractVector{T},DataFrames.AbstractDataVector{T}}) = false
-is01line{T <: Bool}(vec::Union{AbstractVector{T},DataFrames.AbstractDataVector{T}}) = true
-is01line{T <: Number}(vec::Union{AbstractVector{T},DataFrames.AbstractDataVector{T}}) = length(setdiff(vec, [0, 1])) == 0
-
-
-function BenHoltMatrix(commatrix::DataFrames.DataFrame)
-  nc = DataFrames.ncol(commatrix)
-  nc < 4 && return 0
-  sum(map(_-> is01line(commatrix[:,_]), nc-3:nc)) == 4 || return 0 #it is not a BenholtMatrix if the last 4 are not zeroonelines
-
-  firstnumeric  = 0
-  for i in 1:nc
-      if is01line(commatrix[:,i])
-          firstnumeric = i
-          sum(map(_-> is01line(commatrix[:,_]), i:i+3)) == 4 & break
-      end
-  end
-  firstnumeric < 4 && return 0 #cause there needs to be the non-zeroone lines too
-  firstnumeric
-end
+## Killed the BenHoltMatrix format - not clear enough
+# is01line{T <: Any}(vec::Union{AbstractVector{T},DataFrames.AbstractDataVector{T}}) = false
+# is01line{T <: Bool}(vec::Union{AbstractVector{T},DataFrames.AbstractDataVector{T}}) = true
+# is01line{T <: Number}(vec::Union{AbstractVector{T},DataFrames.AbstractDataVector{T}}) = length(setdiff(vec, [0, 1])) == 0
+#
+# # instead of testing for 01lines it should really just check whether the rest can be converted to a numeric matrix of Int or Bool
+# function BenHoltMatrix(commatrix::DataFrames.DataFrame)
+#   nc = DataFrames.ncol(commatrix)
+#   nc < 4 && return 0
+#   sum(map(_-> is01line(commatrix[:,_]), nc-3:nc)) == 4 || return 0 #it is not a BenholtMatrix if the last 4 are not zeroonelines
+#
+#   firstnumeric  = 0
+#   for i in 1:nc
+#       if is01line(commatrix[:,i])
+#           firstnumeric = i
+#           sum(map(_-> is01line(commatrix[:,_]), i:i+3)) == 4 & break
+#       end
+#   end
+#   firstnumeric < 4 && return 0 #cause there needs to be the non-zeroone lines too
+#   firstnumeric
+# end
 
 
 function isWorldmapData(dat::DataFrames.DataFrame, latlong = true)
@@ -49,14 +49,14 @@ function parsesingleDataFrame(occ::DataFrames.DataFrame)
       occ = DataFrame(site = coords[:sites], abu = ones(Int, DataFrames.nrow(occ)), species = occ[1])
       coords = unique(coords, :sites)
     else
-      if (firstnumeric = BenHoltMatrix(occ)) > 1
-        println("Data assumed to be a concatenation of coordinates ($(firstnumeric - 1) columns) and occurrence matrix")
-        coords = occ[1:(firstnumeric-1)]
-        occ = occ[firstnumeric:end]
-      else
+     # if (firstnumeric = BenHoltMatrix(occ)) > 1
+    #    println("Data assumed to be a concatenation of coordinates ($(firstnumeric - 1) columns) and occurrence matrix")
+    #    coords = occ[1:(firstnumeric-1)]
+    #    occ = occ[firstnumeric:end]
+     # else
         error("If not commatrix is already of type distrib_data or nodiv_data, a worldmap matrix, or a
           concatenation of coords and community matrix, coords must be specified")
-      end
+     # end
     end
   occ, coords
 end
@@ -64,7 +64,7 @@ end
 
 function parseDataFrame(occ::DataFrames.DataFrame)
   if DataFrames.ncol(occ) == 3 && eltypes(occ)[3] <: String
-    println("Data format recognized as Phylocom")
+    println("Data format identified as Phylocom")
     occ = unstack(occ, 1, 2)
   end
 
@@ -72,13 +72,15 @@ function parseDataFrame(occ::DataFrames.DataFrame)
     sites = Vector(occ[1])
     occ = occ[2:end]
   else
-    sites = string.(1:DataFrames.nrow(occ))
+    sites = string.(1:DataFrames.nrow(occ)) #TODO this means that occ will not have the right names in many cases - fix later
   end
 
   try
     occ = dataFrametoNamedMatrix(occ, sites, Bool, dimnames = ("sites", "species"))
+    println("Matrix data assumed to be presence-absence")
   catch
     occ = dataFrametoNamedMatrix(occ, sites, Int, dimnames = ("sites", "species")) # This line means that this code is not completely type stable. So be it.
+    println("Matrix data assumed to be abundances, minimum $(minimum(occ)), maximum $(maximum(occ))")
   end
 
   occ
@@ -93,10 +95,18 @@ end
 function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:DataFrames.nrow(dat)), T::Type = Float64, replace = zero(T); sparsematrix = true, dimnames = ("A", "B"))
   colnames = string.(names(dat))
   a = 0
-  for i in 1:DataFrames.ncol(dat)
-    a += sum(DataFrames.isna(dat[i]))
-    dat[i] = convert(Array, dat[i], replace)  #This takes out any NAs that may be in the data frame and replace with 0
-  end
+  # for i in 1:DataFrames.ncol(dat)
+  #   a += sum(DataFrames.isna(dat[i]))
+  #   dat[i] = convert(Array, dat[i], replace)  #This takes out any NAs that may be in the data frame and replace with 0
+  # end
+
+ for i in 1:DataFrames.ncol(dat)
+     rep = DataFrames.isna(dat[i])
+     a += sum(rep)
+     dat[:,i][rep] = replace
+ end
+
+ dat = convert(Array{T}, dat)  # for some reason it really complains about this
 
   a > 0 && println("$a NA values were replaced with $(replace)'s")
   try
@@ -115,7 +125,7 @@ function match_commat_coords(occ::ComMatrix, coords::AbstractMatrix{Float64}, si
 end
 
 function dropspecies!(occ::OccFields)
-  occurring = find(occupancy(occ) .> 0)
+  occurring = occupancy(occ) .> 0
   occ.commatrix = occ.commatrix[:, occurring]
   occ.traits = occ.traits[occurring,:]
 end
@@ -125,7 +135,10 @@ function dropbyindex!(site::PointData, indicestokeep)
   site.sitestats = site.sitestats[indicestokeep,:]
 end
 
+# these functions will be removed eventually
 maxrange(x) = diff([extrema(x)...])[1]
+
+# remember here - something wrong with the indices, make sure they are based from 1!
 
 function dropbyindex!(site::GridData, indicestokeep)
   site.indices = site.indices[indicestokeep,:]
@@ -134,6 +147,7 @@ function dropbyindex!(site::GridData, indicestokeep)
   site.grid.ymin = yrange(site.grid)[minimum(site.indices[:,2])]
   site.grid.xcells = maxrange(site.indices[:,1]) + 1
   site.grid.ycells = maxrange(site.indices[:,2]) + 1
+  site.indices = site.indices - minimum(site.indices) + 1
 end
 
 function dropsites!(occ::OccFields, site::SiteFields)
@@ -183,5 +197,5 @@ end
 function getindices(coords::NamedArrays.NamedMatrix{Float64}, grid::GridTopology, tolerance = 2*sqrt(eps()))
   index1 = 1 + floor(Int,(coords[:,1] .- grid.xmin) ./ grid.xcellsize .+ tolerance)
   index2 = 1 + floor(Int,(coords[:,2] .- grid.ymin) ./ grid.ycellsize .+ tolerance)
-  NamedArrays.NamedArray(hcat(index1, index2), allnames(coords), dimnames(coords))
+  NamedArrays.NamedArray(hcat(index1, index2), NamedArrays.names(coords), dimnames(coords))
 end

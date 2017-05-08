@@ -1,11 +1,14 @@
+import Juno.@step
 
-
-amp = readtable("data/amph_Europe.csv")
+amp = readtable("/Users/michael/Google Drev/amph_Europe.csv")
 amp[3] = map(x->"$x", amp[3])
 
-amp = Assemblage(amp)
+occ, coords = amp[:,4:end], amp[:,1:3]
+
+amp = Assemblage(occ, coords)
 ## Problems with saving
 
+using Plots
 plot(amp)
 histogram(log10(occupancy(amp)), bins = 10)
 
@@ -19,8 +22,9 @@ end
 
 
 
-
-
+aa = readtable("/Users/michael/Documents/Data/As used in Wallace paper/Data from Ben/mammals_PA_matrix.csv")
+using JLD
+save("data/mammals.jld", "mammalsdata", aa)
 
 
 
@@ -64,3 +68,13 @@ fieldnames(mamcop.site)
 fieldnames(mamcop.occ)
 
 #TODO need to write proper doc strings - use what is already in the R package
+
+
+
+using SpatialEcology
+using JLD
+ll = load("/Users/michael/Desktop/mammals.jld","mammalsdata");
+c = Assemblage(ll[:,4:10], ll[:,1:3], dropemptyspecies = false)
+## The issue is how to deal when it is not 0/1, throws error e.g. at 1051 I think
+
+@time a= Assemblage(ll[:,[1:3;1000:1030]])
