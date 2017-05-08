@@ -9,7 +9,8 @@ using Reexport
 import RecipesBase
 import RCall: @R_str, rcopy
 import PlotUtils: @colorant_str, register_gradient_colors, register_color_library
-import Base: copy, getindex, setindex!, size, show, summary, view
+import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr
+import MacroTools: @capture
 
 export SiteData, ComMatrix, Assemblage, coordtype, DispersionField #types and their constructors
 export nspecies, nsites, occupancy, richness, records, sitenames, specnames, coordinates
@@ -27,7 +28,7 @@ include("Gridfunctions.jl")
 include("Subsetting.jl")
 include("RObjects.jl")
 include("PlotRecipes.jl")
-include("Colorgradients.jl") #TODO fix this
+include("Colorgradients.jl")
 include("DispersionFields.jl")
 
 registercolors()

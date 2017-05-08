@@ -10,7 +10,7 @@ amp = Assemblage(occ, coords)
 
 using Plots
 plot(amp)
-histogram(log10(occupancy(amp)), bins = 10)
+histogram(occupancy(amp), xscale = :log10)
 
 
 using JLD
@@ -19,14 +19,6 @@ jldopen("mamobj.jld", "w") do file
    addrequire(file, SpatialEcology)
    write(file, "mam", mama)
 end
-
-
-
-aa = readtable("/Users/michael/Documents/Data/As used in Wallace paper/Data from Ben/mammals_PA_matrix.csv")
-using JLD
-save("data/mammals.jld", "mammalsdata", aa)
-
-
 
 
 
@@ -49,6 +41,8 @@ mam4 = Assemblage(mam4)
 import JLD
 # Go to here to begin with
 mam = load("mamobj.jld", "mam")
+
+mamcop = corv
 
 # these should be named vectors
 ric = richness(mamcop)
