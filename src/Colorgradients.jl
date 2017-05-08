@@ -1,10 +1,12 @@
 
 #registers some new color gradients for use in Plots
 function registercolors()
+    register_color_library(:spatialecology)
+
     register_gradient_colors(:redblue, [
                 colorant"#67001f", colorant"#b2182b", colorant"#d6604d", colorant"#f4a582", colorant"#fddbc7",
                 colorant"#f7f7f7", colorant"#d1e5f0", colorant"#92c5de", colorant"#4393c3", colorant"#2166ac",
-                colorant"#053061"])
+                colorant"#053061"], :spatialecology)
 
     register_gradient_colors(:moreland, [
                 colorant"#3B4CC0", colorant"#445ACC", colorant"#4D68D7", colorant"#5775E1", colorant"#6282EA",
@@ -13,9 +15,9 @@ function registercolors()
                 colorant"#D5DBE6", colorant"#DDDDDD", colorant"#E5D8D1", colorant"#ECD3C5", colorant"#F1CCB9",
                 colorant"#F5C4AD", colorant"#F7BBA0", colorant"#F7B194", colorant"#F7A687", colorant"#F49A7B",
                 colorant"#F18D6F", colorant"#EC7F63", colorant"#E57058", colorant"#DE604D", colorant"#D55042",
-                colorant"#CB3E38", colorant"#C0282F", colorant"#B40426"])
+                colorant"#CB3E38", colorant"#C0282F", colorant"#B40426"], :spatialecology)
 
-    register_gradient_colors(:parula, sample_evenly([
+    register_gradient_colors(:parula, [
                 colorant"#352A87", colorant"#363093", colorant"#3637A0", colorant"#353DAD", colorant"#3243BA",
                 colorant"#2C4AC7", colorant"#2053D4", colorant"#0F5CDD", colorant"#0363E1", colorant"#0268E1",
                 colorant"#046DE0", colorant"#0871DE", colorant"#0D75DC", colorant"#1079DA", colorant"#127DD8",
@@ -28,9 +30,9 @@ function registercolors()
                 colorant"#C0BC60", colorant"#C8BC5D", colorant"#D1BB59", colorant"#D9BA56", colorant"#E1B952",
                 colorant"#E9B94E", colorant"#F1B94A", colorant"#F8BB44", colorant"#FDBE3D", colorant"#FFC337",
                 colorant"#FEC832", colorant"#FCCE2E", colorant"#FAD32A", colorant"#F7D826", colorant"#F5DE21",
-                colorant"#F5E41D", colorant"#F5EB18", colorant"#F6F313", colorant"#F9FB0E"], 30))
+                colorant"#F5E41D", colorant"#F5EB18", colorant"#F6F313", colorant"#F9FB0E"], :spatialecology)
 
-    register_gradient_colors(:blueyellow, sample_evenly([
+    register_gradient_colors(:blueyellow, [
                 colorant"#0707FE", colorant"#1717FC", colorant"#1E1EFA", colorant"#2424F8", colorant"#2828F7",
                 colorant"#2C2CF5", colorant"#2F2FF3", colorant"#3232F2", colorant"#3434F0", colorant"#3737EF",
                 colorant"#3939EE", colorant"#3B3BEC", colorant"#3D3DEB", colorant"#3F3FEA", colorant"#4141E9",
@@ -82,10 +84,10 @@ function registercolors()
                 colorant"#F3F354", colorant"#F4F452", colorant"#F5F550", colorant"#F5F54D", colorant"#F6F64A",
                 colorant"#F7F748", colorant"#F7F745", colorant"#F8F841", colorant"#F9F93E", colorant"#FAFA3A",
                 colorant"#FAFA36", colorant"#FBFB31", colorant"#FCFC2C", colorant"#FDFD25", colorant"#FDFD1C",
-                colorant"#FEFE0D"], 30))
+                colorant"#FEFE0D"], :spatialecology)
 
 
-    register_gradient_colors(:jet, sample_evenly([
+    register_gradient_colors(:jet, [
                 colorant"#00008F", colorant"#00009F", colorant"#0000AF", colorant"#0000BF", colorant"#0000CF",
                 colorant"#0000DF", colorant"#0000EF", colorant"#0000FF", colorant"#0010FF", colorant"#0020FF",
                 colorant"#0030FF", colorant"#0040FF", colorant"#0050FF", colorant"#0060FF", colorant"#0070FF",
@@ -98,10 +100,10 @@ function registercolors()
                 colorant"#FF9F00", colorant"#FF8F00", colorant"#FF8000", colorant"#FF7000", colorant"#FF6000",
                 colorant"#FF5000", colorant"#FF4000", colorant"#FF3000", colorant"#FF2000", colorant"#FF1000",
                 colorant"#FF0000", colorant"#EF0000", colorant"#DF0000", colorant"#CF0000", colorant"#BF0000",
-                colorant"#AF0000", colorant"#9F0000", colorant"#8F0000", colorant"#800000"], 30))
+                colorant"#AF0000", colorant"#9F0000", colorant"#8F0000", colorant"#800000"], :spatialecology)
 
 
-    register_gradient_colors(:cube, sample_evenly([
+    register_gradient_colors(:cube, [
                 colorant"#740081", colorant"#760085", colorant"#770088", colorant"#78008B", colorant"#79008E",
                 colorant"#7A0091", colorant"#7B0094", colorant"#7C0097", colorant"#7D009A", colorant"#7E009D",
                 colorant"#7F01A0", colorant"#8002A3", colorant"#8004A6", colorant"#8106A9", colorant"#8208AC",
@@ -153,10 +155,10 @@ function registercolors()
                 colorant"#F4BA5E", colorant"#F4B85E", colorant"#F5B65E", colorant"#F5B45E", colorant"#F6B25E",
                 colorant"#F6B05D", colorant"#F7AD5D", colorant"#F7AB5D", colorant"#F8A85D", colorant"#F8A65D",
                 colorant"#F8A35C", colorant"#F9A15C", colorant"#F99E5C", colorant"#F99C5C", colorant"#F9995B",
-                colorant"#F9965B"], 30))
+                colorant"#F9965B"], :spatialecology)
 
 
-    register_gradient_colors(:blackbody, sample_evenly([
+    register_gradient_colors(:blackbody, [
                 colorant"#000000", colorant"#230000", colorant"#340000", colorant"#3C0000", colorant"#3F0100",
                 colorant"#400200", colorant"#440500", colorant"#450600", colorant"#480800", colorant"#4A0A00",
                 colorant"#4D0C00", colorant"#4E0E00", colorant"#511000", colorant"#531100", colorant"#551300",
@@ -208,10 +210,10 @@ function registercolors()
                 colorant"#FFF9B9", colorant"#FFFCC1", colorant"#FFFDC4", colorant"#FFFFCC", colorant"#FFFFCF",
                 colorant"#FFFFD3", colorant"#FFFFDA", colorant"#FFFFDE", colorant"#FFFFE1", colorant"#FFFFE5",
                 colorant"#FFFFE9", colorant"#FFFFEC", colorant"#FFFFF0", colorant"#FFFFF4", colorant"#FFFFF7",
-                colorant"#FFFFFF"], 30))
+                colorant"#FFFFFF"], :spatialecology)
 
 
-    register_gradient_colors(:HMrainbow, sample_evenly([
+    register_gradient_colors(:HMrainbow, [
                 colorant"#000000", colorant"#2D0024", colorant"#38002E", colorant"#3C0031", colorant"#430036",
                 colorant"#46003B", colorant"#47003D", colorant"#4B0044", colorant"#4A0049", colorant"#4A004D",
                 colorant"#490051", colorant"#470057", colorant"#45015A", colorant"#44025E", colorant"#420361",
@@ -263,5 +265,5 @@ function registercolors()
                 colorant"#FFDDDD", colorant"#FFDFDF", colorant"#FFE2E2", colorant"#FFE4E4", colorant"#FFE6E6",
                 colorant"#FFE6E6", colorant"#FFE8E8", colorant"#FFEBEB", colorant"#FFEDED", colorant"#FFF0F0",
                 colorant"#FFF3F3", colorant"#FFF6F6", colorant"#FFF9F9", colorant"#FFFBFB", colorant"#FFFDFD",
-                colorant"#FFFFFF"], 30))
+                colorant"#FFFFFF"], :spatialecology)
 end

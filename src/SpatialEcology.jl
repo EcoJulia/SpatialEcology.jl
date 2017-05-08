@@ -8,7 +8,7 @@ using Reexport
 #import Bio.Phylo
 import RecipesBase
 import RCall: @R_str, rcopy
-import PlotUtils: @colorant_str, register_gradient_colors, sample_evenly
+import PlotUtils: @colorant_str, register_gradient_colors, register_color_library
 import Base: copy, getindex, setindex!, size, show, summary, view
 
 export SiteData, ComMatrix, Assemblage, coordtype, DispersionField #types and their constructors
@@ -17,7 +17,6 @@ export copy, setindex!, getindex, size, show, summary, view
 export coordstype, subset
 export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these
 export getRobject
-export registercolors #TODO fix this
 
 include("DataTypes.jl")
 include("Constructor_helperfunctions.jl")
@@ -31,4 +30,5 @@ include("PlotRecipes.jl")
 include("Colorgradients.jl") #TODO fix this
 include("DispersionFields.jl")
 
+registercolors()
 end # module
