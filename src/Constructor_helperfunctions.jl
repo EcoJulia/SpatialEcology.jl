@@ -72,7 +72,7 @@ function parseDataFrame(occ::DataFrames.DataFrame)
     sites = Vector(occ[1])
     occ = occ[2:end]
   else
-    sites = string.(1:DataFrames.nrow(occ)) #todo this means that occ will not have the right names in many cases - fix later
+    sites = string.(1:DataFrames.nrow(occ)) #TODO this means that occ will not have the right names in many cases - fix later
   end
 
   try

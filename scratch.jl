@@ -1,11 +1,14 @@
+import Juno.@step
 
-
-amp = readtable("data/amph_Europe.csv")
+amp = readtable("/Users/michael/Google Drev/amph_Europe.csv")
 amp[3] = map(x->"$x", amp[3])
 
-amp = Assemblage(amp)
+occ, coords = amp[:,4:end], amp[:,1:3]
+
+amp = Assemblage(occ, coords)
 ## Problems with saving
 
+using Plots
 plot(amp)
 histogram(log10(occupancy(amp)), bins = 10)
 

@@ -3,11 +3,11 @@
 #SubDataTypes
 
 # Definition is the same, but importantly this keeps a Named Subarray
-type SubComMatrix{T <: Union{Bool, Int}} <: AbstractComMatrix
+type SubComMatrix{T <: Union{Bool, Int}} <: AbstractComMatrix{T}
     occurrences::NamedArrays.NamedArray{T, 2} #Not sure how to specify this is a Named Subarray
 end
 
-type SubOccFields{T <: Union{Bool, Int}} <: AbstractOccFields
+type SubOccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
     commatrix::SubComMatrix{T}
     traits::DataFrames.SubDataFrame
 end
@@ -35,10 +35,10 @@ end
 
 
 # creating views
-view(occ::AbstractOccFields; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubOccFields(view(occ.commatrix, sites, species), sub(occ.traits,species))
+view(occ::AbstractOccFields; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubOccFields(view(occ.commatrix, sites = sites, species = species), sub(occ.traits,species))
 # The SiteFields things are missing as of yet - need to go by the dropbyindex functionality
 
-view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com)) = SubComMatrix(view(com.occurrences, sites = sites, species = species))
+view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com)) = SubComMatrix(view(com.occurrences, sites, species))
 
 view(pd::AbstractPointData, sites) = SubPointData(view(pd.coords, sites), view(pd.sitestats, sites))
 
@@ -56,13 +56,13 @@ view(sp::AbstractSiteData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sit
 
 # the alternative to :occupied and :occurring is :all in both cases
 function view(asm::AbstractAssemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), keepsites = :occupied, keepspecies = :occurring)
-    occ = view(asm.occ, species, sites)
-    site = view(asm.site, sites = sites)
+    occ = view(asm.occ, species = species, sites = sites)
+    site = view(asm.site, sites)
 
     if keepsites == :occupied
         hasspecies = find(richness(occ) .> 0)
         occ = view(occ, sites = hasspecies)
-        site = view(site, sites = hasspecies)
+        site = view(site, hasspecies)
     else
         if ! keepsites == :all
             error("keepsites must be :occupied or :all")

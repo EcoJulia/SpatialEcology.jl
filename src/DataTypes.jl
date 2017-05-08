@@ -8,8 +8,8 @@ abstract SpatialData
 abstract Assmbl <: SpatialData  #Not sure about this structure - so far no type inherits from occdata. Perhaps SimpleTraits.jl is/has a solution
 # this is here because we also need phylogeny assemblages
 abstract AbstractAssemblage <: Assmbl
-abstract AbstractOccFields
-abstract AbstractComMatrix
+abstract AbstractOccFields{T}
+abstract AbstractComMatrix{T}
 abstract SiteFields
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
@@ -62,11 +62,11 @@ end
 
 
 
-type ComMatrix{T <: Union{Bool, Int}}
+type ComMatrix{T <: Union{Bool, Int}} <: AbstractComMatrix{T}
     occurrences::NamedArrays.NamedArray{T, 2} #this is sparse
 end
 
-type OccFields{T <: Union{Bool, Int}} <: AbstractOccFields
+type OccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
     commatrix::ComMatrix{T}
     traits::DataFrames.DataFrame
 
