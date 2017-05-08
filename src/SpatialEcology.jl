@@ -9,7 +9,7 @@ using Reexport
 import RecipesBase
 import RCall: @R_str, rcopy
 import PlotUtils: @colorant_str, register_gradient_colors, register_color_library
-import Base: copy, getindex, setindex!, size, show, summary, view
+import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr
 import MacroTools: @capture
 
 export SiteData, ComMatrix, Assemblage, coordtype, DispersionField #types and their constructors
