@@ -1,5 +1,4 @@
 
-
 @enum coordstype auto griddata pointdata
 #@enum inputdatatype auto phylocom worldmapfile benholtmatrix
 
@@ -13,7 +12,6 @@ abstract AbstractComMatrix{T}
 abstract SiteFields
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
-
 
 # I could do a lot more with immutable types if I had a clearer view/copy implementation
 type GridTopology
@@ -31,7 +29,6 @@ type Bbox
     ymin::Number
     ymax::Number
 end
-
 
 abstract AbstractPointData <: SiteFields
 
@@ -60,8 +57,6 @@ type GridData <: AbstractGridData
     end
 end
 
-
-
 type ComMatrix{T <: Union{Bool, Int}} <: AbstractComMatrix{T}
     occurrences::NamedArrays.NamedArray{T, 2} #this is sparse
 end
@@ -81,7 +76,6 @@ abstract AbstractSiteData <: SpatialData
 type SiteData{S <: SiteFields} <: AbstractSiteData
     site::S
 end
-
 
 type Assemblage{S <: SiteFields, T <: Union{Bool, Int}} <: AbstractAssemblage # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::S
