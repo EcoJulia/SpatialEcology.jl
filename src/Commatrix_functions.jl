@@ -43,10 +43,10 @@ function createsummaryline{T<:AbstractString}(vec::Vector{T})
     linefunc(vec[1:3])*"..."*linefunc(vec[(end-1):end])
 end
 
-function show(io::IO, com::AbstractComMatrix)
+function show(io::IO, com::ComMatrix)
     sp = createsummaryline(specnames(com))
     si = createsummaryline(sitenames(com))
-    println("Community matrix with $(records(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
+    println("ComMatrix with $(records(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
 
 function show(io::IO, com::Assemblage)
@@ -58,6 +58,8 @@ end
 function show(io::IO, sd::SiteData)
     println("Spatial data set with $(nsites(sd)) sites\n\nSite names:\n$(createsummarylines(sitenames(sd)))")
 end
+
+#TODO also create render functions for Juno
 
 getindex(com::AbstractComMatrix, inds...) = ComMatrix(getindex(com.occurrences, inds...))
 
