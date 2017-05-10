@@ -32,18 +32,15 @@ type SubSiteData{S <: Union{SubGridData, SubPointData}} <: AbstractSiteData
     site::S
 end
 
-
-
+# this is because there is issues in NamedArrays when passing a Boolean PooledDataArray, which is useful for subsetting though
+asindices{T <: Integer}(x::AbstractArray{T}) = x
+asindices{T <: Bool}(x::AbstractArray{T}) = find(x)
 # creating views
-view(occ::AbstractOccFields; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubOccFields(view(occ.commatrix, sites = sites, species = species), sub(occ.traits,species))
+view(occ::AbstractOccFields; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubOccFields(view(occ.commatrix, sites = sites, species = species), view(occ.traits,species))
 # The SiteFields things are missing as of yet - need to go by the dropbyindex functionality
-
-view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com)) = SubComMatrix(view(com.occurrences, sites, species))
-
+view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com)) = SubComMatrix(view(com.occurrences, asindices(sites), asindices(species)))
 view(pd::AbstractPointData, sites) = SubPointData(view(pd.coords, sites), view(pd.sitestats, sites))
 
-
-#I need proper show functions for the views to make it nice.
 
 # TODO Make sure that indices are 1-based! check this with a subset! #NOTE have tried to fix that now by not altering grid - remember that for the copy function!
 function view(gd::AbstractGridData, sites)
@@ -80,11 +77,21 @@ function view(asm::AbstractAssemblage; species = 1:nspecies(asm), sites = 1:nsit
     SubAssemblage(site, occ)
 end
 
+copy(asm::AbstractAssemblage) = Assemblage(copy(asm.site), copy(asm.occ))
+copy(sp::AbstractSiteData) = SiteData(copy(sp.site))
+copy(pd::AbstractPointData) = PointData(copy(pd.coords), copy(pd.sitestats))
+copy(gd::AbstractGridData) = GridData(copy(gd.indices), gd.grid, my_dataframe_copy(gd.sitestats))
+copy(pd::AbstractComMatrix) = ComMatrix(copy(pd.occurrences))
+copy(occ::AbstractOccFields) = OccFields(copy(occ.commatrix), my_dataframe_copy(occ.traits))
 
-## TODO Need the copy functions before this is truly useful
-
-
-
+# because I cannot define a new copy method for DataFrames
+function my_dataframe_copy(sdf::SubDataFrame)
+    ret = DataFrame()
+    for n in names(sdf)
+        ret[n] = sdf[n]
+    end
+    ret
+end
 # Helper functions
 
 function subsetgrid(indices, grid)
