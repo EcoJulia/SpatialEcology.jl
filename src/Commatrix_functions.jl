@@ -46,17 +46,17 @@ end
 function show(io::IO, com::ComMatrix)
     sp = createsummaryline(specnames(com))
     si = createsummaryline(sitenames(com))
-    println("ComMatrix with $(records(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
+    println(io, "ComMatrix with $(records(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
 
 function show(io::IO, com::Assemblage)
     sp = createsummaryline(specnames(com))
     si = createsummaryline(sitenames(com))
-    println("Assemblage with $(records(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
+    println(io, "Assemblage with $(records(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
 
 function show(io::IO, sd::SiteData)
-    println("Spatial data set with $(nsites(sd)) sites\n\nSite names:\n$(createsummarylines(sitenames(sd)))")
+    println(io, "Spatial data set with $(nsites(sd)) sites\n\nSite names:\n$(createsummarylines(sitenames(sd)))")
 end
 
 #TODO also create render functions for Juno
