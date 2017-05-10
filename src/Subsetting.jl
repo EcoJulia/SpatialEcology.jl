@@ -89,7 +89,7 @@ copy(pd::AbstractComMatrix) = ComMatrix(copy(pd.occurrences))
 copy(occ::AbstractOccFields) = OccFields(copy(occ.commatrix), my_dataframe_copy(occ.traits))
 
 # because I cannot define a new copy method for DataFrames
-function my_dataframe_copy(sdf::SubDataFrame)
+function my_dataframe_copy(sdf::AbstractDataFrame)
     ret = DataFrame()
     for n in names(sdf)
         ret[n] = sdf[n]
