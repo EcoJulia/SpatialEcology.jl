@@ -2,6 +2,7 @@
 #registers some new color gradients for use in Plots
 function registercolors()
     register_color_library(:spatialecology)
+    default_cgrad(:spatialecology, sequential = :hmrainbow, diverging = :redblue)
 
     register_gradient_colors(:redblue, [
                 colorant"#67001f", colorant"#b2182b", colorant"#d6604d", colorant"#f4a582", colorant"#fddbc7",
@@ -213,7 +214,7 @@ function registercolors()
                 colorant"#FFFFFF"], :spatialecology)
 
 
-    register_gradient_colors(:HMrainbow, [
+    register_gradient_colors(:hmrainbow, [
                 colorant"#000000", colorant"#2D0024", colorant"#38002E", colorant"#3C0031", colorant"#430036",
                 colorant"#46003B", colorant"#47003D", colorant"#4B0044", colorant"#4A0049", colorant"#4A004D",
                 colorant"#490051", colorant"#470057", colorant"#45015A", colorant"#44025E", colorant"#420361",
