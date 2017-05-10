@@ -1,27 +1,4 @@
 
-## Killed the BenHoltMatrix format - not clear enough
-# is01line{T <: Any}(vec::Union{AbstractVector{T},DataFrames.AbstractDataVector{T}}) = false
-# is01line{T <: Bool}(vec::Union{AbstractVector{T},DataFrames.AbstractDataVector{T}}) = true
-# is01line{T <: Number}(vec::Union{AbstractVector{T},DataFrames.AbstractDataVector{T}}) = length(setdiff(vec, [0, 1])) == 0
-#
-# # instead of testing for 01lines it should really just check whether the rest can be converted to a numeric matrix of Int or Bool
-# function BenHoltMatrix(commatrix::DataFrames.DataFrame)
-#   nc = DataFrames.ncol(commatrix)
-#   nc < 4 && return 0
-#   sum(map(_-> is01line(commatrix[:,_]), nc-3:nc)) == 4 || return 0 #it is not a BenholtMatrix if the last 4 are not zeroonelines
-#
-#   firstnumeric  = 0
-#   for i in 1:nc
-#       if is01line(commatrix[:,i])
-#           firstnumeric = i
-#           sum(map(_-> is01line(commatrix[:,_]), i:i+3)) == 4 & break
-#       end
-#   end
-#   firstnumeric < 4 && return 0 #cause there needs to be the non-zeroone lines too
-#   firstnumeric
-# end
-
-
 function isWorldmapData(dat::DataFrames.DataFrame, latlong = true)
   DataFrames.ncol(dat) == 5 || return false
 
