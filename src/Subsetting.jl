@@ -42,11 +42,15 @@ view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com)) =
 view(pd::AbstractPointData, sites) = SubPointData(view(pd.coords, sites), view(pd.sitestats, sites))
 
 
-# TODO Make sure that indices are 1-based! check this with a subset! #NOTE have tried to fix that now by not altering grid - remember that for the copy function!
+# In actual fact, only the sitestats DataFrames is subsetted, the rest creates a new object in memory
 function view(gd::AbstractGridData, sites)
-    indices = view(gd.indices, sites, :)
-    #grid = subsetgrid(indices, gd.grid)
-    SubGridData(indices, gd.grid, view(gd.sitestats, sites))
+    indices = gd.indices[sites, :]
+    grid = subsetgrid(indices, gd.grid)
+    x_shift::Int = (xmin(grid) - xmin(gd.grid)) / xcellsize(gd.grid)
+    y_shift::Int = (ymin(grid) - ymin(gd.grid)) / ycellsize(gd.grid)
+    indices[:,1] .-= x_shift
+    indices[:,2] .-= y_shift
+    SubGridData(indices, grid, view(gd.sitestats, sites))
 end
 
 view(sp::AbstractSiteData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
