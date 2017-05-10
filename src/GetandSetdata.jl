@@ -9,3 +9,8 @@ end
 
 traits(occ::OccFields) = occ.traits
 traits(asm::Assemblage) = traits(asm.occ)
+
+sitestats(asm::Assemblage) = asm.site.sitestats
+
+traitnames(asm::Assemblage) = names(traits(asm))
+sitestatnames(asm::Assemblage) = names(sitestats(asm))
