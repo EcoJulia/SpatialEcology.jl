@@ -9,6 +9,7 @@ using Reexport
 import RecipesBase
 import RCall: @R_str, rcopy
 import PlotUtils: @colorant_str, register_gradient_colors, register_color_library
+import PlotUtils: @colorant_str, register_gradient_colors, register_color_library, default_cgrad
 import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr
 import MacroTools: @capture
 

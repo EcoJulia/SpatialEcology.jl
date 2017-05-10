@@ -11,6 +11,7 @@ RecipesBase.@recipe function f(var::AbstractVector, grd::AbstractGridData)
     seriestype := :heatmap
     aspect_ratio --> :equal
     grid --> false
+    seriescolor --> :hmrainbow
     convert_to_image(var, grd)
 end
 
@@ -24,6 +25,7 @@ RecipesBase.@recipe function f(var::AbstractVector, pnt::PointData)
     grid --> false
     marker_z := var
     legend --> false
+    seriescolor --> :hmrainbow
     cd = coordinates(pnt)
     cd[:,1], cd[:,2]
 end
