@@ -66,3 +66,13 @@ setindex!(com::AbstractComMatrix, X, inds...) = setindex!(com.occurrences, X, in
 function getindex{S <: SiteFields}(site::S, inds)
   S(coordinates(site)[inds,:], site.sitestats[inds,:])
 end
+
+function getindex(com::Assmbl, ind::Symbol)
+    if ind in names(com.site.sitestats)
+        return com.site.sitestats[ind]
+    elseif ind in names(com.occ.traits)
+        return com.occ.traits[ind]
+    else
+        error("No such name in traits or sitestats")
+    end
+end
