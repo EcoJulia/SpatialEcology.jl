@@ -146,7 +146,7 @@ end
 creategrid(coords::NamedArrays.NamedMatrix{Float64}, tolerance = sqrt(eps())) =
     GridTopology(gridvar(coords[:,1], tolerance)..., gridvar(coords[:,2], tolerance)...)
 
-function gridvar(x, tolerance = sqrt(eps()))  # TODO this code is 'borrowed' from sp:::points2grid in R, which is GPL2, so cannot be distributed in this package
+function gridvar(x, tolerance = sqrt(eps())) 
   sux = sort(unique(x))
   difx = diff(sux)
   length(difx) == 0 && error("Cannot make a grid with width 1 in the current implementation") #TODO
