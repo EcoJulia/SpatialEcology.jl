@@ -1,16 +1,16 @@
 coordinates(sd::SpatialData) = coordinates(sd.site)
-coordinates(pd::PointData) = pd.coords
+coordinates(pd::AbstractPointData) = pd.coords
 
-function coordinates(gd::GridData)
+function coordinates(gd::AbstractGridData)
     index1 = xrange(gd.grid)[gd.indices[:,1]]
     index2 = yrange(gd.grid)[gd.indices[:,2]]
     NamedArrays.NamedArray(hcat(index1, index2), NamedArrays.names(gd.indices), dimnames(gd.indices))
 end
 
-traits(occ::OccFields) = occ.traits
-traits(asm::Assemblage) = traits(asm.occ)
+traits(occ::AbstractOccFields) = occ.traits
+traits(asm::Assmbl) = traits(asm.occ)
 
-sitestats(asm::Assemblage) = asm.site.sitestats
+sitestats(asm::Assmbl) = asm.site.sitestats
 
-traitnames(asm::Assemblage) = names(traits(asm))
-sitestatnames(asm::Assemblage) = names(sitestats(asm))
+traitnames(asm::Assmbl) = names(traits(asm))
+sitestatnames(asm::Assmbl) = names(sitestats(asm))
