@@ -85,19 +85,25 @@ function ComMatrix(occ::DataFrames.DataFrame)
         sites = unique(a[1])
         species = unique(a[3])
         is = indexin(a[1], sites)
-        js = indexin(a[3], species
+        js = indexin(a[3], species)
         occ = maximum(a[2]) == 1 ? sparse(is, js, true) : sparse(is, js, a[2])
         return ComMatrix(occ, string.(species), string.(sites))
     end
 
-    sites = collect(string.(occ[1]))
-    species = collect(string.(names(occ)))[2:end]
+    if eltype(occ[1]) <: AbstractString
+        sites = string.(collect(occ[1]))
+        occ = occ[2:end]
+        species = string.(collect(names(occ)))
+    else
+        sites = string.(1:DataFrames.nrow(occ))
+        species = string.(collect(names(occ)))
+    end
 
     try
-        occ = dataFrametoSparseMatrix(occ[2:end], Bool)
+        occ = dataFrametoSparseMatrix(occ, Bool)
         println("Matrix data assumed to be presence-absence")
     catch
-        occ = dataFrametoSparseMatrix(occ[2:end], Int) #TODO This line means that this code is not completely type stable.
+        occ = dataFrametoSparseMatrix(occ, Int) #TODO This line means that this code is not completely type stable.
         println("Matrix data assumed to be abundances, minimum $(minimum(occ)), maximum $(maximum(occ))")
     end
 
