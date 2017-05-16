@@ -102,9 +102,9 @@ function match_commat_coords(occ::ComMatrix, coords::AbstractMatrix{Float64}, si
 end
 
 function dropspecies!(occ::OccFields)
-  occurring = occupancy(occ) .> 0
-  occ.commatrix = occ.commatrix[:, occurring]
-  occ.traits = occ.traits[occurring,:]
+  occur = occurring(occ)
+  occ.commatrix = occ.commatrix[:, occur]
+  occ.traits = occ.traits[occur,:]
 end
 
 function dropbyindex!(site::PointData, indicestokeep)
@@ -128,7 +128,7 @@ function dropbyindex!(site::GridData, indicestokeep)
 end
 
 function dropsites!(occ::OccFields, site::SiteFields)
-  hasspecies = find(richness(occ) .> 0)
+  hasspecies = occupied(occ)
   occ.commatrix = occ.commatrix[hasspecies,:]
   dropbyindex!(site, hasspecies)
 end
@@ -146,7 +146,7 @@ end
 creategrid(coords::NamedArrays.NamedMatrix{Float64}, tolerance = sqrt(eps())) =
     GridTopology(gridvar(coords[:,1], tolerance)..., gridvar(coords[:,2], tolerance)...)
 
-function gridvar(x, tolerance = sqrt(eps())) 
+function gridvar(x, tolerance = sqrt(eps()))
   sux = sort(unique(x))
   difx = diff(sux)
   length(difx) == 0 && error("Cannot make a grid with width 1 in the current implementation") #TODO
