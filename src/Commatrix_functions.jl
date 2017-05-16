@@ -17,16 +17,17 @@ nsites(com::AbstractComMatrix) = size(com.occurrences, 1)
 nsites(sd::SpatialData) = size(coordinates(sd.site), 1)
 nsites(sd::SiteFields) = DataFrames.nrow(sd.sitestats)
 
+specnames(asm::Assmbl) = collect(asm.occ.traits[:species])
 specnames(com::AbstractComMatrix) = NamedArrays.names(com.occurrences)[2]
 
 sitenames(com::AbstractComMatrix) = NamedArrays.names(com.occurrences)[1]
 sitenames(sd::SpatialData) = sitenames(sd.site)
-sitenames(sd::SiteFields) = NamedArrays.names(coordinates(sd))[1]
+sitenames(sd::SiteFields) = collect(sd.sitestats[:sites])
 
-occupancy{T<:Bool}(com::AbstractComMatrix{T}) = sum(com.occurrences, 1)[1,:]
+occupancy{T<:Bool}(com::AbstractComMatrix{T}) = vec(colsum(com.occurrences.array)) #sum(com.occurrences, 1)[1,:]
 occupancy{T<:Int}(com::AbstractComMatrix{T}) = mapslices(x->sum(i > 0 for i in x), com.occurrences, 1)[1,:]
 
-richness{T<:Bool}(com::AbstractComMatrix{T}) = sum(com.occurrences, 2)[:,1]
+richness{T<:Bool}(com::AbstractComMatrix{T}) = vec(rowsum(com.occurrences.array)) #sum(com.occurrences, 2)[:,1]
 richness{T<:Int}(com::AbstractComMatrix{T}) = mapslices(x->sum(i > 0 for i in x), com.occurrences, 2)[:,1]
 
 records{T<:Int}(com::AbstractComMatrix{T}) = sum(i > 0 for i in com.occurrences)
