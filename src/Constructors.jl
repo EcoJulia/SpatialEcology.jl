@@ -47,7 +47,7 @@ Assemblage(occ::NamedArrays.NamedArray, coords::AbstractMatrix; kwargs...) = Ass
 Assemblage(occ::ComMatrix, coords::AbstractMatrix; kwargs...) = Assemblage(occ, NamedArrays.NamedArray(coords); kwargs...)
 
 function Assemblage(occ::ComMatrix, coords::NamedArrays.NamedArray;
-      dropemptyspecies::Bool = true, dropemptysites::Bool = true, match_to_coords = true,
+      dropemptyspecies::Bool = false, dropemptysites::Bool = false, match_to_coords = true,
       traits = DataFrames.DataFrame(name = specnames(occ)), sitestats = DataFrames.DataFrame(sites = sitenames(occ)),
       cdtype::coordstype = auto)
 
@@ -59,7 +59,7 @@ function Assemblage(occ::ComMatrix, coords::NamedArrays.NamedArray;
   end
 
 function Assemblage{T <: Union{Bool, Int}, S <: SiteFields}(site::S, occ::OccFields{T};
-    dropemptyspecies::Bool = true, dropemptysites::Bool = true)
+    dropemptyspecies::Bool = false, dropemptysites::Bool = false)
 
     if dropemptyspecies
         dropspecies!(occ)
