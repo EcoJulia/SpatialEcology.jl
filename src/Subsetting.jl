@@ -56,26 +56,18 @@ end
 view(sp::AbstractSiteData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
 
 # the alternative to :occupied and :occurring is :all in both cases
-function view(asm::AbstractAssemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), keepsites = :occupied, keepspecies = :occurring)
+function view(asm::AbstractAssemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false)
     occ = view(asm.occ, species = species, sites = sites)
     site = view(asm.site, sites)
 
-    if keepsites == :occupied
-        hasspecies = find(richness(occ) .> 0)
+    if dropsites || dropempty
+        hasspecies = occupied(occ)
         occ = view(occ, sites = hasspecies)
         site = view(site, hasspecies)
-    else
-        if ! keepsites == :all
-            error("keepsites must be :occupied or :all")
-        end
     end
 
-    if keepspecies == :occurring
-        occ = view(occ, species = find(occupancy(occ) .> 0))
-    else
-        if ! keepspecies == :all
-            error("keepspecies must be :occupied or :all")
-        end
+    if dropspecies || dropempty
+        occ = view(occ, species = occurring(occ))
     end
 
     SubAssemblage(site, occ)
