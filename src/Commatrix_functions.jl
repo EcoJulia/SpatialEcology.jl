@@ -8,7 +8,7 @@ macro forward(ex, fs)
     nothing)
 end
 
-@forward Assmbl.occ nspecies, nsites, occupancy, richness, records, occurring, occupied
+@forward Assmbl.occ nspecies, nsites, occupancy, richness, records, occurring, occupied, specnames, sitenames
 @forward AbstractOccFields.commatrix nspecies, nsites, specnames, sitenames, occupancy, richness, records, occurring, occupied
 @forward Assmbl.site sitenames
 
@@ -24,7 +24,6 @@ nsites(com::AbstractComMatrix) = size(com.occurrences, 1)
 nsites(sd::SpatialData) = size(coordinates(sd.site), 1)
 nsites(sd::SiteFields) = DataFrames.nrow(sd.sitestats)
 
-specnames(asm::Assmbl) = collect(asm.occ.traits[:species])
 specnames(com::AbstractComMatrix) = com.specnames
 
 sitenames(com::AbstractComMatrix) = com.sitenames
