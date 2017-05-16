@@ -27,11 +27,8 @@ function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::S
                 "\t$(signif(100*dif/right,3))% of $right species in the new traits data\n")
         max(dif/left, dif/right) < tolerance && error("Aborting join, as fit was smaller than the tolerance of $tolerance . To perform the join decrease the tolerance value")
     end
-    #ugly workaround for the join
-    nam = names(newtraits)
-    nam[findin(nam, [species])] = :species
-    names!(newtraits, nam)
-    asm.occ.traits = join(asm.occ.traits, newtraits, kind = :left, on = :species)
+
+    assemblagejoin!(asm.occ.traits, newtraits, :species, species)
     nothing
 end
 
@@ -44,10 +41,18 @@ function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::S
                 "\t$(signif(100*dif/right,3))% of $right sites in the new sitestats data\n")
         max(dif/left, dif/right) < tolerance && error("Aborting join, as fit was smaller than the tolerance of $tolerance . To perform the join decrease the tolerance value")
     end
-    #ugly workaround for the join
-    nam = names(newsites)
-    nam[findin(nam, [sites])] = :sites
-    names!(newsites, nam)
-    asm.occ.traits = join(asm.occ.traits, newtraits, kind = :left, on = :sites)
+
+    assemblagejoin!(asm.site.sitestats, newsites, :sites, sites)
     nothing
+end
+
+function assemblagejoin!(df1::AbstractDataFrame, df2::AbstractDataFrame, on_left::Symbol, on_right::Symbol)
+    right = DataFrames.nas(df2, DataFrames.nrow(df1))
+    for (i, j) in enumerate(indexin(df2[on_right], df1[on_left]))
+        if ! (j == 0)
+            right[j,:] = df2[i,:]
+        end
+    end
+    right = DataFrames.without(right, on_right)
+    DataFrames.hcat!(df1, right)
 end
