@@ -30,8 +30,13 @@ RecipesBase.@recipe function f(var::AbstractVector, pnt::PointData)
     cd[:,1], cd[:,2]
 end
 
-RecipesBase.@recipe function f(asm::AbstractAssemblage)
-    richness(asm), asm.site
+RecipesBase.@recipe function f(asm::AbstractAssemblage; occupied = false)
+    var = richness(asm)
+    if occupied
+        var = [Float64(v) for v in var]
+        (var[var.==0] .= NaN)
+    end
+    var, asm.site
 end
 
 
