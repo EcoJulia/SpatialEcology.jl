@@ -109,11 +109,11 @@ end
 function show(io::IO, com::SubComMatrix)
     sp = createsummaryline(specnames(com))
     si = createsummaryline(sitenames(com))
-    println(io, "SubComMatrix with $(records(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
+    println(io, "SubComMatrix with $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
 
 function show(io::IO, com::SubAssemblage)
     sp = createsummaryline(specnames(com))
     si = createsummaryline(sitenames(com))
-    println(io, "SubAssemblage with $(records(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
+    println(io, "SubAssemblage with $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end

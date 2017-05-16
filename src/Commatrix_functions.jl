@@ -46,13 +46,13 @@ end
 function show(io::IO, com::ComMatrix)
     sp = createsummaryline(specnames(com))
     si = createsummaryline(sitenames(com))
-    println(io, "ComMatrix with $(records(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
+    println(io, "ComMatrix with $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
 
 function show(io::IO, com::Assemblage)
     sp = createsummaryline(specnames(com))
     si = createsummaryline(sitenames(com))
-    println(io, "Assemblage with $(records(com)) records of $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
+    println(io, "Assemblage with $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
 
 function show(io::IO, sd::SiteData)
