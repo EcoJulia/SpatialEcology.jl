@@ -3,7 +3,6 @@ module SpatialEcology
 
 using Reexport
 @reexport using DataFrames
-@reexport using NamedArrays
 
 #import Bio.Phylo
 import RecipesBase
