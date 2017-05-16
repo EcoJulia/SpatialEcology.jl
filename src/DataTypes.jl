@@ -88,6 +88,7 @@ type Assemblage{S <: SiteFields, T <: Union{Bool, Int}} <: AbstractAssemblage # 
     # inner constructor
     function Assemblage(site, occ)
         size(occ.commatrix.occurrences, 1) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
+        #TODO activate this # sitenames(occ) == sitenames(site) || error("sitenames do not match") #I need a constructor that matches them up actively
         new(site, occ)
     end
 end

@@ -26,41 +26,9 @@ function parsesingleDataFrame(occ::DataFrames.DataFrame)
       occ = DataFrame(site = coords[:sites], abu = ones(Int, DataFrames.nrow(occ)), species = occ[1])
       coords = unique(coords, :sites)
     else
-     # if (firstnumeric = BenHoltMatrix(occ)) > 1
-    #    println("Data assumed to be a concatenation of coordinates ($(firstnumeric - 1) columns) and occurrence matrix")
-    #    coords = occ[1:(firstnumeric-1)]
-    #    occ = occ[firstnumeric:end]
-     # else
-        error("If not commatrix is already of type distrib_data or nodiv_data, a worldmap matrix, or a
-          concatenation of coords and community matrix, coords must be specified")
-     # end
+        error("If coords is not specified, data must be in the worldmap format - of the column format [speciesnames, (ignored), (ignored), longitude, latitude]")
     end
   occ, coords
-end
-
-
-function parseDataFrame(occ::DataFrames.DataFrame)
-  if DataFrames.ncol(occ) == 3 && eltypes(occ)[3] <: String
-    println("Data format identified as Phylocom")
-    occ = unstack(occ, 1, 2)
-  end
-
-  if eltypes(occ)[1] <: String
-    sites = Vector(occ[1])
-    occ = occ[2:end]
-  else
-    sites = string.(1:DataFrames.nrow(occ)) #TODO this means that occ will not have the right names in many cases - fix later
-  end
-
-  try
-    occ = dataFrametoNamedMatrix(occ, sites, Bool, dimnames = ("sites", "species"))
-    println("Matrix data assumed to be presence-absence")
-  catch
-    occ = dataFrametoNamedMatrix(occ, sites, Int, dimnames = ("sites", "species")) # This line means that this code is not completely type stable. So be it.
-    println("Matrix data assumed to be abundances, minimum $(minimum(occ)), maximum $(maximum(occ))")
-  end
-
-  occ
 end
 
 function guess_xycols(dat::DataFrames.DataFrame)
@@ -69,31 +37,45 @@ function guess_xycols(dat::DataFrames.DataFrame)
   ((find(numbers)[1:2])...)
 end
 
-function dataFrametoNamedMatrix(dat::DataFrames.DataFrame, rownames = string.(1:DataFrames.nrow(dat)), T::Type = Float64, replace = zero(T); sparsematrix = true, dimnames = ("A", "B"))
-  colnames = string.(names(dat))
-  a = 0
-  # for i in 1:DataFrames.ncol(dat)
-  #   a += sum(DataFrames.isna(dat[i]))
-  #   dat[i] = convert(Array, dat[i], replace)  #This takes out any NAs that may be in the data frame and replace with 0
-  # end
+function testbool(x::Int)
+    x == 1 && return true
+    x > 1 && error("Integer values > 1 used to create Boolean matrix")
+    return false
+end
+testbool(x::DataFrames.NAtype) = false
+testbool(x::Bool) = x
 
- for i in 1:DataFrames.ncol(dat)
-     rep = DataFrames.isna(dat[i])
-     a += sum(rep)
-     dat[:,i][rep] = replace
- end
+function dataFrametoSparseMatrix{T<:Bool}(dat::DataFrames.DataFrame, ::Type{T})
+    is, js = Vector{Int}(), Vector{Int}()
 
- dat = convert(Array{T}, dat)  # for some reason it really complains about this
+    for j in 1:DataFrames.ncol(dat)
+        col = dat[:,j]
+        for i in 1:DataFrames.nrow(dat)
+            if testbool(col[i])
+                push!(is, i)
+                push!(js, j)
+            end
+        end
+    end
 
-  a > 0 && println("$a NA values were replaced with $(replace)'s")
-  try
-    dat = sparsematrix ? sparse(Matrix{T}(dat)) : Matrix{T}(dat)
-  catch
-    error("Cannot convert DataFrame to Matrix{$T}")
-  end
+    sparse(is, js, true, DataFrames.nrow(dat), DataFrames.ncol(dat))
+end
 
-  dat = NamedArrays.NamedArray(dat, (Vector{String}(rownames), Vector{String}(colnames)), dimnames) #the vector conversion is a bit hacky
-  dat
+function dataFrametoSparseMatrix{T<:Int}(dat::DataFrames.DataFrame, ::Type{T})
+    is, js, vals = Vector{Int}(), Vector{Int}(), Vector{Int}()
+
+    for j in 1:DataFrames.ncol(dat)
+        col = dat[:,j]
+        for i in 1:DataFrames.nrow(dat)
+            if !isna(col[i])
+                push!(is, i)
+                push!(js, j)
+                push!(vals, col[i])
+            end
+        end
+    end
+
+    sparse(is, js, vals, DataFrames.nrow(dat), DataFrames.ncol(dat))
 end
 
 function match_commat_coords(occ::ComMatrix, coords::AbstractMatrix{Float64}, sitestats::DataFrames.DataFrame)
@@ -143,9 +125,10 @@ function createsitenames(coords::DataFrames.DataFrame)
   ["$(coords[i,1])_$(coords[i,2])" for i in 1:DataFrames.nrow(coords)]
 end
 
-creategrid(coords::NamedArrays.NamedMatrix{Float64}, tolerance = sqrt(eps())) =
+creategrid(coords::Matrix{Float64}, tolerance = sqrt(eps())) =
     GridTopology(gridvar(coords[:,1], tolerance)..., gridvar(coords[:,2], tolerance)...)
 
+# could allow for n-dimensional binning, using code from StatsBase.Histogram
 function gridvar(x, tolerance = sqrt(eps()))
   sux = sort(unique(x))
   difx = diff(sux)
@@ -171,8 +154,8 @@ function gridvar(x, tolerance = sqrt(eps()))
   min, cellsize, cellnumber
 end
 
-function getindices(coords::NamedArrays.NamedMatrix{Float64}, grid::GridTopology, tolerance = 2*sqrt(eps()))
+function getindices(coords::Matrix{Float64}, grid::GridTopology, tolerance = 2*sqrt(eps()))
   index1 = 1 + floor(Int,(coords[:,1] .- grid.xmin) ./ grid.xcellsize .+ tolerance)
   index2 = 1 + floor(Int,(coords[:,2] .- grid.ymin) ./ grid.ycellsize .+ tolerance)
-  NamedArrays.NamedArray(hcat(index1, index2), NamedArrays.names(coords), dimnames(coords))
+  hcat(index1, index2)
 end
