@@ -8,8 +8,15 @@ macro forward(ex, fs)
     nothing)
 end
 
-@forward Assmbl.occ nspecies, nsites, specnames, sitenames, occupancy, richness, records
-@forward AbstractOccFields.commatrix nspecies, nsites, specnames, sitenames, occupancy, richness, records
+@forward Assmbl.occ nspecies, nsites, occupancy, richness, records, occurring, occupied
+@forward AbstractOccFields.commatrix nspecies, nsites, specnames, sitenames, occupancy, richness, records, occurring, occupied
+@forward Assmbl.site sitenames
+
+occurring(com::AbstractComMatrix) = nzcols(com.occurrences.array)
+occupied(com::AbstractComMatrix) = nzrows(com.occurrences.array)
+
+noccurring(x) = length(occurring(x))
+noccupied(x) = length(occupied(x))
 
 nspecies(com::AbstractComMatrix) = size(com.occurrences, 2)
 nsites(com::AbstractComMatrix) = size(com.occurrences, 1)
