@@ -39,7 +39,7 @@ PhyloAssemblage(assm::Assemblage, phylo::Phylogeny) = PhyloAssemblage(assm.site,
 function createNodeBySpeciesMatrix(tree::Phylogenetics.Phylogeny)
    colname = tree.tipLabel
    rowname = ["$num" for num in nodeNumbers(tree)]
-   nodespecies = NamedArray(zeros(Int, nNode(tree), nTip(tree)), (rowname, colname))
+   nodespecies = zeros(Int, nNode(tree), nTip(tree))
 
    function loc(tree::Phylogenetics.Phylogeny, node::Int)
      if node <= nTip(tree)

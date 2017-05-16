@@ -34,7 +34,7 @@ type SubSiteData{S <: Union{SubGridData, SubPointData}} <: AbstractSiteData
     site::S
 end
 
-# this is because there is issues in NamedArrays when passing a Boolean PooledDataArray, which is useful for subsetting though
+# this is because there is issues in NamedArrays when passing a Boolean PooledDataArray, which is useful for subsetting though # TODO not sure this is necessary anymore - perhaps remove, or update with a string (for names)
 asindices{T <: Integer}(x::AbstractArray{T}) = x
 asindices{T <: Bool}(x::AbstractArray{T}) = find(x)
 # creating views

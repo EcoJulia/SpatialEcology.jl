@@ -12,8 +12,8 @@ end
 @forward AbstractOccFields.commatrix nspecies, nsites, specnames, sitenames, occupancy, richness, records, occurring, occupied
 @forward Assmbl.site sitenames
 
-occurring(com::AbstractComMatrix) = nzcols(com.occurrences.array)
-occupied(com::AbstractComMatrix) = nzrows(com.occurrences.array)
+occurring(com::AbstractComMatrix) = nzcols(com.occurrences)
+occupied(com::AbstractComMatrix) = nzrows(com.occurrences)
 
 noccurring(x) = length(occurring(x))
 noccupied(x) = length(occupied(x))
@@ -25,17 +25,17 @@ nsites(sd::SpatialData) = size(coordinates(sd.site), 1)
 nsites(sd::SiteFields) = DataFrames.nrow(sd.sitestats)
 
 specnames(asm::Assmbl) = collect(asm.occ.traits[:species])
-specnames(com::AbstractComMatrix) = NamedArrays.names(com.occurrences)[2]
+specnames(com::AbstractComMatrix) = com.specnames
 
-sitenames(com::AbstractComMatrix) = NamedArrays.names(com.occurrences)[1]
+sitenames(com::AbstractComMatrix) = com.sitenames
 sitenames(sd::SpatialData) = sitenames(sd.site)
 sitenames(sd::SiteFields) = collect(sd.sitestats[:sites])
 
-occupancy{T<:Bool}(com::AbstractComMatrix{T}) = vec(colsum(com.occurrences.array)) #sum(com.occurrences, 1)[1,:]
-occupancy{T<:Int}(com::AbstractComMatrix{T}) = mapslices(x->sum(i > 0 for i in x), com.occurrences, 1)[1,:]
+occupancy{T<:Bool}(com::AbstractComMatrix{T}) = vec(colsum(com.occurrences))
+occupancy{T<:Int}(com::AbstractComMatrix{T}) = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 1))
 
-richness{T<:Bool}(com::AbstractComMatrix{T}) = vec(rowsum(com.occurrences.array)) #sum(com.occurrences, 2)[:,1]
-richness{T<:Int}(com::AbstractComMatrix{T}) = mapslices(x->sum(i > 0 for i in x), com.occurrences, 2)[:,1]
+richness{T<:Bool}(com::AbstractComMatrix{T}) = vec(rowsum(com.occurrences))
+richness{T<:Int}(com::AbstractComMatrix{T}) = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 2))
 
 records{T<:Int}(com::AbstractComMatrix{T}) = sum(i > 0 for i in com.occurrences)
 records{T<:Bool}(com::AbstractComMatrix{T}) = sum(com.occurrences)
