@@ -2,9 +2,9 @@
 # Functions for sparse array view sums - from https://discourse.julialang.org/t/slow-arithmetic-on-views-of-sparse-matrices/3644
 
 rowsum(x) = sum(x,2)
-rowsum(x::SubArray) = (x.parent * sparse(x.indexes[2],ones(Int,length(x.indexes[2])), ones(Int,length(x.indexes[2])), size(x.parent,2),1))[x.indexes[1]]
+rowsum{T,P<:SparseMatrixCSC}(x::SubArray{T,2,P}) = (x.parent * sparse(x.indexes[2],ones(Int,length(x.indexes[2])), ones(Int,length(x.indexes[2])), size(x.parent,2),1))[x.indexes[1]]
 colsum(x) = sum(x,1)
-colsum(x::SubArray) = (sparse(ones(Int,length(x.indexes[1])), x.indexes[1], ones(Int,length(x.indexes[1])),1,size(x.parent,1))*x.parent)[x.indexes[2]]
+colsum{T,P<:SparseMatrixCSC}(x::SubArray{T,2,P}) = (sparse(ones(Int,length(x.indexes[1])), x.indexes[1], ones(Int,length(x.indexes[1])),1,size(x.parent,1))*x.parent)[x.indexes[2]]
 
 # Functions for finding nonzero rows and columns from Dan Getz, http://stackoverflow.com/questions/43968445/identify-which-rows-or-columns-have-values-in-sparse-matrix
 
