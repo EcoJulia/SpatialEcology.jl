@@ -1,7 +1,7 @@
 
 type DispersionField <: SpatialData
     site::SiteFields
-    DFmat::NamedMatrix{Int}
+    DFmat::Matrix{Int}
 
     function DispersionField(asm::Assemblage)
         df = asm.occ.occurrences * asm.occ.occurrences'

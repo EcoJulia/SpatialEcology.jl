@@ -2,9 +2,11 @@
 
 #SubDataTypes
 
-# Definition is the same, but importantly this keeps a Named Subarray
+# Definition is the same, but importantly this keeps a Subarray
 type SubComMatrix{T <: Union{Bool, Int}} <: AbstractComMatrix{T}
-    occurrences::NamedArrays.NamedArray{T, 2} #Not sure how to specify this is a Named Subarray
+    occurrences::SubArray{T,2}
+    specnames::SubArray{String,1}
+    sitenames::SubArray{String,1}
 end
 
 type SubOccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
@@ -13,13 +15,13 @@ type SubOccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
 end
 
 type SubGridData <: AbstractGridData
-    indices::NamedArrays.NamedMatrix{Int} #SubArray
+    indices::SubArray{Int,2}
     grid::GridTopology
     sitestats::DataFrames.SubDataFrame
 end
 
 type SubPointData <: AbstractPointData
-    coords::NamedArrays.NamedMatrix{Float64} #SubArray
+    coords::SubArray{Float64,2}
     sitestats::DataFrames.SubDataFrame
 end
 
