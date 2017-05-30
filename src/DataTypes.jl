@@ -14,7 +14,7 @@ abstract type SiteFields end
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
 # I could do a lot more with immutable types if I had a clearer view/copy implementation
-type GridTopology
+mutable struct GridTopology
     xmin::Number
     xcellsize::Number
     xcells::Int
@@ -23,7 +23,7 @@ type GridTopology
     ycells::Int
 end
 
-type Bbox
+mutable struct Bbox
     xmin::Number
     xmax::Number
     ymin::Number
@@ -33,7 +33,7 @@ end
 abstract type AbstractPointData <: SiteFields end
 
 # Do I need sitenames here? I think so, they should match those in sitestats, and be separate
-type PointData <: AbstractPointData
+mutable struct PointData <: AbstractPointData
     coords::Matrix{Float64}
     sitestats::DataFrames.DataFrame
     # inner constructor
@@ -46,7 +46,7 @@ end
 
 abstract type AbstractGridData <: SiteFields end
 
-type GridData <: AbstractGridData
+mutable struct GridData <: AbstractGridData
     indices::Matrix{Int}
     grid::GridTopology
     sitestats::DataFrames.DataFrame
@@ -58,14 +58,14 @@ type GridData <: AbstractGridData
     end
 end
 
-type ComMatrix{T <: Union{Bool, Int}} <: AbstractComMatrix{T}
+mutable struct ComMatrix{T} <: AbstractComMatrix{T} where T <: Union{Bool, Int}
     occurrences::SparseMatrixCSC{T}
     specnames::Vector{String}
     sitenames::Vector{String}
 end
 
 # likewise, do I need a specnames here? Should traits have a :series field (like now) or all matching be done on the specnames?
-type OccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
+mutable struct OccFields{T} <: AbstractOccFields{T} where T <: Union{Bool, Int}}
     commatrix::ComMatrix{T}
     traits::DataFrames.DataFrame
 
@@ -78,11 +78,11 @@ end
 abstract type AbstractSiteData <: SpatialData end
 
 # Not really sure what this type is for
-type SiteData{S <: SiteFields} <: AbstractSiteData
+mutable struct SiteData{S} <: AbstractSiteData where  S <: SiteFields
     site::S
 end
 
-type Assemblage{S <: SiteFields, T <: Union{Bool, Int}} <: AbstractAssemblage # A type to keep subtypes together, ensuring that they are all aligned at all times
+mutable struct Assemblage{S, T} <: AbstractAssemblage where {S <: SiteFields, T <: Union{Bool, Int}} # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::S
     occ::OccFields{T}
 
