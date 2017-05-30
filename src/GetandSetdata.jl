@@ -4,7 +4,7 @@ coordinates(pd::AbstractPointData) = pd.coords
 function coordinates(gd::AbstractGridData)
     index1 = xrange(gd.grid)[gd.indices[:,1]]
     index2 = yrange(gd.grid)[gd.indices[:,2]]
-    NamedArrays.NamedArray(hcat(index1, index2), NamedArrays.names(gd.indices), dimnames(gd.indices))
+    hcat(index1, index2)
 end
 
 traits(occ::AbstractOccFields) = occ.traits
@@ -42,7 +42,7 @@ function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::S
         max(dif/left, dif/right) < tolerance && error("Aborting join, as fit was smaller than the tolerance of $tolerance . To perform the join decrease the tolerance value")
     end
 
-    assemblagejoin!(asm.site.sitestats, newsites, :sites, sites)
+    assemblagejoin!(asm.site.sitestats, newsites, :sites, sites) #TODO this should instead be on the sitenames of the objects and adjusted below
     nothing
 end
 

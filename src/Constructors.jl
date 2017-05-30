@@ -1,7 +1,7 @@
 
-Assemblage(assm::Assmbl) = Assemblage(assm.site, assm.occ) # Not a copy constructor - I think those are automatic? Just a function that will reduce derived types to the base type
+# Big TODO we are still missing the functionality that does the aligning in the constructors
 
-# I think all of the constructors should be able to take traits, sites, dropemptys etc.
+Assemblage(assm::Assmbl) = Assemblage(assm.site, assm.occ) # Not a copy constructor - Just a function that will reduce derived types to the base type
 
 # a constructor that takes occ and coords as one single DataFrame format and separates them
 function Assemblage(occ::DataFrames.DataFrame; kwargs...)
@@ -9,44 +9,28 @@ function Assemblage(occ::DataFrames.DataFrame; kwargs...)
   Assemblage(occ, coords; kwargs...)
 end
 
-
 # a constructor that takes occ as a DataFrame
-function Assemblage(occ::DataFrames.DataFrame, coords::Union{AbstractMatrix, DataFrames.DataFrame}; kwargs...)
-  occ = parseDataFrame(occ)
-  Assemblage(occ, coords; kwargs...)
-end
+Assemblage(occ::DataFrames.DataFrame, coords::Union{AbstractMatrix, DataFrames.DataFrame}; kwargs...) = Assemblage(ComMatrix(occ), coords; kwargs...)
 
-# a constructor that takes occ as a normal matrix
-#function Assemblage(occ::AbstractMatrix, coords::Union{AbstractMatrix, DataFrames.DataFrame},
-#      sites::Vector{String}, species::Vector{String}; cdtype::coordstype = auto,
-#      dropemptyspecies::Bool = true, dropemptysites::Bool = true, match_to_coords = true)
-
-function Assemblage(occ::AbstractMatrix, coords::Union{AbstractMatrix, DataFrames.DataFrame}, sites::Vector{String}, species::Vector{String}; kwargs...)
-  occ = NamedArrays.NamedArray(occ, (sites, species))
-  Assemblage(occ, coords; kwargs...)
-end
+Assemblage(occ::AbstractMatrix, coords::Union{AbstractMatrix, DataFrames.DataFrame}, sites::Vector{String}, species::Vector{String}; kwargs...) = Assemblage(ComMatrix(occ, species, sites), coords; kwargs...)
 
 # a constructor that takes coords as a data.frame
-function Assemblage(occ::NamedArrays.NamedArray, coords::DataFrames.DataFrame; kwargs...)
+function Assemblage(occ::ComMatrix, coords::DataFrames.DataFrame; kwargs...)
 
-  if DataFrames.ncol(coords) == 2 && all(map(x -> x<:Number, eltypes(coords)))
-    coords = dataFrametoNamedMatrix(coords, sparsematrix = false, dimnames = ("sites", "coordinates"))
-elseif DataFrames.ncol(coords) == 3
-    xind, yind = guess_xycols(coords)
-    siteind = setdiff(1:3, [xind, yind])[1]
-    coords = dataFrametoNamedMatrix(coords[[xind, yind]], coords[siteind], sparsematrix = false, dimnames = ("sites", "coordinates"))
-  else
-    error("coords must be a DataFrame with a column for sites and two columns for coordinates")
-  end
+    if DataFrames.ncol(coords) == 2 && all(map(x -> x<:Number, eltypes(coords)))
+        coords = convert(Array, coords)
+    elseif DataFrames.ncol(coords) == 3
+        xind, yind = guess_xycols(coords)
+        siteind = setdiff(1:3, [xind, yind])[1]
+        coords = convert(Array, coords[[xind, yind]])
+    else
+        error("coords must be a DataFrame with a column for sites and two columns for coordinates")
+    end
 
-  Assemblage(occ, coords; kwargs...)
+    Assemblage(occ, coords; kwargs...)
 end
 
-Assemblage(occ::NamedArrays.NamedArray, coords::AbstractMatrix; kwargs...) = Assemblage(ComMatrix(occ), coords; kwargs...)
-
-Assemblage(occ::ComMatrix, coords::AbstractMatrix; kwargs...) = Assemblage(occ, NamedArrays.NamedArray(coords); kwargs...)
-
-function Assemblage(occ::ComMatrix, coords::NamedArrays.NamedArray;
+function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
       dropemptyspecies::Bool = false, dropemptysites::Bool = false, match_to_coords = true,
       traits = DataFrames.DataFrame(name = specnames(occ)), sitestats = DataFrames.DataFrame(sites = sitenames(occ)),
       cdtype::coordstype = auto)
@@ -88,9 +72,40 @@ end
 OccFields{T <: Union{Bool, Int}}(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) = OccFields{T}(commatrix, traits)
 OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
 
-function GridData(coords::NamedArrays.NamedMatrix{Float64},
+function GridData(coords::Matrix{Float64},
         sitestats::DataFrames.DataFrame = DataFrames.DataFrame(id = 1:size(coords,1)))
     grid = creategrid(coords)
     indices = getindices(coords, grid)
     GridData(indices, grid, sitestats)
+end
+
+function ComMatrix(occ::DataFrames.DataFrame)
+    if DataFrames.ncol(occ) == 3 && eltypes(occ)[3] <: String
+        println("Data format identified as Phylocom")
+        sites = unique(a[1])
+        species = unique(a[3])
+        is = indexin(a[1], sites)
+        js = indexin(a[3], species)
+        occ = maximum(a[2]) == 1 ? sparse(is, js, true) : sparse(is, js, a[2])
+        return ComMatrix(occ, string.(species), string.(sites))
+    end
+
+    if eltype(occ[1]) <: AbstractString
+        sites = string.(collect(occ[1]))
+        occ = occ[2:end]
+        species = string.(collect(names(occ)))
+    else
+        sites = string.(1:DataFrames.nrow(occ))
+        species = string.(collect(names(occ)))
+    end
+
+    try
+        occ = dataFrametoSparseMatrix(occ, Bool)
+        println("Matrix data assumed to be presence-absence")
+    catch
+        occ = dataFrametoSparseMatrix(occ, Int) #TODO This line means that this code is not completely type stable.
+        println("Matrix data assumed to be abundances, minimum $(minimum(occ)), maximum $(maximum(occ))")
+    end
+
+    ComMatrix(occ, species, sites)
 end

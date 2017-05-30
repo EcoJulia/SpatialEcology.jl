@@ -3,7 +3,6 @@ module SpatialEcology
 
 using Reexport
 @reexport using DataFrames
-@reexport using NamedArrays
 
 #import Bio.Phylo
 import RecipesBase
@@ -35,5 +34,4 @@ include("PlotRecipes.jl")
 include("Colorgradients.jl")
 include("DispersionFields.jl")
 
-registercolors()
 end # module

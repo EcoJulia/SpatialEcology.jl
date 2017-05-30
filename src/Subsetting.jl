@@ -2,9 +2,11 @@
 
 #SubDataTypes
 
-# Definition is the same, but importantly this keeps a Named Subarray
+# Definition is the same, but importantly this keeps a Subarray
 type SubComMatrix{T <: Union{Bool, Int}} <: AbstractComMatrix{T}
-    occurrences::NamedArrays.NamedArray{T, 2} #Not sure how to specify this is a Named Subarray
+    occurrences::SubArray{T,2}
+    specnames::SubArray{String,1}
+    sitenames::SubArray{String,1}
 end
 
 type SubOccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
@@ -13,13 +15,13 @@ type SubOccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
 end
 
 type SubGridData <: AbstractGridData
-    indices::NamedArrays.NamedMatrix{Int} #SubArray
+    indices::SubArray{Int,2}
     grid::GridTopology
     sitestats::DataFrames.SubDataFrame
 end
 
 type SubPointData <: AbstractPointData
-    coords::NamedArrays.NamedMatrix{Float64} #SubArray
+    coords::SubArray{Float64,2}
     sitestats::DataFrames.SubDataFrame
 end
 
@@ -32,13 +34,18 @@ type SubSiteData{S <: Union{SubGridData, SubPointData}} <: AbstractSiteData
     site::S
 end
 
-# this is because there is issues in NamedArrays when passing a Boolean PooledDataArray, which is useful for subsetting though
+# this is because there is issues in NamedArrays when passing a Boolean PooledDataArray, which is useful for subsetting though # TODO not sure this is necessary anymore - perhaps remove, or update with a string (for names)
 asindices{T <: Integer}(x::AbstractArray{T}) = x
 asindices{T <: Bool}(x::AbstractArray{T}) = find(x)
 # creating views
 view(occ::AbstractOccFields; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubOccFields(view(occ.commatrix, sites = sites, species = species), view(occ.traits,species))
 # The SiteFields things are missing as of yet - need to go by the dropbyindex functionality
-view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com)) = SubComMatrix(view(com.occurrences, asindices(sites), asindices(species)))
+function view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com))
+    sit = asindices(sites)
+    spec = asindices(species)
+    SubComMatrix(view(com.occurrences, sit, spec), view(com.specnames, spec), view(com.sitenames, sit)) #TODO change the order of these in the object to fit the array index order
+end
+
 view(pd::AbstractPointData, sites) = SubPointData(view(pd.coords, sites), view(pd.sitestats, sites))
 
 

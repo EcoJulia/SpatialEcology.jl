@@ -32,8 +32,9 @@ end
 
 abstract AbstractPointData <: SiteFields
 
+# Do I need sitenames here? I think so, they should match those in sitestats, and be separate
 type PointData <: AbstractPointData
-    coords::NamedArrays.NamedMatrix{Float64}
+    coords::Matrix{Float64}
     sitestats::DataFrames.DataFrame
     # inner constructor
     function PointData(coords, sitestats = DataFrames.DataFrame(id = 1:size(coords,1)))
@@ -46,7 +47,7 @@ end
 abstract AbstractGridData <: SiteFields
 
 type GridData <: AbstractGridData
-    indices::NamedArrays.NamedMatrix{Int}
+    indices::Matrix{Int}
     grid::GridTopology
     sitestats::DataFrames.DataFrame
 
@@ -58,9 +59,12 @@ type GridData <: AbstractGridData
 end
 
 type ComMatrix{T <: Union{Bool, Int}} <: AbstractComMatrix{T}
-    occurrences::NamedArrays.NamedArray{T, 2} #this is sparse
+    occurrences::SparseMatrixCSC{T}
+    specnames::Vector{String}
+    sitenames::Vector{String}
 end
 
+# likewise, do I need a specnames here? Should traits have a :series field (like now) or all matching be done on the specnames?
 type OccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
     commatrix::ComMatrix{T}
     traits::DataFrames.DataFrame
@@ -84,6 +88,7 @@ type Assemblage{S <: SiteFields, T <: Union{Bool, Int}} <: AbstractAssemblage # 
     # inner constructor
     function Assemblage(site, occ)
         size(occ.commatrix.occurrences, 1) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
+        #TODO activate this # sitenames(occ) == sitenames(site) || error("sitenames do not match") #I need a constructor that matches them up actively
         new(site, occ)
     end
 end

@@ -8,6 +8,7 @@ function convert_to_image(var::AbstractVector, grd::AbstractGridData)
 end
 
 RecipesBase.@recipe function f(var::AbstractVector, grd::AbstractGridData)
+    registercolors()
     seriestype := :heatmap
     aspect_ratio --> :equal
     grid --> false
@@ -20,6 +21,7 @@ RecipesBase.@recipe function f(sit::SiteFields)
 end
 
 RecipesBase.@recipe function f(var::AbstractVector, pnt::PointData)
+    registercolors()
     seriestype := :scatter
     aspect_ratio --> :equal
     grid --> false
