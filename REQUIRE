@@ -1,4 +1,4 @@
-julia 0.5
+julia 0.6
 
 RecipesBase
 DataFrames
@@ -6,4 +6,4 @@ Reexport
 PlotUtils
 MacroTools
 RCall #this should be changed as this is heavy-handed - there is an issue for this on RCall
-#Bio
+#Phylogeny
