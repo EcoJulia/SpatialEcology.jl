@@ -7,8 +7,8 @@ abstract type SpatialData end
 abstract type Assmbl <: SpatialData  end #Not sure about this structure - so far no type inherits from occdata. Perhaps SimpleTraits.jl is/has a solution
 # this is here because we also need phylogeny assemblages
 abstract type AbstractAssemblage <: Assmbl end
-abstract type AbstractOccFields{T<:Union{Bool, Integer}} end
-abstract type AbstractComMatrix{T<:Union{Bool, Integer}} end
+abstract type AbstractOccFields{T<:Union{Bool, Int}} end
+abstract type AbstractComMatrix{T<:Union{Bool, Int}} end
 abstract type SiteFields end
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
@@ -58,14 +58,14 @@ mutable struct GridData <: AbstractGridData
     end
 end
 
-mutable struct ComMatrix{T} <: AbstractComMatrix{T}
+mutable struct ComMatrix{T <: Union{Bool, Int}} <: AbstractComMatrix{T}
     occurrences::SparseMatrixCSC{T}
     specnames::Vector{String}
     sitenames::Vector{String}
 end
 
 # likewise, do I need a specnames here? Should traits have a :series field (like now) or all matching be done on the specnames?
-mutable struct OccFields{T} <: AbstractOccFields{T}
+mutable struct OccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
     commatrix::ComMatrix{T}
     traits::DataFrames.DataFrame
 
