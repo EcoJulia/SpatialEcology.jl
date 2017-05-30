@@ -69,7 +69,7 @@ type OccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
     commatrix::ComMatrix{T}
     traits::DataFrames.DataFrame
 
-    function OccFields(commatrix, traits)
+    function OccFields{T}(commatrix, traits) where T <: Union{Bool, Int}}
         DataFrames.nrow(traits) ==  nspecies(commatrix) || throw(DimensionMismatch("Wrong number of species in traits"))
         new(commatrix, traits)
     end
@@ -87,7 +87,7 @@ type Assemblage{S <: SiteFields, T <: Union{Bool, Int}} <: AbstractAssemblage # 
     occ::OccFields{T}
 
     # inner constructor
-    function Assemblage(site, occ)
+    function Assemblage{S, T}(site, occ) where {S <: SiteFields, T <: Union{Bool, Int}}
         size(occ.commatrix.occurrences, 1) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
         #TODO activate this # sitenames(occ) == sitenames(site) || error("sitenames do not match") #I need a constructor that matches them up actively
         new(site, occ)
