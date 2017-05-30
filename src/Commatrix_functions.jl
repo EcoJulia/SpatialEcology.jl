@@ -44,7 +44,7 @@ size(com::AbstractComMatrix, dims...) = size(com.occurrences, dims...)
 
 summary(com::AbstractComMatrix) = "$(nsites(com))x$(nspecies(com)) $(typeof(com))"
 
-function createsummaryline{T<:AbstractString}(vec::Vector{T})
+function createsummaryline{T<:AbstractString}(vec::AbstractVector{T})
     linefunc(vec) = mapreduce(x->x*", ", *, vec[1:(end-1)])*vec[end]
     length(vec) < 6 && return linefunc(vec)
     linefunc(vec[1:3])*"..."*linefunc(vec[(end-1):end])
