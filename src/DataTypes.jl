@@ -7,8 +7,8 @@ abstract type SpatialData end
 abstract type Assmbl <: SpatialData  end #Not sure about this structure - so far no type inherits from occdata. Perhaps SimpleTraits.jl is/has a solution
 # this is here because we also need phylogeny assemblages
 abstract type AbstractAssemblage <: Assmbl end
-abstract type AbstractOccFields{T} end
-abstract type AbstractComMatrix{T} end
+abstract type AbstractOccFields{T<:Union{Bool, Integer}} end
+abstract type AbstractComMatrix{T<:Union{Bool, Integer}} end
 abstract type SiteFields end
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
@@ -58,18 +58,18 @@ mutable struct GridData <: AbstractGridData
     end
 end
 
-mutable struct ComMatrix{T} <: AbstractComMatrix{T} where T <: Union{Bool, Int}
+mutable struct ComMatrix{T} <: AbstractComMatrix{T}
     occurrences::SparseMatrixCSC{T}
     specnames::Vector{String}
     sitenames::Vector{String}
 end
 
 # likewise, do I need a specnames here? Should traits have a :series field (like now) or all matching be done on the specnames?
-mutable struct OccFields{T} <: AbstractOccFields{T} where T <: Union{Bool, Int}}
+mutable struct OccFields{T} <: AbstractOccFields{T}
     commatrix::ComMatrix{T}
     traits::DataFrames.DataFrame
 
-    function OccFields{T}(commatrix, traits) where T <: Union{Bool, Int}}
+    function OccFields{T}(commatrix, traits) where T <: Union{Bool, Int}
         DataFrames.nrow(traits) ==  nspecies(commatrix) || throw(DimensionMismatch("Wrong number of species in traits"))
         new(commatrix, traits)
     end
@@ -78,7 +78,7 @@ end
 abstract type AbstractSiteData <: SpatialData end
 
 # Not really sure what this type is for
-mutable struct SiteData{S} <: AbstractSiteData where  S <: SiteFields
+mutable struct SiteData{S} <: AbstractSiteData where S <: SiteFields
     site::S
 end
 

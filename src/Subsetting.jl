@@ -3,13 +3,13 @@
 #SubDataTypes
 
 # Definition is the same, but importantly this keeps a Subarray
-mutable struct SubComMatrix{T} <: AbstractComMatrix{T} where T <: Union{Bool, Int}
+mutable struct SubComMatrix{T} <: AbstractComMatrix{T}
     occurrences::SubArray{T,2}
     specnames::SubArray{String,1}
     sitenames::SubArray{String,1}
 end
 
-mutable struct SubOccFields{T} <: AbstractOccFields{T} where T <: Union{Bool, Int}
+mutable struct SubOccFields{T} <: AbstractOccFields{T} 
     commatrix::SubComMatrix{T}
     traits::DataFrames.SubDataFrame
 end
