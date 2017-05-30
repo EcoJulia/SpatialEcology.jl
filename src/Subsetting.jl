@@ -48,19 +48,6 @@ end
 
 view(pd::AbstractPointData, sites) = SubPointData(view(pd.coords, sites), view(pd.sitestats, sites))
 
-
-# In actual fact, only the sitestats DataFrames is subsetted, the rest creates a new object in memory
-# function view(gd::AbstractGridData, sites)
-#     indices = gd.indices[sites, :]
-#     grid = subsetgrid(indices, gd.grid)
-#     x_shift = Int.((xmin(grid) - xmin(gd.grid)) / xcellsize(gd.grid))
-#     y_shift = Int.((ymin(grid) - ymin(gd.grid)) / ycellsize(gd.grid))
-#     indices[:,1] .-= x_shift
-#     indices[:,2] .-= y_shift
-#     SubGridData(indices, grid, view(gd.sitestats, sites))
-# end
-
-#TODO fix copy so it subsets the grid (x/ymin and x/ycells)
 view(gd::AbstractGridData, sites) = SubGridData(view(gd.indices, sites, :), gd.grid, view(gd.sitestats, sites))
 view(sp::AbstractSiteData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
 
@@ -84,9 +71,18 @@ end
 copy(asm::AbstractAssemblage) = Assemblage(copy(asm.site), copy(asm.occ))
 copy(sp::AbstractSiteData) = SiteData(copy(sp.site))
 copy(pd::AbstractPointData) = PointData(copy(pd.coords), copy(pd.sitestats))
-copy(gd::AbstractGridData) = GridData(copy(gd.indices), gd.grid, my_dataframe_copy(gd.sitestats))
-copy(pd::AbstractComMatrix) = ComMatrix(copy(pd.occurrences))
+copy(pd::AbstractComMatrix) = ComMatrix(copy(pd.occurrences), copy(pd.specnames), copy(pd.sitenames))
 copy(occ::AbstractOccFields) = OccFields(copy(occ.commatrix), my_dataframe_copy(occ.traits))
+
+function copy(gd::AbstractGridData)
+    indices = copy(gd.indices)
+    grid = subsetgrid(indices, gd.grid)
+    x_shift = Int.((xmin(grid) - xmin(gd.grid)) / xcellsize(gd.grid))
+    y_shift = Int.((ymin(grid) - ymin(gd.grid)) / ycellsize(gd.grid))
+    indices[:,1] .-= x_shift
+    indices[:,2] .-= y_shift
+    GridData(indices, grid, my_dataframe_copy(gd.sitestats))
+end
 
 # because I cannot define a new copy method for DataFrames
 function my_dataframe_copy(sdf::AbstractDataFrame)
@@ -98,13 +94,13 @@ function my_dataframe_copy(sdf::AbstractDataFrame)
 end
 # Helper functions
 
-# function subsetgrid(indices, grid)
-#   xmin = xrange(grid)[minimum(indices[:,1])]
-#   ymin = yrange(grid)[minimum(indices[:,2])]
-#   xcells = maxrange(indices[:,1]) + 1
-#   ycells = maxrange(indices[:,2]) + 1
-#   GridTopology(xmin, grid.xcellsize, xcells, ymin, grid.ycellsize, ycells)
-# end
+function subsetgrid(indices, grid)
+   xmin = xrange(grid)[minimum(indices[:,1])]
+   ymin = yrange(grid)[minimum(indices[:,2])]
+   xcells = maxrange(indices[:,1]) + 1
+   ycells = maxrange(indices[:,2]) + 1
+   GridTopology(xmin, grid.xcellsize, xcells, ymin, grid.ycellsize, ycells)
+end
 
 function show(io::IO, com::SubComMatrix)
     sp = createsummaryline(specnames(com))
