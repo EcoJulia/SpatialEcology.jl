@@ -1,6 +1,7 @@
 
 #registers some new color gradients for use in Plots
 function registercolors()
+    :spatialecology in clibraries() && return # only do something the first time this is called
     register_color_library(:spatialecology)
     default_cgrad(:spatialecology, sequential = :hmrainbow, diverging = :redblue)
 
