@@ -42,8 +42,15 @@ function testbool(x::Int)
     x > 1 && error("Integer values > 1 used to create Boolean matrix")
     return false
 end
+
+testbool(x) = error("Value can not be interpreted as Boolean")
 testbool(x::DataFrames.NAtype) = false
 testbool(x::Bool) = x
+function testbool(x::Number)
+  x == 0 && return false
+  x == 1 && return true
+  error("Value can not be interpreted as Boolean")
+end
 
 function dataFrametoSparseMatrix{T<:Bool}(dat::DataFrames.DataFrame, ::Type{T})
     is, js = Vector{Int}(), Vector{Int}()
