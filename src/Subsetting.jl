@@ -50,19 +50,20 @@ view(pd::AbstractPointData, sites) = SubPointData(view(pd.coords, sites), view(p
 
 
 # In actual fact, only the sitestats DataFrames is subsetted, the rest creates a new object in memory
-function view(gd::AbstractGridData, sites)
-    indices = gd.indices[sites, :]
-    grid = subsetgrid(indices, gd.grid)
-    x_shift::Int = (xmin(grid) - xmin(gd.grid)) / xcellsize(gd.grid)
-    y_shift::Int = (ymin(grid) - ymin(gd.grid)) / ycellsize(gd.grid)
-    indices[:,1] .-= x_shift
-    indices[:,2] .-= y_shift
-    SubGridData(indices, grid, view(gd.sitestats, sites))
-end
+# function view(gd::AbstractGridData, sites)
+#     indices = gd.indices[sites, :]
+#     grid = subsetgrid(indices, gd.grid)
+#     x_shift = Int.((xmin(grid) - xmin(gd.grid)) / xcellsize(gd.grid))
+#     y_shift = Int.((ymin(grid) - ymin(gd.grid)) / ycellsize(gd.grid))
+#     indices[:,1] .-= x_shift
+#     indices[:,2] .-= y_shift
+#     SubGridData(indices, grid, view(gd.sitestats, sites))
+# end
 
+#TODO fix copy so it subsets the grid (x/ymin and x/ycells)
+view(gd::AbstractGridData, sites) = SubGridData(view(gd.indices, sites, :), gd.grid, view(gd.sitestats, sites))
 view(sp::AbstractSiteData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
 
-# the alternative to :occupied and :occurring is :all in both cases
 function view(asm::AbstractAssemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false)
     occ = view(asm.occ, species = species, sites = sites)
     site = view(asm.site, sites)
@@ -97,13 +98,13 @@ function my_dataframe_copy(sdf::AbstractDataFrame)
 end
 # Helper functions
 
-function subsetgrid(indices, grid)
-  xmin = xrange(grid)[minimum(indices[:,1])]
-  ymin = yrange(grid)[minimum(indices[:,2])]
-  xcells = maxrange(indices[:,1]) + 1
-  ycells = maxrange(indices[:,2]) + 1
-  GridTopology(xmin, grid.xcellsize, xcells, ymin, grid.ycellsize, ycells)
-end
+# function subsetgrid(indices, grid)
+#   xmin = xrange(grid)[minimum(indices[:,1])]
+#   ymin = yrange(grid)[minimum(indices[:,2])]
+#   xcells = maxrange(indices[:,1]) + 1
+#   ycells = maxrange(indices[:,2]) + 1
+#   GridTopology(xmin, grid.xcellsize, xcells, ymin, grid.ycellsize, ycells)
+# end
 
 function show(io::IO, com::SubComMatrix)
     sp = createsummaryline(specnames(com))
