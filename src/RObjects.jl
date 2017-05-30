@@ -20,7 +20,7 @@ function getRobject(name::String)
     rcopy(R"obj")
 end
 
-function Assemblage{T, S}(rdict::Dict{T, S}) where {T <: Symbol, S}
+function Assemblage(rdict::Dict{T, S}) where {T <: Symbol, S}
 
     cd_type = rdict[:type] == "grid" ? griddata : pointdata #this code only works as long as there are only those two types
     Assemblage(rdict[:comm], rdict[:coords] ,

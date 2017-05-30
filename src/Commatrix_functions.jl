@@ -30,21 +30,21 @@ sitenames(com::AbstractComMatrix) = com.sitenames
 sitenames(sd::SpatialData) = sitenames(sd.site)
 sitenames(sd::SiteFields) = collect(sd.sitestats[:sites])
 
-occupancy{T}(com::AbstractComMatrix{T}) where T<:Bool = vec(colsum(com.occurrences))
-occupancy{T}(com::AbstractComMatrix{T}) where T<:Int = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 1))
+occupancy(com::AbstractComMatrix{T}) where T<:Bool = vec(colsum(com.occurrences))
+occupancy(com::AbstractComMatrix{T}) where T<:Int = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 1))
 
-richness{T}(com::AbstractComMatrix{T}) where T<:Bool = vec(rowsum(com.occurrences))
-richness{T}(com::AbstractComMatrix{T}) where T<:Int = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 2))
+richness(com::AbstractComMatrix{T}) where T<:Bool = vec(rowsum(com.occurrences))
+richness(com::AbstractComMatrix{T}) where T<:Int = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 2))
 
-records{T}(com::AbstractComMatrix{T}) where T<:Int = sum(i > 0 for i in com.occurrences)
-records{T}(com::AbstractComMatrix{T}) where T<:Bool = sum(com.occurrences)
+records(com::AbstractComMatrix{T}) where T<:Int = sum(i > 0 for i in com.occurrences)
+records(com::AbstractComMatrix{T}) where T<:Bool = sum(com.occurrences)
 
 size(com::AbstractComMatrix) = size(com.occurrences)
 size(com::AbstractComMatrix, dims...) = size(com.occurrences, dims...)
 
 summary(com::AbstractComMatrix) = "$(nsites(com))x$(nspecies(com)) $(typeof(com))"
 
-function createsummaryline{T<:AbstractString}(vec::AbstractVector{T})
+function createsummaryline(vec::AbstractVector{T}) where T<:AbstractString
     linefunc(vec) = mapreduce(x->x*", ", *, vec[1:(end-1)])*vec[end]
     length(vec) < 6 && return linefunc(vec)
     linefunc(vec[1:3])*"..."*linefunc(vec[(end-1):end])
@@ -72,7 +72,7 @@ getindex(com::AbstractComMatrix, inds...) = ComMatrix(getindex(com.occurrences, 
 
 setindex!(com::AbstractComMatrix, X, inds...) = setindex!(com.occurrences, X, inds...)
 
-function getindex{S <: SiteFields}(site::S, inds)
+function getindex(site::S, inds) where S<:SiteFields
   S(coordinates(site)[inds,:], site.sitestats[inds,:])
 end
 
