@@ -2,14 +2,14 @@
 @enum coordstype auto griddata pointdata
 #@enum inputdatatype auto phylocom worldmapfile benholtmatrix
 
-abstract OccData
-abstract SpatialData
-abstract Assmbl <: SpatialData  #Not sure about this structure - so far no type inherits from occdata. Perhaps SimpleTraits.jl is/has a solution
+abstract type OccData end
+abstract type SpatialData end
+abstract type Assmbl <: SpatialData  end #Not sure about this structure - so far no type inherits from occdata. Perhaps SimpleTraits.jl is/has a solution
 # this is here because we also need phylogeny assemblages
-abstract AbstractAssemblage <: Assmbl
-abstract AbstractOccFields{T}
-abstract AbstractComMatrix{T}
-abstract SiteFields
+abstract type AbstractAssemblage <: Assmbl end
+abstract type AbstractOccFields{T} end
+abstract type AbstractComMatrix{T} end
+abstract type SiteFields end
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
@@ -30,7 +30,7 @@ type Bbox
     ymax::Number
 end
 
-abstract AbstractPointData <: SiteFields
+abstract type AbstractPointData <: SiteFields end
 
 # Do I need sitenames here? I think so, they should match those in sitestats, and be separate
 type PointData <: AbstractPointData
@@ -44,7 +44,7 @@ type PointData <: AbstractPointData
     end
 end
 
-abstract AbstractGridData <: SiteFields
+abstract type AbstractGridData <: SiteFields end
 
 type GridData <: AbstractGridData
     indices::Matrix{Int}
@@ -75,7 +75,8 @@ type OccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
     end
 end
 
-abstract AbstractSiteData <: SpatialData
+abstract type AbstractSiteData <: SpatialData end
+
 # Not really sure what this type is for
 type SiteData{S <: SiteFields} <: AbstractSiteData
     site::S
