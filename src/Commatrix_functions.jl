@@ -30,14 +30,14 @@ sitenames(com::AbstractComMatrix) = com.sitenames
 sitenames(sd::SpatialData) = sitenames(sd.site)
 sitenames(sd::SiteFields) = collect(sd.sitestats[:sites])
 
-occupancy{T<:Bool}(com::AbstractComMatrix{T}) = vec(colsum(com.occurrences))
-occupancy{T<:Int}(com::AbstractComMatrix{T}) = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 1))
+occupancy{T}(com::AbstractComMatrix{T}) where T<:Bool = vec(colsum(com.occurrences))
+occupancy{T}(com::AbstractComMatrix{T}) where T<:Int = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 1))
 
-richness{T<:Bool}(com::AbstractComMatrix{T}) = vec(rowsum(com.occurrences))
-richness{T<:Int}(com::AbstractComMatrix{T}) = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 2))
+richness{T}(com::AbstractComMatrix{T}) where T<:Bool = vec(rowsum(com.occurrences))
+richness{T}(com::AbstractComMatrix{T}) where T<:Int = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 2))
 
-records{T<:Int}(com::AbstractComMatrix{T}) = sum(i > 0 for i in com.occurrences)
-records{T<:Bool}(com::AbstractComMatrix{T}) = sum(com.occurrences)
+records{T}(com::AbstractComMatrix{T}) where T<:Int = sum(i > 0 for i in com.occurrences)
+records{T}(com::AbstractComMatrix{T}) where T<:Bool = sum(com.occurrences)
 
 size(com::AbstractComMatrix) = size(com.occurrences)
 size(com::AbstractComMatrix, dims...) = size(com.occurrences, dims...)

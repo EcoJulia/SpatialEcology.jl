@@ -3,13 +3,13 @@
 #SubDataTypes
 
 # Definition is the same, but importantly this keeps a Subarray
-type SubComMatrix{T <: Union{Bool, Int}} <: AbstractComMatrix{T}
+type SubComMatrix{T} <: AbstractComMatrix{T} where T <: Union{Bool, Int}
     occurrences::SubArray{T,2}
     specnames::SubArray{String,1}
     sitenames::SubArray{String,1}
 end
 
-type SubOccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
+type SubOccFields{T} <: AbstractOccFields{T} where T <: Union{Bool, Int}
     commatrix::SubComMatrix{T}
     traits::DataFrames.SubDataFrame
 end
@@ -25,18 +25,18 @@ type SubPointData <: AbstractPointData
     sitestats::DataFrames.SubDataFrame
 end
 
-type SubAssemblage{S <: Union{SubGridData, SubPointData}, T <: Union{Bool, Int}} <: AbstractAssemblage # A type to keep subtypes together, ensuring that they are all aligned at all times
+type SubAssemblage{S,T} <: AbstractAssemblage where {S <: Union{SubGridData, SubPointData}, T <: Union{Bool, Int}}# A type to keep subtypes together, ensuring that they are all aligned at all times
     site::S
     occ::SubOccFields{T}
 end
 
-type SubSiteData{S <: Union{SubGridData, SubPointData}} <: AbstractSiteData
+type SubSiteData{S} <: AbstractSiteData where S <: Union{SubGridData, SubPointData}
     site::S
 end
 
 # TODO not sure this is necessary anymore - perhaps remove, or update with a string (for names)
-asindices{T <: Integer}(x::AbstractArray{T}) = x
-asindices{T <: Bool}(x::AbstractArray{T}) = find(x)
+asindices{T}(x::AbstractArray{T}) where T <: Integer = x
+asindices{T}(x::AbstractArray{T}) where T <: Bool = find(x)
 # creating views
 view(occ::AbstractOccFields; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubOccFields(view(occ.commatrix, sites = sites, species = species), view(occ.traits,species))
 # The SiteFields things are missing as of yet - need to go by the dropbyindex functionality

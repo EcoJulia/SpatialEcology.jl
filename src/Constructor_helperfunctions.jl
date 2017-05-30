@@ -52,7 +52,7 @@ function testbool(x::Number)
   error("Value can not be interpreted as Boolean")
 end
 
-function dataFrametoSparseMatrix{T<:Bool}(dat::DataFrames.DataFrame, ::Type{T})
+function dataFrametoSparseMatrix{T}(dat::DataFrames.DataFrame, ::Type{T}) where T<:Bool
     is, js = Vector{Int}(), Vector{Int}()
 
     for j in 1:DataFrames.ncol(dat)
@@ -68,7 +68,7 @@ function dataFrametoSparseMatrix{T<:Bool}(dat::DataFrames.DataFrame, ::Type{T})
     sparse(is, js, true, DataFrames.nrow(dat), DataFrames.ncol(dat))
 end
 
-function dataFrametoSparseMatrix{T<:Int}(dat::DataFrames.DataFrame, ::Type{T})
+function dataFrametoSparseMatrix{T}(dat::DataFrames.DataFrame, ::Type{T}) where T<:Int
     is, js, vals = Vector{Int}(), Vector{Int}(), Vector{Int}()
 
     for j in 1:DataFrames.ncol(dat)
