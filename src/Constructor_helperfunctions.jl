@@ -55,7 +55,7 @@ end
 function dataFrametoSparseMatrix(dat::DataFrames.DataFrame, ::Type{T}) where T<:Bool
     is, js = Vector{Int}(), Vector{Int}()
 
-    for j in 1:DataFrames.ncol(dat)
+    @inbounds for j in 1:DataFrames.ncol(dat)
         col = dat[:,j]
         for i in 1:DataFrames.nrow(dat)
             if testbool(col[i])
@@ -71,7 +71,7 @@ end
 function dataFrametoSparseMatrix(dat::DataFrames.DataFrame, ::Type{T}) where T<:Int
     is, js, vals = Vector{Int}(), Vector{Int}(), Vector{Int}()
 
-    for j in 1:DataFrames.ncol(dat)
+    @inbounds for j in 1:DataFrames.ncol(dat)
         col = dat[:,j]
         for i in 1:DataFrames.nrow(dat)
             if !isna(col[i])

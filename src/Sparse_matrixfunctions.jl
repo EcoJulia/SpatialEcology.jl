@@ -10,7 +10,7 @@ colsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC} = (sparse(ones(Int,lengt
 
 function nzrows(a::SparseMatrixCSC)
     active = falses(a.m)
-    for r in a.rowval
+    @inbounds for r in a.rowval
         active[r] = true
     end
     return find(active)
@@ -26,7 +26,7 @@ inrange(v,r) = searchsortedlast(v,last(r))>=searchsortedfirst(v,first(r))
 
 function sortedintersecting(v1, v2)
     i,j = start(v1), start(v2)
-    while i <= length(v1) && j <= length(v2)
+    @inbounds while i <= length(v1) && j <= length(v2)
         if v1[i] == v2[j] return true
         elseif v1[i] > v2[j] j += 1
         else i += 1
@@ -38,7 +38,7 @@ end
 function nzcols(b::SubArray{T,2,P,Tuple{Vector{Int64},Vector{Int64}}} where {T,P<:SparseMatrixCSC}
   )
     brows = sort(unique(b.indexes[1]))
-    return [k
+    @inbounds return [k
       for (k,i) in enumerate(b.indexes[2])
       if b.parent.colptr[i]<b.parent.colptr[i+1] &&
         sortedintersecting(b.parent.rowval[nzrange(b.parent,i)], brows)]
@@ -46,7 +46,7 @@ end
 
 function nzcols(b::SubArray{T,2,P,Tuple{UnitRange{Int64},UnitRange{Int64}}} where {T,P<:SparseMatrixCSC}
   )
-    return collect(i+1-start(b.indexes[2])
+    @inbounds return collect(i+1-start(b.indexes[2])
       for i in b.indexes[2]
       if b.parent.colptr[i]<b.parent.colptr[i+1] &&
         inrange(b.parent.rowval[nzrange(b.parent,i)], b.indexes[1]))
@@ -54,7 +54,7 @@ end
 
 function nzcols(b::SubArray{T,2,P,Tuple{UnitRange{Int64},Vector{Int64}}} where {T,P<:SparseMatrixCSC}
   )
-  return [k
+  @inbounds return [k
     for (k,i) in enumerate(b.indexes[2])
     if b.parent.colptr[i]<b.parent.colptr[i+1] &&
         inrange(b.parent.rowval[nzrange(b.parent,i)], b.indexes[1])]
@@ -63,7 +63,7 @@ end
 function nzcols(b::SubArray{T,2,P,Tuple{Vector{Int64},UnitRange{Int64}}} where {T,P<:SparseMatrixCSC}
   )
     brows = sort(unique(b.indexes[1]))
-    return collect(i+1-start(b.indexes[2])
+    @inbounds return collect(i+1-start(b.indexes[2])
       for i in b.indexes[2]
       if b.parent.colptr[i]<b.parent.colptr[i+1] &&
         sortedintersecting(b.parent.rowval[nzrange(b.parent,i)], brows))
@@ -72,7 +72,7 @@ end
 function findin2(inds,v,w)
     i,j = start(v),start(w)
     res = Vector{Int}()
-    while i<=length(v) && j<=length(w)
+    @inbounds while i<=length(v) && j<=length(w)
         if v[i]==w[j]
             push!(res,inds[i])
             i += 1
@@ -88,7 +88,7 @@ function nzrows(b::SubArray{T,2,P,Tuple{Vector{Int64}, U}} where {T,P<:SparseMat
     active = falses(length(b.indexes[1]))
     inds = sortperm(b.indexes[1])
     brows = (b.indexes[1])[inds]
-    for c in b.indexes[2]
+    @inbounds for c in b.indexes[2]
       active[findin2(inds,brows,b.parent.rowval[nzrange(b.parent,c)])] = true
     end
     return find(active)
@@ -97,7 +97,7 @@ end
 function nzrows(b::SubArray{T,2,P,Tuple{UnitRange{Int64}, U}} where {T,P<:SparseMatrixCSC, U<:Union{UnitRange{Int64}, Vector{Int}}}
   )
     active = falses(length(b.indexes[1]))
-    for c in b.indexes[2]
+    @inbounds for c in b.indexes[2]
         for r in nzrange(b.parent,c)
             if b.parent.rowval[r] in b.indexes[1]
                 active[b.parent.rowval[r]+1-start(b.indexes[1])] = true

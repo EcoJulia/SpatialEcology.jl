@@ -48,7 +48,7 @@ end
 
 function assemblagejoin!(df1::AbstractDataFrame, df2::AbstractDataFrame, on_left::Symbol, on_right::Symbol)
     right = DataFrames.nas(df2, DataFrames.nrow(df1))
-    for (i, j) in enumerate(indexin(df2[on_right], df1[on_left]))
+    @inbounds for (i, j) in enumerate(indexin(df2[on_right], df1[on_left]))
         if ! (j == 0)
             right[j,:] = df2[i,:]
         end
