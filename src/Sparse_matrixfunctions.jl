@@ -4,7 +4,7 @@
 rowsum(x) = sum(x,2)
 rowsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC} = (x.parent * sparse(x.indexes[2],ones(Int,length(x.indexes[2])), ones(Int,length(x.indexes[2])), size(x.parent,2),1))[x.indexes[1]]
 colsum(x) = sum(x,1)
-colsumzs(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC} = (sparse(ones(Int,length(x.indexes[1])), x.indexes[1], ones(Int,length(x.indexes[1])),1,size(x.parent,1))*x.parent)[x.indexes[2]]
+colsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC} = (sparse(ones(Int,length(x.indexes[1])), x.indexes[1], ones(Int,length(x.indexes[1])),1,size(x.parent,1))*x.parent)[x.indexes[2]]
 
 # Functions for finding nonzero rows and columns from Dan Getz, http://stackoverflow.com/questions/43968445/identify-which-rows-or-columns-have-values-in-sparse-matrix
 
