@@ -58,7 +58,7 @@ mutable struct GridData <: AbstractGridData
     end
 end
 
-mutable struct ComMatrix{T <: Union{Bool, Int}} <: AbstractComMatrix{T}
+mutable struct ComMatrix{T} <: AbstractComMatrix{T}
     occurrences::SparseMatrixCSC{T}
     specnames::Vector{String}
     sitenames::Vector{String}
@@ -69,7 +69,7 @@ mutable struct OccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
     commatrix::ComMatrix{T}
     traits::DataFrames.DataFrame
 
-    function OccFields{T}(commatrix, traits) where T <: Union{Bool, Int}
+    function OccFields{T}(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: Union{Bool, Int}
         DataFrames.nrow(traits) ==  nspecies(commatrix) || throw(DimensionMismatch("Wrong number of species in traits"))
         new(commatrix, traits)
     end
@@ -87,7 +87,7 @@ mutable struct Assemblage{S, T} <: AbstractAssemblage where {S <: SiteFields, T 
     occ::OccFields{T}
 
     # inner constructor
-    function Assemblage{S, T}(site, occ) where {S <: SiteFields, T <: Union{Bool, Int}}
+    function Assemblage{S, T}(site::S, occ::OccFields{T}) where {S <: SiteFields, T <: Union{Bool, Int}}
         size(occ.commatrix.occurrences, 1) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
         #TODO activate this # sitenames(occ) == sitenames(site) || error("sitenames do not match") #I need a constructor that matches them up actively
         new(site, occ)
