@@ -72,13 +72,6 @@ end
 OccFields(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: Union{Bool, Int} = OccFields{T}(commatrix, traits)
 OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
 
-function GridData(coords::Matrix{Float64},
-        sitestats::DataFrames.DataFrame = DataFrames.DataFrame(id = 1:size(coords,1)))
-    grid = creategrid(coords)
-    indices = getindices(coords, grid)
-    GridData(indices, grid, sitestats)
-end
-
 function ComMatrix(occ::DataFrames.DataFrame)
     if DataFrames.ncol(occ) == 3 && eltypes(occ)[3] <: String
         println("Data format identified as Phylocom")
@@ -108,4 +101,13 @@ function ComMatrix(occ::DataFrames.DataFrame)
     end
 
     ComMatrix(occ, species, sites)
+end
+
+ComMatrix(occurrences::Array, specnames, sitenames) = ComMatrix(sparse(occurrences), specnames, sitenames)
+
+function GridData(coords::Matrix{Float64},
+        sitestats::DataFrames.DataFrame = DataFrames.DataFrame(id = 1:size(coords,1)))
+    grid = creategrid(coords)
+    indices = getindices(coords, grid)
+    GridData(indices, grid, sitestats)
 end
