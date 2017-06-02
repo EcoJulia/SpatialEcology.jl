@@ -87,7 +87,7 @@ function ComMatrix(occ::DataFrames.DataFrame)
         is = indexin(occ[1], sites)
         js = indexin(occ[3], species)
         occ = maximum(occ[2]) == 1 ? sparse(is, js, true) : sparse(is, js, occ[2])
-        return ComMatrix(occ, string.(species), string.(sites))
+        return ComMatrix(occ, string.(collect(species)), string.(collect(sites)))
     end
 
     if eltype(occ[1]) <: AbstractString
