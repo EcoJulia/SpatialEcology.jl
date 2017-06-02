@@ -82,11 +82,11 @@ end
 function ComMatrix(occ::DataFrames.DataFrame)
     if DataFrames.ncol(occ) == 3 && eltypes(occ)[3] <: String
         println("Data format identified as Phylocom")
-        sites = unique(a[1])
-        species = unique(a[3])
-        is = indexin(a[1], sites)
-        js = indexin(a[3], species)
-        occ = maximum(a[2]) == 1 ? sparse(is, js, true) : sparse(is, js, a[2])
+        sites = unique(occ[1])
+        species = unique(occ[3])
+        is = indexin(occ[1], sites)
+        js = indexin(occ[3], species)
+        occ = maximum(occ[2]) == 1 ? sparse(is, js, true) : sparse(is, js, occ[2])
         return ComMatrix(occ, string.(species), string.(sites))
     end
 
