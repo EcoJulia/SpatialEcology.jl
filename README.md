@@ -64,7 +64,7 @@ histogram(amph[:rangesize], grid = false, legend = false)
 
 ```julia
 meanrange = map(site->mean(amph[:rangesize][occurring(amph,site)]), 1:nsites(amph))
-plot(meanrange, amph)
+plot(meanrange, amph, color = :fire)
 ```
 ![](img/meanrange.png)
 
