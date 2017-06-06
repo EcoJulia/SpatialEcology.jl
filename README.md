@@ -1,6 +1,6 @@
 # SpatialEcology
 
-[![Build Status](https://travis-ci.org/mkborregaard/SpatialEcology.jl.svg?branch=master)](https://travis-ci.org/mkborregaard/SpatialEcology.jl)
+[![Build Status](https://travis-ci.org/EcoJulia/SpatialEcology.jl.svg?branch=master)](https://travis-ci.org/EcoJulia/SpatialEcology.jl)
 
 ### Primary author: Michael Krabbe Borregaard (@mkborregaard)
 
