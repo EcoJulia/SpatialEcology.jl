@@ -32,6 +32,11 @@ function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::S
     nothing
 end
 
+function addtraits!(asm::Assemblage, newtraits::AbstractVector, name::Union{String, Symbol})
+    length(newtraits) == nspecies(asm) || error("Cannot add a vector of length $(length(newtraits)) to an Assemblage with $(nspecies(asm)) species")
+    asm.occ.traits[Symbol(name)] = newtraits
+end
+
 function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::Symbol; validate = true, tolerance = 0.5)
     if validate
         dif, left, right = length(intersect(newsites[sites], sitenames(asm))) , nsites(asm), size(newsites,1)
@@ -44,6 +49,11 @@ function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::S
 
     assemblagejoin!(asm.site.sitestats, newsites, :sites, sites) #TODO this should instead be on the sitenames of the objects and adjusted below
     nothing
+end
+
+function addsitestats!(asm::Assemblage, newsites::AbstractVector, name::Union{String, Symbol})
+    length(newsites) == nsites(asm) || error("Cannot add a vector of length $(length(newsites)) to an Assemblage with $(nsites(asm)) sites")
+    asm.site.sitestats[Symbol(name)] = newsites
 end
 
 function assemblagejoin!(df1::AbstractDataFrame, df2::AbstractDataFrame, on_left::Symbol, on_right::Symbol)

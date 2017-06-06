@@ -14,9 +14,15 @@ end
 
 occurring(com::AbstractComMatrix) = nzcols(com.occurrences)
 occupied(com::AbstractComMatrix) = nzrows(com.occurrences)
+occurring(com::AbstractComMatrix{T}, idx) where T<:Bool = find(com.occurrences[idx,:])
+occupied(com::AbstractComMatrix{T}, idx) where T<:Bool = find(com.occurrences[:,idx])
+occurring(com::AbstractComMatrix{T}, idx) where T<:Int = find(com.occurrences[idx,:] .> 0)
+occupied(com::AbstractComMatrix{T}, idx) where T<:Int = find(com.occurrences[:,idx] .> 0)
 
 noccurring(x) = length(occurring(x))
 noccupied(x) = length(occupied(x))
+noccurring(x, idx) = length(occurring(x, idx))
+noccupied(x, idx) = length(occupied(x, idx))
 
 nspecies(com::AbstractComMatrix) = size(com.occurrences, 2)
 nsites(com::AbstractComMatrix) = size(com.occurrences, 1)
