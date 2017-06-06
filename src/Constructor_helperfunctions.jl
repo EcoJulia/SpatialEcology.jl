@@ -33,7 +33,7 @@ end
 
 function guess_xycols(dat::DataFrames.DataFrame)
   numbers = map(x -> x<:Number, eltypes(dat))
-  sum(!numbers) == 1 || error("Site names cannot be numeric in the input matrix")
+  sum(.!numbers) == 1 || error("Site names cannot be numeric in the input matrix")
   ((find(numbers)[1:2])...)
 end
 
@@ -162,7 +162,7 @@ function gridvar(x, tolerance = sqrt(eps()))
 end
 
 function getindices(coords::Matrix{Float64}, grid::GridTopology, tolerance = 2*sqrt(eps()))
-  index1 = 1 + floor(Int,(coords[:,1] .- grid.xmin) ./ grid.xcellsize .+ tolerance)
-  index2 = 1 + floor(Int,(coords[:,2] .- grid.ymin) ./ grid.ycellsize .+ tolerance)
+  index1 = 1 + floor.(Int,(coords[:,1] .- grid.xmin) ./ grid.xcellsize .+ tolerance)
+  index2 = 1 + floor.(Int,(coords[:,2] .- grid.ymin) ./ grid.ycellsize .+ tolerance)
   hcat(index1, index2)
 end
