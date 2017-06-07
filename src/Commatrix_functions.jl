@@ -1,6 +1,6 @@
 # the forward macro was copied in from Lazy.jl at the suggestion of @MikeInnes
 macro forward(ex, fs)
-    @capture(ex, T_.field_) || error("Syntax: @forward T.x f, g, h")
+    T, field = ex.args[1], ex.args[2].args[1]
     T = esc(T)
     fs = isexpr(fs, :tuple) ? map(esc, fs.args) : [esc(fs)]
     :($([:($f(x::$T, args...) = (Base.@_inline_meta; $f(x.$field, args...)))
@@ -8,9 +8,9 @@ macro forward(ex, fs)
     nothing)
 end
 
-@forward Assmbl.occ nspecies, nsites, occupancy, richness, records, occurring, occupied, specnames, sitenames
-@forward AbstractOccFields.commatrix nspecies, nsites, specnames, sitenames, occupancy, richness, records, occurring, occupied
-@forward Assmbl.site sitenames
+@my_forward Assmbl.occ nspecies, nsites, occupancy, richness, records, occurring, occupied, specnames, sitenames
+@my_forward AbstractOccFields.commatrix nspecies, nsites, specnames, sitenames, occupancy, richness, records, occurring, occupied
+@my_forward Assmbl.site sitenames
 
 occurring(com::AbstractComMatrix) = nzcols(com.occurrences)
 occupied(com::AbstractComMatrix) = nzrows(com.occurrences)
