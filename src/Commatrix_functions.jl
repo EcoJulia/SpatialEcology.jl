@@ -1,5 +1,5 @@
 # the forward macro was copied in from Lazy.jl at the suggestion of @MikeInnes
-macro forward(ex, fs)
+macro my_forward(ex, fs)
     T, field = ex.args[1], ex.args[2].args[1]
     T = esc(T)
     fs = isexpr(fs, :tuple) ? map(esc, fs.args) : [esc(fs)]
