@@ -42,8 +42,7 @@ occupancy(com::AbstractComMatrix{T}) where T<:Int = vec(mapslices(x->sum(i > 0 f
 richness(com::AbstractComMatrix{T}) where T<:Bool = vec(rowsum(com.occurrences))
 richness(com::AbstractComMatrix{T}) where T<:Int = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 2))
 
-records(com::AbstractComMatrix{T}) where T<:Int = sum(i > 0 for i in com.occurrences)
-records(com::AbstractComMatrix{T}) where T<:Bool = sum(com.occurrences)
+records(com::AbstractComMatrix) = nnz(com.occurrences)
 
 size(com::AbstractComMatrix) = size(com.occurrences)
 size(com::AbstractComMatrix, dims...) = size(com.occurrences, dims...)
