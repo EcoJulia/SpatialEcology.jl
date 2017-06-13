@@ -18,6 +18,8 @@ sitestatnames(asm::Assmbl) = names(sitestats(asm))
 commatrix(asm::Assmbl) = commatrix(asm.occ)
 commatrix(occ::AbstractOccFields) = occ.commatrix
 
+occurrences(asm) = commatrix(asm).occurrences
+
 function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::Symbol; validate = true, tolerance = 0.5)
     if validate
         dif, left, right = length(intersect(newtraits[species], specnames(asm))), nspecies(asm), size(newtraits,1)
