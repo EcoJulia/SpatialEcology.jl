@@ -45,3 +45,7 @@ end
 RecipesBase.@recipe function f(var::AbstractVector, asm::AbstractAssemblage)
     var, asm.site
 end
+
+RecipesBase.@recipe function f(var::Symbol, asm::AbstractAssemblage)
+    asm.site.sitestats[var], asm.site
+end
