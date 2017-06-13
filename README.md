@@ -6,7 +6,7 @@
 
 
 A package for community- and macro-ecological analysis in julia.
-This package offers a set of base types for interoperability among analyses in spatial ecology. The idea is to provide a powerful framework for expressing a great variety of analyses in a flexible manner. It presently holds types for presence-absence matrices, site data and species traits, and will be included with phylogenies and ecological interaction networks. SpatialEcology takes care of aligning all data for analysis.
+This package offers a set of base types for interoperability in spatial ecology. The idea is to provide a powerful framework for expressing a great variety of analyses in a flexible manner. It presently holds types for presence-absence matrices, site data and species traits, and will be included with phylogenies and ecological interaction networks. SpatialEcology takes care of aligning all data for analysis.
 
 The emphasis is on fast, flexible code operating mainly with views into the larger dataset. It currently holds fast, specialized code for operations on views into sparse matrices (such as presence-absence matrices). This allows analyses to be done in a split-apply-combine framework.
 
