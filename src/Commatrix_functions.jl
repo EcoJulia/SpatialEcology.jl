@@ -36,6 +36,17 @@ sitenames(com::AbstractComMatrix) = com.sitenames
 sitenames(sd::SpatialData) = sitenames(sd.site)
 sitenames(sd::SiteFields) = collect(sd.sitestats[:sites])
 
+"""
+    cooccurring(com, inds...)
+
+Ret
+"""
+cooccurring(com::AbstractComMatrix, inds...) = cooccurring(com, [inds...])
+function cooccurring(com::AbstractComMatrix, inds::AbstractVector)
+    sub = view(com, species = inds)
+    richness(sub) .== nspecies(sub)
+end
+
 occupancy(com::AbstractComMatrix{T}) where T<:Bool = vec(colsum(com.occurrences))
 occupancy(com::AbstractComMatrix{T}) where T<:Int = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 1))
 
