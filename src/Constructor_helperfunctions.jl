@@ -149,14 +149,14 @@ function gridvar(x, tolerance = sqrt(eps()))
   err1 = diff(rudifx)[1]
   if err1 > tolerance
     xx = rudifx ./ minimum(rudifx)
-    err2 = maximum(abs(floor(xx) - xx))
+    err2 = maximum(abs.(floor.(xx) - xx))
     err2  > tolerance && error("Cannot be converted to grid, as coordinate intervals are not constant. Try adjusting the tolerance (currently $tolerance)")
     difx = difx[difx .< rudifx[1] + tolerance]
   end
 
   cellsize = mean(difx)
   min = minimum(sux)
-  cellnumber = Int(round(maxrange(sux) / cellsize) + 1)
+  cellnumber = round(Int, maxrange(sux) / cellsize) + 1
 
   min, cellsize, cellnumber
 end
