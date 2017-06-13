@@ -12,7 +12,7 @@ import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr
 
 export SiteData, ComMatrix, Assemblage, coordtype, DispersionField #types and their constructors
 export nspecies, nsites, occupancy, richness, records, sitenames, specnames, coordinates
-export occurring, noccurring, occupied, noccupied
+export occurring, noccurring, occupied, noccupied, occurrences
 export traits, sitestats, sitestatnames, traitnames, commatrix
 export addtraits!, addsitestats!
 export copy, setindex!, getindex, size, show, summary, view
