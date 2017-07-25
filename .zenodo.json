@@ -1,0 +1,22 @@
+{
+   "title": "SpatialEcology.jl",
+   "description": "Core types and functions for spatial ecology in Julia.",
+   "grants": [
+      {}
+   ],
+   "upload_type": "software",
+   "creators": [
+      {
+         "affiliation": "Natural History Museum of Denmark",
+         "name": "Borregaard, Michael Krabbe",
+         "orcid": "0000-0002-8146-8435"
+      }
+      {
+         "affiliation": "Université de Montréal",
+         "name": "Poisot, Timothée",
+         "orcid": "0000-0002-0735-5184"
+      }
+   ],
+   "access_right": "open",
+   "license": "mit-license"
+}
