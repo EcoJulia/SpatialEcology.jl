@@ -62,6 +62,7 @@ summary(com::AbstractComMatrix) = "$(nsites(com))x$(nspecies(com)) $(typeof(com)
 
 function createsummaryline(vec::AbstractVector{T}) where T<:AbstractString
     linefunc(vec) = mapreduce(x->x*", ", *, vec[1:(end-1)])*vec[end]
+    length(vec) == 1 && return vec[1]
     length(vec) < 6 && return linefunc(vec)
     linefunc(vec[1:3])*"..."*linefunc(vec[(end-1):end])
 end
