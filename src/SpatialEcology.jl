@@ -1,8 +1,7 @@
 __precompile__(true)
 module SpatialEcology
 
-using Reexport
-@reexport using DataFrames
+using DataFrames
 
 #import Bio.Phylo
 import RecipesBase
