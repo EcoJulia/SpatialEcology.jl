@@ -6,7 +6,7 @@ using Reexport
 
 #import Bio.Phylo
 import RecipesBase
-import RCall: @R_str, rcopy
+#import RCall: @R_str, rcopy
 import PlotUtils: @colorant_str, register_gradient_colors, register_color_library, default_cgrad, clibraries
 import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr
 
@@ -30,7 +30,7 @@ include("Commatrix_functions.jl")
 include("GetandSetdata.jl")
 include("Gridfunctions.jl")
 include("Subsetting.jl")
-include("RObjects.jl")
+#include("RObjects.jl")
 include("PlotRecipes.jl")
 include("Colorgradients.jl")
 include("DispersionFields.jl")
