@@ -72,7 +72,7 @@ end
 OccFields(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: OccTypes = OccFields{T}(commatrix, traits)
 OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
 
-function ComMatrix(occ::DataFrames.DataFrame)
+function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = false)
     if DataFrames.ncol(occ) == 3 && eltypes(occ)[3] <: String
         println("Data format identified as Phylocom")
         sites = unique(occ[1])
