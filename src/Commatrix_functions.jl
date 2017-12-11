@@ -32,6 +32,9 @@ nsites(com::AbstractComMatrix) = size(com.occurrences, 1)
 nsites(sd::SpatialData) = size(coordinates(sd.site), 1)
 nsites(sd::SiteFields) = DataFrames.nrow(sd.sitestats)
 
+getspecies(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, :, idx)
+getsite(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, idx, :)
+
 specnames(com::AbstractComMatrix) = com.specnames
 
 sitenames(com::AbstractComMatrix) = com.sitenames
