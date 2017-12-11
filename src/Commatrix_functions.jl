@@ -41,6 +41,22 @@ sitenames(com::AbstractComMatrix) = com.sitenames
 sitenames(sd::SpatialData) = sitenames(sd.site)
 sitenames(sd::SiteFields) = collect(sd.sitestats[:sites])
 
+sitetotals(com::AbstractComMatrix) = vec(rowsum(com.occurrences))
+speciestotals(com::AbstractComMatrix) = vec(colsum(com.occurrences))
+
+occupancy(com::AbstractComMatrix{T}) where T<:Bool = vec(colsum(com.occurrences))
+occupancy(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, 1))
+
+richness(com::AbstractComMatrix{T}) where T<:Bool = vec(rowsum(com.occurrences))
+richness(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, 2))
+
+records(com::AbstractComMatrix) = nnz(com.occurrences)
+
+size(com::AbstractComMatrix) = size(com.occurrences)
+size(com::AbstractComMatrix, dims...) = size(com.occurrences, dims...)
+
+full(com::AbstractComMatrix) = full(com.occurrences) ##todo
+
 """
     cooccurring(com, inds...)
 
@@ -52,16 +68,15 @@ function cooccurring(com::AbstractComMatrix, inds::AbstractVector)
     richness(sub) .== nspecies(sub)
 end
 
-occupancy(com::AbstractComMatrix{T}) where T<:Bool = vec(colsum(com.occurrences))
-occupancy(com::AbstractComMatrix{T}) where T<:Int = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 1))
 
-richness(com::AbstractComMatrix{T}) where T<:Bool = vec(rowsum(com.occurrences))
-richness(com::AbstractComMatrix{T}) where T<:Int = vec(mapslices(x->sum(i > 0 for i in x), com.occurrences, 2))
+#----------------------------------------------------------------------------------------------
+# Mutating and concatenating
 
-records(com::AbstractComMatrix) = nnz(com.occurrences)
 
-size(com::AbstractComMatrix) = size(com.occurrences)
-size(com::AbstractComMatrix, dims...) = size(com.occurrences, dims...)
+
+
+#-------------------------------------------------------------------------------------------------
+# show methods
 
 summary(com::AbstractComMatrix) = "$(nsites(com))x$(nspecies(com)) $(typeof(com))"
 
