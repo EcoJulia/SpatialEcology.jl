@@ -14,12 +14,12 @@ end
 
 
 #--------------------------------------------------------------------------
+# Basic summary functions
+
 occurring(com::AbstractComMatrix) = nzcols(com.occurrences)
 occupied(com::AbstractComMatrix) = nzrows(com.occurrences)
-occurring(com::AbstractComMatrix{T}, idx) where T<:Bool = find(com.occurrences[idx,:])
-occupied(com::AbstractComMatrix{T}, idx) where T<:Bool = find(com.occurrences[:,idx])
-occurring(com::AbstractComMatrix{T}, idx) where T<:Int = find(com.occurrences[idx,:] .> 0)
-occupied(com::AbstractComMatrix{T}, idx) where T<:Int = find(com.occurrences[:,idx] .> 0)
+occurring(com::AbstractComMatrix, idx) = findn(com.occurrences[idx,:])
+occupied(com::AbstractComMatrix, idx) = findn(com.occurrences[:,idx])
 
 noccurring(x) = length(occurring(x))
 noccupied(x) = length(occupied(x))
