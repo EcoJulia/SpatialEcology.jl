@@ -3,13 +3,13 @@
 #SubDataTypes
 
 # Definition is the same, but importantly this keeps a Subarray
-mutable struct SubComMatrix{T <: Union{Bool, Int}} <: AbstractComMatrix{T}
+mutable struct SubComMatrix{T <: OccTypes} <: AbstractComMatrix{T}
     occurrences::SubArray{T,2}
     specnames::SubArray{String,1}
     sitenames::SubArray{String,1}
 end
 
-mutable struct SubOccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T} 
+mutable struct SubOccFields{T <: OccTypes} <: AbstractOccFields{T} 
     commatrix::SubComMatrix{T}
     traits::DataFrames.SubDataFrame
 end
@@ -25,7 +25,7 @@ mutable struct SubPointData <: AbstractPointData
     sitestats::DataFrames.SubDataFrame
 end
 
-mutable struct SubAssemblage{S,T} <: AbstractAssemblage where {S <: Union{SubGridData, SubPointData}, T <: Union{Bool, Int}}# A type to keep subtypes together, ensuring that they are all aligned at all times
+mutable struct SubAssemblage{S,T} <: AbstractAssemblage where {S <: Union{SubGridData, SubPointData}, T <: OccTypes}# A type to keep subtypes together, ensuring that they are all aligned at all times
     site::S
     occ::SubOccFields{T}
 end

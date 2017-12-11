@@ -43,7 +43,7 @@ function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
   end
 
 function Assemblage(site::S, occ::OccFields{T};
-    dropemptyspecies::Bool = false, dropemptysites::Bool = false) where {T <: Union{Bool, Int}, S <: SiteFields}
+    dropemptyspecies::Bool = false, dropemptysites::Bool = false) where {T <: OccTypes, S <: SiteFields}
 
     if dropemptyspecies
         dropspecies!(occ)
@@ -69,7 +69,7 @@ function createSiteFields(coords::AbstractMatrix, cdtype::coordstype = auto,  #b
 end
 
 
-OccFields(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: Union{Bool, Int} = OccFields{T}(commatrix, traits)
+OccFields(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: OccTypes = OccFields{T}(commatrix, traits)
 OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
 
 function ComMatrix(occ::DataFrames.DataFrame)
@@ -96,8 +96,18 @@ function ComMatrix(occ::DataFrames.DataFrame)
         occ = dataFrametoSparseMatrix(occ, Bool)
         println("Matrix data assumed to be presence-absence")
     catch
-        occ = dataFrametoSparseMatrix(occ, Int) #TODO This line means that this code is not completely type stable.
-        println("Matrix data assumed to be abundances, minimum $(minimum(occ)), maximum $(maximum(occ))")
+        try
+            occ = dataFrametoSparseMatrix(occ, Int) #TODO These lines mean that this code is not completely type stable.
+            println("Matrix data assumed to be abundances, minimum $(minimum(occ)), maximum $(maximum(occ))")
+        catch
+            occ = dataFrametoSparseMatrix(occ, Float64)
+            println("Matrix data assumed to be relative abundances, minimum $(minimum(occ)), maximum $(maximum(occ))")
+            (minimum(occ) < 0 || maximum(occ) > 1) && warn("Note that values don't fall in the 0,1 range - is something wrong?")
+        end
+    end
+
+    if sitecolumns
+        return ComMatrix(occ', sites, species)
     end
 
     ComMatrix(occ, species, sites)

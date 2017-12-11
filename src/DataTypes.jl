@@ -2,13 +2,15 @@
 @enum coordstype auto griddata pointdata
 #@enum inputdatatype auto phylocom worldmapfile benholtmatrix
 
+const OccTypes = Union{Bool, Int, Float64}
+
 abstract type OccData end
 abstract type SpatialData end
 abstract type Assmbl <: SpatialData  end #Not sure about this structure - so far no type inherits from occdata. Perhaps SimpleTraits.jl is/has a solution
 # this is here because we also need phylogeny assemblages
 abstract type AbstractAssemblage <: Assmbl end
-abstract type AbstractOccFields{T<:Union{Bool, Int}} end
-abstract type AbstractComMatrix{T<:Union{Bool, Int}} end
+abstract type AbstractOccFields{T<:OccTypes} end
+abstract type AbstractComMatrix{T<:OccTypes} end
 abstract type SiteFields end
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
@@ -65,11 +67,11 @@ mutable struct ComMatrix{T} <: AbstractComMatrix{T}
 end
 
 # likewise, do I need a specnames here? Should traits have a :series field (like now) or all matching be done on the specnames?
-mutable struct OccFields{T <: Union{Bool, Int}} <: AbstractOccFields{T}
+mutable struct OccFields{T <: OccTypes} <: AbstractOccFields{T}
     commatrix::ComMatrix{T}
     traits::DataFrames.DataFrame
 
-    function OccFields{T}(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: Union{Bool, Int}
+    function OccFields{T}(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: OccTypes
         DataFrames.nrow(traits) ==  nspecies(commatrix) || throw(DimensionMismatch("Wrong number of species in traits"))
         new(commatrix, traits)
     end
@@ -82,12 +84,12 @@ mutable struct SiteData{S} <: AbstractSiteData where S <: SiteFields
     site::S
 end
 
-mutable struct Assemblage{S, T} <: AbstractAssemblage where {S <: SiteFields, T <: Union{Bool, Int}} # A type to keep subtypes together, ensuring that they are all aligned at all times
+mutable struct Assemblage{S, T} <: AbstractAssemblage where {S <: SiteFields, T <: OccTypes} # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::S
     occ::OccFields{T}
 
     # inner constructor
-    function Assemblage{S, T}(site::S, occ::OccFields{T}) where {S <: SiteFields, T <: Union{Bool, Int}}
+    function Assemblage{S, T}(site::S, occ::OccFields{T}) where {S <: SiteFields, T <: OccTypes}
         size(occ.commatrix.occurrences, 1) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
         #TODO activate this # sitenames(occ) == sitenames(site) || error("sitenames do not match") #I need a constructor that matches them up actively
         new(site, occ)

@@ -68,8 +68,8 @@ function dataFrametoSparseMatrix(dat::DataFrames.DataFrame, ::Type{T}) where T<:
     sparse(is, js, true, DataFrames.nrow(dat), DataFrames.ncol(dat))
 end
 
-function dataFrametoSparseMatrix(dat::DataFrames.DataFrame, ::Type{T}) where T<:Int
-    is, js, vals = Vector{Int}(), Vector{Int}(), Vector{Int}()
+function dataFrametoSparseMatrix(dat::DataFrames.DataFrame, ::Type{T}) where T<:Real
+    is, js, vals = Vector{Int}(), Vector{Int}(), Vector{T}()
 
     @inbounds for j in 1:DataFrames.ncol(dat)
         col = dat[:,j]
