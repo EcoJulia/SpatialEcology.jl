@@ -1,5 +1,5 @@
 # the forward macro was copied in from Lazy.jl at the suggestion of @MikeInnes
-macro my_forward(ex, fs)
+macro forward_func(ex, fs)
     T, field = ex.args[1], ex.args[2].args[1]
     T = esc(T)
     fs = isexpr(fs, :tuple) ? map(esc, fs.args) : [esc(fs)]
@@ -8,10 +8,12 @@ macro my_forward(ex, fs)
     nothing)
 end
 
-@my_forward Assmbl.occ nspecies, nsites, occupancy, richness, records, occurring, occupied, specnames, sitenames
-@my_forward AbstractOccFields.commatrix nspecies, nsites, specnames, sitenames, occupancy, richness, records, occurring, occupied
-@my_forward Assmbl.site sitenames
+@forward_func Assmbl.occ nspecies, nsites, occupancy, richness, records, occurring, occupied, specnames, sitenames
+@forward_func AbstractOccFields.commatrix nspecies, nsites, specnames, sitenames, occupancy, richness, records, occurring, occupied
+@forward_func Assmbl.site sitenames
 
+
+#--------------------------------------------------------------------------
 occurring(com::AbstractComMatrix) = nzcols(com.occurrences)
 occupied(com::AbstractComMatrix) = nzrows(com.occurrences)
 occurring(com::AbstractComMatrix{T}, idx) where T<:Bool = find(com.occurrences[idx,:])
