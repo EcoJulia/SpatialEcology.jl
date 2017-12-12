@@ -92,7 +92,7 @@ end
 
 function dropspecies!(occ::OccFields)
   occur = occurring(occ)
-  occ.commatrix = occ.commatrix[:, occur]
+  occ.commatrix = occ.commatrix[occur, :]
   occ.traits = occ.traits[occur,:]
 end
 
@@ -118,7 +118,7 @@ end
 
 function dropsites!(occ::OccFields, site::SiteFields)
   hasspecies = occupied(occ)
-  occ.commatrix = occ.commatrix[hasspecies,:]
+  occ.commatrix = occ.commatrix[:, hasspecies]
   dropbyindex!(site, hasspecies)
 end
 
