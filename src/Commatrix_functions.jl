@@ -1,4 +1,4 @@
-# the forward macro was copied in from Lazy.jl at the suggestion of @MikeInnes
+
 macro forward_func(ex, fs)
     T, field = ex.args[1], ex.args[2].args[1]
     T = esc(T)
@@ -16,24 +16,24 @@ end
 #--------------------------------------------------------------------------
 # Basic summary functions
 
-occurring(com::AbstractComMatrix) = nzcols(com.occurrences)
-occupied(com::AbstractComMatrix) = nzrows(com.occurrences)
-occurring(com::AbstractComMatrix, idx) = findn(com.occurrences[idx,:])
-occupied(com::AbstractComMatrix, idx) = findn(com.occurrences[:,idx])
+occurring(com::AbstractComMatrix) = nzrows(com.occurrences)
+occupied(com::AbstractComMatrix) = nzcols(com.occurrences)
+occupied(com::AbstractComMatrix, idx) = findn(com.occurrences[idx,:])
+occurring(com::AbstractComMatrix, idx) = findn(com.occurrences[:,idx])
 
 noccurring(x) = length(occurring(x))
 noccupied(x) = length(occupied(x))
 noccurring(x, idx) = length(occurring(x, idx))
 noccupied(x, idx) = length(occupied(x, idx))
 
-nspecies(com::AbstractComMatrix) = size(com.occurrences, 2)
-nsites(com::AbstractComMatrix) = size(com.occurrences, 1)
+nspecies(com::AbstractComMatrix) = size(com.occurrences, 1)
+nsites(com::AbstractComMatrix) = size(com.occurrences, 2)
 
 nsites(sd::SpatialData) = size(coordinates(sd.site), 1)
 nsites(sd::SiteFields) = DataFrames.nrow(sd.sitestats)
 
-getspecies(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, :, idx)
-getsite(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, idx, :)
+getspecies(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, idx, :)
+getsite(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, :, idx)
 
 specnames(com::AbstractComMatrix) = com.specnames
 
@@ -41,21 +41,21 @@ sitenames(com::AbstractComMatrix) = com.sitenames
 sitenames(sd::SpatialData) = sitenames(sd.site)
 sitenames(sd::SiteFields) = collect(sd.sitestats[:sites])
 
-sitetotals(com::AbstractComMatrix) = vec(rowsum(com.occurrences))
-speciestotals(com::AbstractComMatrix) = vec(colsum(com.occurrences))
+sitetotals(com::AbstractComMatrix) = vec(colsum(com.occurrences))
+speciestotals(com::AbstractComMatrix) = vec(rowsum(com.occurrences))
 
-occupancy(com::AbstractComMatrix{T}) where T<:Bool = vec(colsum(com.occurrences))
-occupancy(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, 1))
+richness(com::AbstractComMatrix{T}) where T<:Bool = vec(colsum(com.occurrences))
+richness(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, 1))
 
-richness(com::AbstractComMatrix{T}) where T<:Bool = vec(rowsum(com.occurrences))
-richness(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, 2))
+occupancy(com::AbstractComMatrix{T}) where T<:Bool = vec(rowsum(com.occurrences))
+occupancy(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, 2))
 
 records(com::AbstractComMatrix) = nnz(com.occurrences)
 
 size(com::AbstractComMatrix) = size(com.occurrences)
 size(com::AbstractComMatrix, dims...) = size(com.occurrences, dims...)
 
-full(com::AbstractComMatrix) = full(com.occurrences) ##todo
+full(com::AbstractComMatrix) = full(com.occurrences) 
 
 """
     cooccurring(com, inds...)
