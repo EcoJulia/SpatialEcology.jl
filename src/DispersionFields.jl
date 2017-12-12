@@ -1,5 +1,5 @@
 
-type DispersionField <: SpatialData
+mutable struct DispersionField <: SpatialData
     site::SiteFields
     DFmat::Matrix{Int}
 
