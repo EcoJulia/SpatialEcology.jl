@@ -19,8 +19,8 @@ type PhyloAssemblage{T} <: Assmbl # A type to keep subtypes together, ensuring t
     phy::PhyloFields
 
     function PhyloAssemblage(site, occ, phy)
-        size(occ.commatrix.occurrences, 1) == size(coordinates(site), 1) || throw(DimensionMismatch("Length mismatch between occurrence matrix and coordinates"))
-        Ntip(phy.Phylo) == size(occ.commatrix.occurrences, 2) || throw(DimensionMismatch("Occurrence matrix and phylogeny do not match in species numbers"))
+        size(occ.commatrix.occurrences, 2) == size(coordinates(site), 1) || throw(DimensionMismatch("Length mismatch between occurrence matrix and coordinates"))
+        Ntip(phy.Phylo) == size(occ.commatrix.occurrences, 1) || throw(DimensionMismatch("Occurrence matrix and phylogeny do not match in species numbers"))
         new(site, occ, phy)
     end
 end

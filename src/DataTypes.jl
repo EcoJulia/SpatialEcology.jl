@@ -90,7 +90,7 @@ mutable struct Assemblage{S, T} <: AbstractAssemblage where {S <: SiteFields, T 
 
     # inner constructor
     function Assemblage{S, T}(site::S, occ::OccFields{T}) where {S <: SiteFields, T <: OccTypes}
-        size(occ.commatrix.occurrences, 1) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
+        size(occ.commatrix.occurrences, 2) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
         #TODO activate this # sitenames(occ) == sitenames(site) || error("sitenames do not match") #I need a constructor that matches them up actively
         new(site, occ)
     end

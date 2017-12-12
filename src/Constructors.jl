@@ -72,24 +72,24 @@ end
 OccFields(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: OccTypes = OccFields{T}(commatrix, traits)
 OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
 
-function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = false)
+function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
     if DataFrames.ncol(occ) == 3 && eltypes(occ)[3] <: String
         println("Data format identified as Phylocom")
         sites = unique(occ[1])
         species = unique(occ[3])
-        is = indexin(occ[1], sites)
-        js = indexin(occ[3], species)
+        js = indexin(occ[1], sites)
+        is = indexin(occ[3], species)
         occ = maximum(occ[2]) == 1 ? sparse(is, js, true) : sparse(is, js, occ[2])
         return ComMatrix(occ, string.(collect(species)), string.(collect(sites)))
     end
 
     if eltype(occ[1]) <: AbstractString
-        sites = string.(collect(occ[1]))
+        species = string.(collect(occ[1]))
         occ = occ[2:end]
-        species = string.(collect(names(occ)))
+        sites = string.(collect(names(occ)))
     else
-        sites = string.(1:DataFrames.nrow(occ))
-        species = string.(collect(names(occ)))
+        species = string.(1:DataFrames.nrow(occ))
+        sites = string.(collect(names(occ)))
     end
 
     try
@@ -102,11 +102,11 @@ function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = false)
         catch
             occ = dataFrametoSparseMatrix(occ, Float64)
             println("Matrix data assumed to be relative abundances, minimum $(minimum(occ)), maximum $(maximum(occ))")
-            (minimum(occ) < 0 || maximum(occ) > 1) && warn("Note that values don't fall in the 0,1 range - is something wrong?")
+            (minimum(occ) < 0 || maximum(occ) > 1) && info("Values don't fall in the 0,1 range")
         end
     end
 
-    if sitecolumns
+    if !sitecolumns
         return ComMatrix(occ', sites, species)
     end
 
