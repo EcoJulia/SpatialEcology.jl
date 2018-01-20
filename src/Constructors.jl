@@ -10,9 +10,9 @@ function Assemblage(occ::DataFrames.DataFrame; kwargs...)
 end
 
 # a constructor that takes occ as a DataFrame
-Assemblage(occ::DataFrames.DataFrame, coords::Union{AbstractMatrix, DataFrames.DataFrame}; kwargs...) = Assemblage(ComMatrix(occ), coords; kwargs...)
+Assemblage(occ::DataFrames.DataFrame, coords::Union{AbstractMatrix, DataFrames.DataFrame}; sitecolumns = true, kwargs...) = Assemblage(ComMatrix(occ; sitecolumns = sitecolumns), coords; kwargs...)
 
-Assemblage(occ::AbstractMatrix, coords::Union{AbstractMatrix, DataFrames.DataFrame}, sites::Vector{String}, species::Vector{String}; kwargs...) = Assemblage(ComMatrix(occ, species, sites), coords; kwargs...)
+Assemblage(occ::AbstractMatrix, coords::Union{AbstractMatrix, DataFrames.DataFrame}, sites::Vector{String}, species::Vector{String}; sitecolumns = true, kwargs...) = Assemblage(ComMatrix(occ, species, sites; sitecolumns = sitecolumns), coords; kwargs...)
 
 # a constructor that takes coords as a data.frame
 function Assemblage(occ::ComMatrix, coords::DataFrames.DataFrame; kwargs...)
