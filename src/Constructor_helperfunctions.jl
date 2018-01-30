@@ -44,7 +44,7 @@ function testbool(x::Int)
 end
 
 testbool(x) = error("Value can not be interpreted as Boolean")
-testbool(x::DataFrames.NAtype) = false
+testbool(x::Missings.Missing) = false
 testbool(x::Bool) = x
 function testbool(x::Number)
   x == 0 && return false
