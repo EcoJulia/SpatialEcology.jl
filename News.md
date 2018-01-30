@@ -1,0 +1,12 @@
+# version 0.2.0
+- change from species-as-columns to sites-as-columns, which transposes all functions on ComMatrix
+- add sitecolumns keyword argument to transpose input matrices not following this
+- Remove RCall dependency and functionality
+- various improvements to speed
+- add functions
+- - occurrences
+- - cooccurences
+- - asquantiles
+- - full
+- - sitetotals
+- - speciestotals
