@@ -17,7 +17,6 @@ export occurring, noccurring, occupied, noccupied, occurrences
 export traits, sitestats, sitestatnames, traitnames, commatrix
 export addtraits!, addsitestats!
 export asquantiles, asquantiles!
-export copy, setindex!, getindex, size, show, summary, view
 export coordstype, subset
 export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these
 export sitetotals, speciestotals, getspecies, getsite
