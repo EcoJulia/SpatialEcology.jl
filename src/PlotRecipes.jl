@@ -49,3 +49,7 @@ end
 RecipesBase.@recipe function f(var::Symbol, asm::AbstractAssemblage)
     recode(asm.site.sitestats[var], Missings.missing => NaN), asm.site
 end
+
+RecipesBase.@recipe function f(g::Function, asm::AbstractAssemblage)
+    g(asm), asm.site
+end
