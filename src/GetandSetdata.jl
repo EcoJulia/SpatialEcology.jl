@@ -30,7 +30,7 @@ function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::S
         max(dif/left, dif/right) < tolerance && error("Aborting join, as fit was smaller than the tolerance of $tolerance . To perform the join decrease the tolerance value")
     end
 
-    assemblagejoin!(asm.occ.traits, newtraits, :species, species)
+    assemblagejoin!(asm.occ.traits, newtraits, :name, species)
     nothing
 end
 
