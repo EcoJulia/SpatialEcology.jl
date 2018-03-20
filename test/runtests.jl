@@ -12,3 +12,5 @@ amph = Assemblage(amphdat[4:end], amphdat[1:3], sitecolumns = false)
 @test nspecies(amph) == 73
 @test noccurring(amph) == 73
 @test occurring(amph, 718) == [15]
+
+va = view(amph, species = 1:10)
