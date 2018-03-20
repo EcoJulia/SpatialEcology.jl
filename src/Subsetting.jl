@@ -43,7 +43,7 @@ view(occ::AbstractOccFields; species = 1:nspecies(occ), sites = 1:nsites(occ)) =
 function view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com))
     sit = asindices(sites)
     spec = asindices(species)
-    SubComMatrix(view(com.occurrences, sit, spec), view(com.specnames, spec), view(com.sitenames, sit)) #TODO change the order of these in the object to fit the array index order
+    SubComMatrix(view(com.occurrences, spec, sit), view(com.specnames, spec), view(com.sitenames, sit)) #TODO change the order of these in the object to fit the array index order
 end
 
 view(pd::AbstractPointData, sites) = SubPointData(view(pd.coords, sites), view(pd.sitestats, sites))
