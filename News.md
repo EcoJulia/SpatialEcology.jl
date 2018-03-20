@@ -1,3 +1,6 @@
+# version 0.3.0
+- depend on DataFrames 0.11 and Missings
+
 # version 0.2.0
 - change from species-as-columns to sites-as-columns, which transposes all functions on ComMatrix
 - add sitecolumns keyword argument to transpose input matrices not following this
