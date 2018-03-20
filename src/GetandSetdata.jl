@@ -18,7 +18,10 @@ sitestatnames(asm::Assmbl) = names(sitestats(asm))
 commatrix(asm::Assmbl) = commatrix(asm.occ)
 commatrix(occ::AbstractOccFields) = occ.commatrix
 
-occurrences(asm) = commatrix(asm).occurrences
+occurrences(asm) = occurrences(commatrix(asm))
+
+occurrences(cm::ComMatrix) = cm.occurrences
+occurrences(cm::SubComMatrix) = cm.occurrences
 
 function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::Symbol; validate = true, tolerance = 0.5)
     if validate
