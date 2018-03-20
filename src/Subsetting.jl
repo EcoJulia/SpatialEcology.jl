@@ -35,14 +35,16 @@ mutable struct SubSiteData{S} <: AbstractSiteData where S <: Union{SubGridData, 
 end
 
 # TODO not sure this is necessary anymore - perhaps remove, or update with a string (for names)
+asindices(x::AbstractArray{T}, com::AbstractComMatrix) where T <: Integer = asindices(x)
 asindices(x::AbstractArray{T}) where T <: Integer = x
 asindices(x::AbstractArray{T}) where T <: Bool = find(x)
+asindices(x::AbstractArray{T}) where T <: AbstractString = indexin(x, specnames)
 # creating views
 view(occ::AbstractOccFields; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubOccFields(view(occ.commatrix, sites = sites, species = species), view(occ.traits,species))
 # The SiteFields things are missing as of yet - need to go by the dropbyindex functionality
 function view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com))
-    sit = asindices(sites)
-    spec = asindices(species)
+    sit = asindices(sites, sitenames(com))
+    spec = asindices(species, specnames(com))
     SubComMatrix(view(com.occurrences, spec, sit), view(com.specnames, spec), view(com.sitenames, sit)) #TODO change the order of these in the object to fit the array index order
 end
 
