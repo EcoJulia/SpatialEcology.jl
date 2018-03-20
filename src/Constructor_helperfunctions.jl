@@ -74,7 +74,7 @@ function dataFrametoSparseMatrix(dat::DataFrames.DataFrame, ::Type{T}) where T<:
     @inbounds for j in 1:DataFrames.ncol(dat)
         col = dat[:,j]
         for i in 1:DataFrames.nrow(dat)
-            if !isna(col[i]) && col[i] != 0
+            if !Missings.ismissing(col[i]) && col[i] != 0
                 push!(is, i)
                 push!(js, j)
                 push!(vals, col[i])
