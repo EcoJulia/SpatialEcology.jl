@@ -57,14 +57,14 @@ function addsitestats!(asm::Assemblage, newsites::AbstractVector, name::Union{St
     length(newsites) == nsites(asm) || error("Cannot add a vector of length $(length(newsites)) to an Assemblage with $(nsites(asm)) sites")
     asm.site.sitestats[Symbol(name)] = newsites
 end
-
-function assemblagejoin!(df1::AbstractDataFrame, df2::AbstractDataFrame, on_left::Symbol, on_right::Symbol)
-    right = DataFrames.nas(df2, DataFrames.nrow(df1))
-    @inbounds for (i, j) in enumerate(indexin(df2[on_right], df1[on_left]))
-        if ! (j == 0)
-            right[j,:] = df2[i,:]
-        end
-    end
-    right = DataFrames.without(right, on_right)
-    DataFrames.hcat!(df1, right)
-end
+#
+# function assemblagejoin!(df1::AbstractDataFrame, df2::AbstractDataFrame, on_left::Symbol, on_right::Symbol)
+#     right = DataFrame(Dict(names(df2)[i] => missings(eltypes(df2)[i], nrow(df1)) for i in 1:ncol(df2)))
+#     @inbounds for (i, j) in enumerate(indexin(df2[on_right], df1[on_left]))
+#         if ! (j == 0)
+#             right[j,:] = df2[i,:]
+#         end
+#     end
+#     right = DataFrames.without(right, on_right)
+#     DataFrames.hcat!(df1, right)
+# end
