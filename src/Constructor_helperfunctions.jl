@@ -2,7 +2,7 @@
 function isWorldmapData(dat::DataFrames.DataFrame, latlong = true)
   DataFrames.ncol(dat) == 5 || return false
 
-  if eltype(dat[:, 1]) <: String
+  if eltype(dat[:, 1]) <: AbstractString
     if eltype(dat[:, 4]) <: Number
       if eltype(dat[:, 5]) <: Number
         latlong || return true # risky

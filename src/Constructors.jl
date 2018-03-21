@@ -73,7 +73,7 @@ OccFields(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: OccT
 OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
 
 function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
-    if DataFrames.ncol(occ) == 3 && eltypes(occ)[3] <: String
+    if DataFrames.ncol(occ) == 3 && eltypes(occ)[3] <: AbstractString
         println("Data format identified as Phylocom")
         sites = unique(occ[1])
         species = unique(occ[3])
