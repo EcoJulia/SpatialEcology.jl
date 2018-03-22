@@ -47,5 +47,5 @@ RecipesBase.@recipe function f(var::AbstractVector, asm::AbstractAssemblage)
 end
 
 RecipesBase.@recipe function f(var::Symbol, asm::AbstractAssemblage)
-    asm.site.sitestats[var], asm.site
+    recode(asm.site.sitestats[var], Missings.missing => NaN), asm.site
 end
