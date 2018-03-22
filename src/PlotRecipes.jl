@@ -12,7 +12,7 @@ RecipesBase.@recipe function f(var::AbstractVector, grd::AbstractGridData)
     seriestype := :heatmap
     aspect_ratio --> :equal
     grid --> false
-    seriescolor --> :hmrainbow
+    framestyle --> :none
     xrange(grd), yrange(grd), convert_to_image(var, grd)
 end
 
@@ -20,14 +20,14 @@ RecipesBase.@recipe function f(sit::SiteFields)
     ones(nsites(sit)), sit
 end
 
-RecipesBase.@recipe function f(var::AbstractVector, pnt::PointData)
+RecipesBase.@recipe function f(var::AbstractVector, pnt::AbstractPointData)
     registercolors()
     seriestype := :scatter
     aspect_ratio --> :equal
     grid --> false
     marker_z := var
     legend --> false
-    seriescolor --> :hmrainbow
+    framestyle --> :none
     cd = coordinates(pnt)
     cd[:,1], cd[:,2]
 end
