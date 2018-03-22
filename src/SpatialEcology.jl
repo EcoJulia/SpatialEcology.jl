@@ -21,6 +21,7 @@ export copy, setindex!, getindex, size, show, summary, view
 export coordstype, subset
 export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these
 export sitetotals, speciestotals, getspecies, getsite
+export groupspecies, groupsites
 
 include("DataTypes.jl")
 include("Constructor_helperfunctions.jl")
@@ -31,6 +32,7 @@ include("Commatrix_functions.jl")
 include("Subsetting.jl")
 include("GetandSetdata.jl")
 include("Gridfunctions.jl")
+include("Grouping.jl")
 include("PlotRecipes.jl")
 include("Colorgradients.jl")
 include("DispersionFields.jl")
