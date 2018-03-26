@@ -104,7 +104,13 @@ end
 
 #TODO also create render functions for Juno
 
-getindex(com::AbstractComMatrix, inds...) = ComMatrix(getindex(com.occurrences, inds...))
+getindex(com::AbstractComMatrix, ind) = getindex(occurrences(com), ind)
+getindex(com::AbstractComMatrix, ind::AbstractVector) = ComMatrix(getindex(occurrences(com), ind))
+getindex(com::AbstractComMatrix, ind1, ind2) = getindex(occurrences(com), ind1, ind2)
+getindex(com::AbstractComMatrix, ind1::AbstractVector, ind2::AbstractVector) = ComMatrix(getindex(occurrences(com), ind1, ind2))
+getindex(com::AbstractComMatrix, ind1::AbstractVector, ind2) = ComMatrix(getindex(occurrences(com), ind1, ind2))
+getindex(com::AbstractComMatrix, ind1, ind2::AbstractVector) = ComMatrix(getindex(occurrences(com), ind1, ind2))
+
 
 setindex!(com::AbstractComMatrix, X, inds...) = setindex!(com.occurrences, X, inds...)
 
