@@ -8,7 +8,7 @@ macro forward_func(ex, fs)
     nothing)
 end
 
-@forward_func Assmbl.occ nspecies, nsites, occupancy, richness, records, occurring, occupied, specnames, sitenames
+@forward_func Assmbl.occ nspecies, nsites, occupancy, richness, records, occurring, occupied, specnames
 @forward_func AbstractOccFields.commatrix nspecies, nsites, specnames, sitenames, occupancy, richness, records, occurring, occupied
 @forward_func Assmbl.site sitenames
 
@@ -55,7 +55,7 @@ records(com::AbstractComMatrix) = nnz(com.occurrences)
 size(com::AbstractComMatrix) = size(com.occurrences)
 size(com::AbstractComMatrix, dims...) = size(com.occurrences, dims...)
 
-full(com::AbstractComMatrix) = full(com.occurrences) 
+full(com::AbstractComMatrix) = full(com.occurrences)
 
 """
     cooccurring(com, inds...)
