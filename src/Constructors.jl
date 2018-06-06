@@ -17,7 +17,7 @@ Assemblage(occ::AbstractMatrix, coords::Union{AbstractMatrix, DataFrames.DataFra
 # a constructor that takes coords as a data.frame
 function Assemblage(occ::ComMatrix, coords::DataFrames.DataFrame; kwargs...)
 
-    if DataFrames.ncol(coords) == 2 && all(map(x -> x<:Number, eltypes(coords)))
+    if DataFrames.ncol(coords) == 2 && all(map(x -> x<:Number, eltypest(coords)))
         coords = convert(Array, coords)
     elseif DataFrames.ncol(coords) == 3
         xind, yind = guess_xycols(coords)
@@ -73,7 +73,7 @@ OccFields(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: OccT
 OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
 
 function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
-    if DataFrames.ncol(occ) == 3 && eltypes(occ)[3] <: AbstractString
+    if DataFrames.ncol(occ) == 3 && eltypest(occ)[3] <: AbstractString
         println("Data format identified as Phylocom")
         sites = unique(occ[1])
         species = unique(occ[3])
@@ -83,7 +83,7 @@ function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
         return ComMatrix(occ, string.(collect(species)), string.(collect(sites)))
     end
 
-    if eltype(occ[1]) <: AbstractString
+    if eltypet(occ[1]) <: AbstractString
         species = string.(collect(occ[1]))
         occ = occ[2:end]
         sites = string.(collect(names(occ)))

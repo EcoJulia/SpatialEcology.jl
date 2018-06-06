@@ -14,3 +14,6 @@ function asquantiles(x::AbstractVector, n::Int)
     end
     ret
 end
+
+eltypest(df) = map(x->Missings.T(x), eltypes(df))
+eltypet(x) = Missings.T(eltype(x))

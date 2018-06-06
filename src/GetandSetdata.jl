@@ -70,7 +70,7 @@ function addsitestats!(asm::Assemblage, newsites::AbstractVector, name::Union{St
 end
 #
 # function assemblagejoin!(df1::AbstractDataFrame, df2::AbstractDataFrame, on_left::Symbol, on_right::Symbol)
-#     right = DataFrame(Dict(names(df2)[i] => missings(eltypes(df2)[i], nrow(df1)) for i in 1:ncol(df2)))
+#     right = DataFrame(Dict(names(df2)[i] => missings(eltypest(df2)[i], nrow(df1)) for i in 1:ncol(df2)))
 #     @inbounds for (i, j) in enumerate(indexin(df2[on_right], df1[on_left]))
 #         if ! (j == 0)
 #             right[j,:] = df2[i,:]

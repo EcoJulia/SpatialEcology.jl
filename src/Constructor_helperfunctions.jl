@@ -2,9 +2,9 @@
 function isWorldmapData(dat::DataFrames.DataFrame, latlong = true)
   DataFrames.ncol(dat) == 5 || return false
 
-  if eltype(dat[:, 1]) <: AbstractString
-    if eltype(dat[:, 4]) <: Number
-      if eltype(dat[:, 5]) <: Number
+  if eltypet(dat[:, 1]) <: AbstractString
+    if eltypet(dat[:, 4]) <: Number
+      if eltypet(dat[:, 5]) <: Number
         latlong || return true # risky
         if minimum(dropna(dat[:, 4])) > -181 && maximum(dropna(dat[:, 4])) < 181
           if minimum(dropna(dat[:, 5])) > -91 && maximum(dropna(dat[:, 5])) < 91
@@ -32,7 +32,7 @@ function parsesingleDataFrame(occ::DataFrames.DataFrame)
 end
 
 function guess_xycols(dat::DataFrames.DataFrame)
-  numbers = map(x -> x<:Number, eltypes(dat))
+  numbers = map(x -> x<:Number, eltypest(dat))
   sum(.!numbers) == 1 || error("Site names cannot be numeric in the input matrix")
   ((find(numbers)[1:2])...)
 end
