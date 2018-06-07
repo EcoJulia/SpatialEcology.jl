@@ -115,7 +115,7 @@ end
 
 ComMatrix(occurrences::Array, specnames, sitenames) = ComMatrix(sparse(occurrences), specnames, sitenames)
 
-function GridData(coords::Matrix{Float64},
+function GridData(coords::AbstractMatrix{<:Union{AbstractFloat, Missings.Missing}},
         sitestats::DataFrames.DataFrame = DataFrames.DataFrame(id = 1:size(coords,1)))
     grid = creategrid(coords)
     indices = getindices(coords, grid)

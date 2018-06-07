@@ -85,7 +85,7 @@ function dataFrametoSparseMatrix(dat::DataFrames.DataFrame, ::Type{T}) where T<:
     sparse(is, js, vals, DataFrames.nrow(dat), DataFrames.ncol(dat))
 end
 
-function match_commat_coords(occ::ComMatrix, coords::AbstractMatrix{Float64}, sitestats::DataFrames.DataFrame)
+function match_commat_coords(occ::ComMatrix, coords::AbstractMatrix, sitestats::DataFrames.DataFrame)
   occ, coords, sitestats
  ## so far this does nothing TODO
 end
@@ -132,7 +132,7 @@ function createsitenames(coords::DataFrames.DataFrame)
   ["$(coords[i,1])_$(coords[i,2])" for i in 1:DataFrames.nrow(coords)]
 end
 
-creategrid(coords::Matrix{Float64}, tolerance = sqrt(eps())) =
+creategrid(coords::AbstractMatrix{<:Union{AbstractFloat, Missings.Missing}}, tolerance = sqrt(eps())) =
     GridTopology(gridvar(coords[:,1], tolerance)..., gridvar(coords[:,2], tolerance)...)
 
 # could allow for n-dimensional binning, using code from StatsBase.Histogram
@@ -161,7 +161,7 @@ function gridvar(x, tolerance = sqrt(eps()))
   min, cellsize, cellnumber
 end
 
-function getindices(coords::Matrix{Float64}, grid::GridTopology, tolerance = 2*sqrt(eps()))
+function getindices(coords::AbstractMatrix{<:Union{AbstractFloat, Missings.Missing}}, grid::GridTopology, tolerance = 2*sqrt(eps()))
   index1 = 1 + floor.(Int,(coords[:,1] .- grid.xmin) ./ grid.xcellsize .+ tolerance)
   index2 = 1 + floor.(Int,(coords[:,2] .- grid.ymin) ./ grid.ycellsize .+ tolerance)
   hcat(index1, index2)
