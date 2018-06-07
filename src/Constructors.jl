@@ -32,14 +32,14 @@ end
 
 function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
       dropemptyspecies::Bool = false, dropemptysites::Bool = false, match_to_coords = true,
-      traits = DataFrames.DataFrame(name = specnames(occ)), sitestats = DataFrames.DataFrame(sites = sitenames(occ)),
+      traits = DataFrames.DataFrame(name = specnames(occ)), sitestat = DataFrames.DataFrame(sites = sitenames(occ)),
       cdtype::coordstype = auto)
 
     if match_to_coords
-        occ, coords, sitestats = match_commat_coords(occ, coords, sitestats)
+        occ, coords, sitestat = match_commat_coords(occ, coords, sitestat)
     end
 
-    Assemblage(createSiteFields(coords, cdtype, sitestats), OccFields(occ, traits))
+    Assemblage(createSiteFields(coords, cdtype, sitestat), OccFields(occ, traits))
   end
 
 function Assemblage(site::S, occ::OccFields{T};
@@ -55,15 +55,15 @@ function Assemblage(site::S, occ::OccFields{T};
 end
 
 function createSiteFields(coords::AbstractMatrix, cdtype::coordstype = auto,  #by design, this is not type stable, but maybe that is OK for type constructors
-        sitestats = DataFrames.DataFrame(sites = sitenames(occ)))
+        sitestat = DataFrames.DataFrame(sites = sitenames(occ)))
 
-    cdtype == pointdata && return PointData(coords, sitestats)
-    cdtype == griddata && return GridData(coords, sitestats)
+    cdtype == pointdata && return PointData(coords, sitestat)
+    cdtype == griddata && return GridData(coords, sitestat)
     if cdtype == auto
         try
-            return GridData(coords, sitestats)
+            return GridData(coords, sitestat)
         catch
-            return PointData(coords, sitestats)
+            return PointData(coords, sitestat)
         end
     end
 end
