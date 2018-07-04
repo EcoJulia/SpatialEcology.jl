@@ -5,7 +5,6 @@ using DataFrames
 
 
 import RecipesBase
-import PlotUtils: @colorant_str, register_gradient_colors, register_color_library, default_cgrad, clibraries
 import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr, full
 import Missings
 import StatsBase: nquantile
@@ -33,7 +32,6 @@ include("GetandSetdata.jl")
 include("Gridfunctions.jl")
 include("Grouping.jl")
 include("PlotRecipes.jl")
-include("Colorgradients.jl")
 include("DispersionFields.jl")
 
 end # module
