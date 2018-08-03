@@ -107,7 +107,7 @@ function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
     end
 
     if !sitecolumns
-        return ComMatrix(occ', sites, species)
+        return ComMatrix(collect(occ'), sites, species)
     end
 
     ComMatrix(occ, species, sites)

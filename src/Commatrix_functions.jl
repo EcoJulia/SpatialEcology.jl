@@ -19,8 +19,8 @@ end
 
 occurring(com::AbstractComMatrix) = nzrows(com.occurrences)
 occupied(com::AbstractComMatrix) = nzcols(com.occurrences)
-occupied(com::AbstractComMatrix, idx) = findn(com.occurrences[idx,:])
-occurring(com::AbstractComMatrix, idx) = findn(com.occurrences[:,idx])
+occupied(com::AbstractComMatrix, idx) = (findall(!iszero, com.occurrences[idx,:]),)
+occurring(com::AbstractComMatrix, idx) = (findall(!iszero, com.occurrences[:,idx]),)
 
 noccurring(x) = length(occurring(x))
 noccupied(x) = length(occupied(x))
