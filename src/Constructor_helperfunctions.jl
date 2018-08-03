@@ -34,7 +34,7 @@ end
 function guess_xycols(dat::DataFrames.DataFrame)
   numbers = map(x -> x<:Number, eltypest(dat))
   sum(.!numbers) == 1 || error("Site names cannot be numeric in the input matrix")
-  ((find(numbers)[1:2])...)
+  ((find(numbers)[1:2])...,)
 end
 
 function testbool(x::Int)

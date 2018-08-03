@@ -1,7 +1,6 @@
 julia 0.7
 
 RecipesBase
-SparseArrays
 DataFrames
 PlotUtils
 StatsBase
