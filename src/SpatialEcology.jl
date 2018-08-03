@@ -3,6 +3,7 @@ module SpatialEcology
 
 using DataFrames
 using SparseArrays
+using Statistics
 
 import RecipesBase
 import PlotUtils: @colorant_str, register_gradient_colors, register_color_library, default_cgrad, clibraries
