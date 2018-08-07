@@ -3,4 +3,5 @@ julia 0.7
 RecipesBase
 DataFrames
 StatsBase
+EcoBase
 #Phylogeny
