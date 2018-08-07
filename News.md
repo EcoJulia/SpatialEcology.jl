@@ -1,3 +1,9 @@
+# version 0.4.0
+- julia-0.7 compatibility
+
+# version 0.3.1
+- several smaller patch commits
+
 # version 0.3.0
 - depend on DataFrames 0.11 and Missings
 
