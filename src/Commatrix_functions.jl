@@ -1,6 +1,7 @@
 
 macro forward_func(ex, fs)
-    T, field = ex.args[1], ex.args[2].args[1]
+    T, field = ex.args[1], ex.args[2].value
+
     T = esc(T)
     fs = isexpr(fs, :tuple) ? map(esc, fs.args) : [esc(fs)]
     :($([:($f(x::$T, args...) = (Base.@_inline_meta; $f(x.$field, args...)))
@@ -18,8 +19,8 @@ end
 
 occurring(com::AbstractComMatrix) = nzrows(com.occurrences)
 occupied(com::AbstractComMatrix) = nzcols(com.occurrences)
-occupied(com::AbstractComMatrix, idx) = findn(com.occurrences[idx,:])
-occurring(com::AbstractComMatrix, idx) = findn(com.occurrences[:,idx])
+occupied(com::AbstractComMatrix, idx) = findall(!iszero, com.occurrences[idx,:])
+occurring(com::AbstractComMatrix, idx) = findall(!iszero, com.occurrences[:,idx])
 
 noccurring(x) = length(occurring(x))
 noccupied(x) = length(occupied(x))
