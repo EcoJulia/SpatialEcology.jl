@@ -3,7 +3,7 @@
 
 rowsum(x) = sum(x,2)
 rowsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC} = (x.parent * sparse(x.indexes[2],ones(Int,length(x.indexes[2])), ones(Int,length(x.indexes[2])), size(x.parent,2),1))[x.indexes[1]]
-colsum(x) = sum(x,1)
+colsum(x) = sum(x,dims=1)
 colsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC} = (sparse(ones(Int,length(x.indexes[1])), x.indexes[1], ones(Int,length(x.indexes[1])),1,size(x.parent,1))*x.parent)[x.indexes[2]]
 
 # Functions for finding nonzero rows and columns from Dan Getz, http://stackoverflow.com/questions/43968445/identify-which-rows-or-columns-have-values-in-sparse-matrix
@@ -13,12 +13,12 @@ function nzrows(a::SparseMatrixCSC)
     @inbounds for r in a.rowval
         active[r] = true
     end
-    return find(active)
+    return findall(active)
 end
 
 function nzcols(a::SparseMatrixCSC)
     res=Vector{Int}()
-    foldl((x,y)->(if (x<a.colptr[y]) push!(res,y-1) end; a.colptr[y]),a.colptr[1],2:a.n+1)
+    foldl((x,y)->(if (x<a.colptr[y]) push!(res,y-1) end; a.colptr[y]),2:a.n+1, init=a.colptr[1])
     res
 end
 

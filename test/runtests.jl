@@ -1,7 +1,7 @@
 using SpatialEcology
 using DataFrames
 using CSV
-using Base.Test
+using Test
 
 
 amphdat = CSV.read("../data/amph_Europe.csv")

@@ -2,12 +2,12 @@ __precompile__(true)
 module SpatialEcology
 
 using DataFrames
-
+using SparseArrays
+using Statistics
 
 import RecipesBase
 import PlotUtils: @colorant_str, register_gradient_colors, register_color_library, default_cgrad, clibraries
 import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr, full
-import Missings
 import StatsBase: nquantile
 
 export SiteData, ComMatrix, Assemblage, coordtype, DispersionField #types and their constructors
