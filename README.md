@@ -24,10 +24,10 @@ This package is part of the [EcoJulia](https://github.com/EcoJulia) organisation
 ## Getting started:
 
 ```julia
-using SpatialEcology, Plots
+using SpatialEcology, Plots, CSV, DataFrames
 
 # the object constructors take a wide range of objects, a typical being a presence-absence matrix as a DataFrame and a 3-column dataframe with coordinates
-amphdata = readtable(joinpath(Pkg.dir("SpatialEcology"), "data", "amph_Europe.csv"));
+amphdata = CSV.read(joinpath(dirname(pathof(SpatialEcology)), "..", "data", "amph_Europe.csv"));
 amphdata[1:3,1:6]
     # 5×6 DataFrames.DataFrame
     # │ Row │ Long │ Lat  │ coords      │ Salamandra_salamandra │ _Calotriton_asper │ _Calotriton_arnoldi │
@@ -36,7 +36,9 @@ amphdata[1:3,1:6]
     # │ 2   │ 17.5 │ 47.5 │ "17.5_47.5" │ 1                     │ 0                 │ 0                   │
     # │ 3   │ 24.5 │ 37.5 │ "24.5_37.5" │ 1                     │ 0                 │ 0                   │
 
-amph = Assemblage(amphdata[4:end],amphdata[1:3])
+# Create the object
+# The `sitecolumns` keyword tells SpatialEcology that the input DataFrame has sites as rows (and species as columns)
+amph = Assemblage(amphdata[4:end],amphdata[1:3], sitecolumns = false)
     # Matrix data assumed to be presence-absence
     # Assemblage with 73 species in 1010 sites
     #
