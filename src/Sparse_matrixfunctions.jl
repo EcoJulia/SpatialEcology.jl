@@ -91,7 +91,7 @@ function nzrows(b::SubArray{T,2,P,Tuple{Vector{Int64}, U}} where {T,P<:SparseMat
     @inbounds for c in b.indexes[2]
       active[findin2(inds,brows,b.parent.rowval[nzrange(b.parent,c)])] = true
     end
-    return find(active)
+    return findall(active)
 end
 
 function nzrows(b::SubArray{T,2,P,Tuple{UnitRange{Int64}, U}} where {T,P<:SparseMatrixCSC, U<:Union{UnitRange{Int64}, Vector{Int}}}
@@ -104,5 +104,5 @@ function nzrows(b::SubArray{T,2,P,Tuple{UnitRange{Int64}, U}} where {T,P<:Sparse
             end
         end
     end
-    return find(active)
+    return findall(active)
 end

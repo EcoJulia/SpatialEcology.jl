@@ -37,7 +37,7 @@ end
 # TODO not sure this is necessary anymore - perhaps remove, or update with a string (for names)
 
 asindices(x::AbstractArray{T}) where T <: Integer = x
-asindices(x::AbstractArray{T}) where T <: Bool = find(x)
+asindices(x::AbstractArray{T}) where T <: Bool = findall(x)
 asindices(x, y) = asindices(x)
 asindices(x::AbstractArray{T}, y::AbstractArray{T}) where T <: AbstractString = indexin(x, y)
 # creating views
