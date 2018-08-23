@@ -46,10 +46,10 @@ sitetotals(com::AbstractComMatrix) = vec(colsum(com.occurrences))
 speciestotals(com::AbstractComMatrix) = vec(rowsum(com.occurrences))
 
 richness(com::AbstractComMatrix{T}) where T<:Bool = vec(colsum(com.occurrences))
-richness(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, 1))
+richness(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, dims = 1))
 
 occupancy(com::AbstractComMatrix{T}) where T<:Bool = vec(rowsum(com.occurrences))
-occupancy(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, 2))
+occupancy(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, dims = 2))
 
 records(com::AbstractComMatrix) = nnz(com.occurrences)
 

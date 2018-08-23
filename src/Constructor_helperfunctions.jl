@@ -124,7 +124,7 @@ end
 
 function createsitenames(coords::AbstractMatrix)
   size(coords, 2) == 2 || error("Only defined for matrices with two columns")
-  mapslices(x->"$(x[1])_$(x[2])", coords, 2)
+  mapslices(x->"$(x[1])_$(x[2])", coords, dims = 2)
 end
 
 function createsitenames(coords::DataFrames.DataFrame)
