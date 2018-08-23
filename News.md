@@ -1,3 +1,7 @@
+# version 0.4.1
+- removed `full` again
+- greatly expanded test suite
+
 # version 0.4.0
 - julia-0.7 compatibility
 
