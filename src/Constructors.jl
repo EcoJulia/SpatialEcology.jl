@@ -113,7 +113,22 @@ function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
     ComMatrix(occ, species, sites)
 end
 
-ComMatrix(occurrences::Array, specnames, sitenames) = ComMatrix(sparse(occurrences), specnames, sitenames)
+ComMatrix(occurrences::Array, specnames, sitenames; sitecolumns) =
+    ComMatrix(occurrences; specnames = specnames, sitenames = sitenames, sitecolumns = sitecolumns)
+
+
+function ComMatrix(occurrences; specnames = :auto, sitenames = :auto, sitecolumns = true)
+    if sitecolumns
+        occurrences = occurrences'
+    end
+    if sitenames == :auto
+        sitenames = ["site$i" for i in 1:size(occurrences, 1)]
+    end
+    if specnames == :auto
+        specnames = ["species$i" for i in 1:size(occurrences, 2)]
+    end
+    ComMatrix(sparse(occurrences), string.(specnames), string.(sitenames))
+end
 
 function GridData(coords::AbstractMatrix{<:Union{AbstractFloat, Missings.Missing}},
         sitestats::DataFrames.DataFrame = DataFrames.DataFrame(id = 1:size(coords,1)))
