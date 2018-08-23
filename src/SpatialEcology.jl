@@ -6,7 +6,7 @@ using SparseArrays
 using Statistics
 
 import RecipesBase
-import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr, full
+import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr
 import StatsBase: nquantile
 
 export SiteData, ComMatrix, Assemblage, coordtype, DispersionField #types and their constructors

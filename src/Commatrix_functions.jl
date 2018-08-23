@@ -56,8 +56,6 @@ records(com::AbstractComMatrix) = nnz(com.occurrences)
 size(com::AbstractComMatrix) = size(com.occurrences)
 size(com::AbstractComMatrix, dims...) = size(com.occurrences, dims...)
 
-full(com::AbstractComMatrix) = full(com.occurrences)
-
 """
     cooccurring(com, inds...)
 
