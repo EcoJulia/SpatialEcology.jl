@@ -14,7 +14,7 @@ dati = round.(Int, dati)
 datf = sprand(11,9,0.9)
 
 
-@testset "ComMatrix constructors" begin
+@testset "ComMatrix" begin
     cmb = ComMatrix(datb)
     @test cmb isa ComMatrix{Bool}
     cmi = ComMatrix(dati,
@@ -24,45 +24,42 @@ datf = sprand(11,9,0.9)
     cmf = ComMatrix(datf, sitecolumns = false)
     @test ComMatrix(Matrix(datf)).occurrences == ComMatrix(datf).occurrences
 
-end
+    @test occupancy(cmb) == [6, 6, 8, 7, 7, 8, 8, 8, 6, 6, 6, 7]
+    @test occupancy(cmi) == [11, 13, 10, 12, 12, 13, 9, 13]
+    @test occupancy(cmf) == [10, 10, 9, 10, 11, 8, 8, 10, 9]
 
-@testset "ComMatrix functions" begin
-    @test richness(cmb) == [6, 6, 8, 7, 7, 8, 8, 8, 6, 6, 6, 7]
-    @test richness(cmi) == [11, 13, 10, 12, 12, 13, 9, 13]
-    @test richness(cmf) == [10, 10, 9, 10, 11, 8, 8, 10, 9]
+    @test richness(cmb) == [12, 11, 10, 10, 11, 10, 12, 7]
+    @test richness(cmi) == [7, 7, 8, 8, 5, 8, 8, 7, 8, 6, 6, 8, 7]
+    @test richness(cmf) == [8, 8, 8, 9, 8, 8, 8, 7, 7, 7, 7]
 
-    @test occupancy(cmb) == [12, 11, 10, 10, 11, 10, 12, 7]
-    @test occupancy(cmi) == [7, 7, 8, 8, 5, 8, 8, 7, 8, 6, 6, 8, 7]
-    @test occupancy(cmf) == [8, 8, 8, 9, 8, 8, 8, 7, 7, 7, 7]
+    @test nsites(cmb) == 8
+    @test nsites(cmi) == 13
+    @test nsites(cmf) == 11
 
-    @test nspecies(cmb) == 8
-    @test nspecies(cmi) == 13
-    @test nspecies(cmf) == 11
+    @test nspecies(cmb) == 12
+    @test nspecies(cmi) == 8
+    @test nspecies(cmf) == 9
 
-    @test nsites(cmb) == 12
-    @test nsites(cmi) == 8
-    @test nsites(cmf) == 9
+    @test occurring(cmb) == 1:12
+    @test occurring(cmi) == 1:8
+    @test occurring(cmf) == 1:9
 
-    @test occurring(cmb) == 1:8
-    @test occurring(cmi) == 1:13
-    @test occurring(cmf) == 1:11
+    @test occupied(cmb) == 1:8
+    @test occupied(cmi) == 1:13
+    @test occupied(cmf) == 1:11
 
-    @test occupied(cmb) == 1:12
-    @test occupied(cmi) == 1:8
-    @test occupied(cmf) == 1:9
+    @test noccurring(cmb) == 12
+    @test noccurring(cmi) == 8
+    @test noccurring(cmf) == 9
 
-    @test noccurring(cmb) == 8
-    @test noccurring(cmi) == 13
-    @test noccurring(cmf) == 11
+    @test noccupied(cmb) == 8
+    @test noccupied(cmi) == 13
+    @test noccupied(cmf) == 11
 
-    @test noccupied(cmb) == 12
-    @test noccupied(cmi) == 8
-    @test noccupied(cmf) == 9
-
-    @test getspecies(cmb, 4) == [true, false, true, true, false, true, true, true, true, true, true, true]
-    @test getspecies(cmi, 2) == [0, 89, 67, 28, 73, 6, 36, 53]
+    @test getspecies(cmb, 4) == [true, true, true, true, true, true, true, false]
+    @test getspecies(cmi, 2) == [48, 89, 34, 39, 29, 73, 49, 23, 62, 71, 60, 57, 19]
     gcm = getspecies(cmf, 6)
-    @test gcm[3] == 0.4208444666825324
+    @test gcm[3] == 0.37980641711782925
     @test gcm isa SubArray
 
     @test specnames(cmi)[8] == "sp8"
@@ -72,6 +69,13 @@ end
     @test sitenames(cmb)[5] == "site5"
 
     @test length(sitenames(cmf)) == nsites(cmf)
+    @test length(sitenames(cmi)) == nsites(cmi)
+    @test length(sitenames(cmb)) == nsites(cmb)
+
+    @test length(specnames(cmf)) == nspecies(cmf)
+    @test length(specnames(cmi)) == nspecies(cmi)
+    @test length(specnames(cmb)) == nspecies(cmb)
+
 
 
 
