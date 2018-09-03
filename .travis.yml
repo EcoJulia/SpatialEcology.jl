@@ -24,7 +24,7 @@ matrix:
 # uncomment the following lines to override the default test script
 #script:
 #  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'Pkg.add(PackageSpec = pwd()); Pkg.build("SpatialEcology"); Pkg.test("SpatialEcology"; coverage=true)'
+#  - julia -e 'Pkg.add(PackageSpec = pwd()); Pkg.build("SpatialEcology"); Pkg.test("SpatialEcology"; coverage=true)'
 
 after_success:
 - julia -e 'import SpatialEcology; cd(dirname(pathof(SpatialEcology))); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
