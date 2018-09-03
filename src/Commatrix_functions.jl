@@ -9,8 +9,8 @@ macro forward_func(ex, fs)
     nothing)
 end
 
-@forward_func Assmbl.occ nspecies, nsites, occupancy, richness, records, occurring, occupied, specnames
-@forward_func AbstractOccFields.commatrix nspecies, nsites, specnames, sitenames, occupancy, richness, records, occurring, occupied
+@forward_func Assmbl.occ nspecies, nsites, occupancy, richness, nrecords, occurring, occupied, specnames
+@forward_func AbstractOccFields.commatrix nspecies, nsites, specnames, sitenames, occupancy, richness, nrecords, occurring, occupied
 @forward_func Assmbl.site sitenames
 
 
@@ -51,7 +51,7 @@ richness(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occur
 occupancy(com::AbstractComMatrix{T}) where T<:Bool = vec(rowsum(com.occurrences))
 occupancy(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, dims = 2))
 
-records(com::AbstractComMatrix) = nnz(com.occurrences)
+nrecords(com::AbstractComMatrix) = nnz(com.occurrences)
 
 size(com::AbstractComMatrix) = size(com.occurrences)
 size(com::AbstractComMatrix, dims...) = size(com.occurrences, dims...)
