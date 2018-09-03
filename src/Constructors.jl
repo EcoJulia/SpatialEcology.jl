@@ -114,7 +114,7 @@ function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
     ComMatrix(occ, species, sites)
 end
 
-ComMatrix(occurrences::AbstractMatrix, specnames, sitenames; sitecolumns) =
+ComMatrix(occurrences::AbstractMatrix, specnames, sitenames; sitecolumns = true) =
     ComMatrix(occurrences; specnames = specnames, sitenames = sitenames, sitecolumns = sitecolumns)
 
 
@@ -129,8 +129,8 @@ function ComMatrix(occurrences; specnames = :auto, sitenames = :auto, sitecolumn
         specnames = ["species$i" for i in 1:size(occurrences, 1)]
     end
 
-    length(specnames) == size(occurrences, 2) || ArgumentError("length of specnames ($(length(specnames))) different from number of species in occurrences ($(size(occurrences, 1)))")
-    length(sitenames) == size(occurrences, 1) || ArgumentError("length of sitenames ($(length(sitenames))) different from number of sites in occurrences ($(size(occurrences, 2)))")
+    length(specnames) == size(occurrences, 1) || throw(ArgumentError("length of specnames ($(length(specnames))) different from number of species in occurrences ($(size(occurrences, 1)))"))
+    length(sitenames) == size(occurrences, 2) || throw(ArgumentError("length of sitenames ($(length(sitenames))) different from number of sites in occurrences ($(size(occurrences, 2)))"))
     ComMatrix{eltype(occurrences)}(sparse(occurrences), string.(specnames), string.(sitenames))
 end
 
