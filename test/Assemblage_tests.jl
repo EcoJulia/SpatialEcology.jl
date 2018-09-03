@@ -1,3 +1,5 @@
+using DataFrames
+using CSV
 
 @testset "Assemblage" begin
     amphdat = CSV.read("../data/amph_Europe.csv")

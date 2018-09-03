@@ -1,7 +1,4 @@
 using SpatialEcology
-using DataFrames
-using CSV
-using SparseArrays
 using Test
 import Random
 

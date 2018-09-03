@@ -1,3 +1,4 @@
+using SparseArrays
 
 @testset "ComMatrix" begin
     datb = sprand(Bool, 12,8,0.9)
@@ -14,6 +15,7 @@
         sitenames = [:a, :b, :c, :d, :e, :f, :g, :h, :i, :j, :k, :l, :m])
     @test cmi isa ComMatrix{<:Union{Int64, Int32}}
     cmf = ComMatrix(datf, sitecolumns = false)
+
     @test ComMatrix(Matrix(datf)).occurrences == ComMatrix(datf).occurrences
 
     @test occupancy(cmb) == [6, 6, 8, 7, 7, 8, 8, 8, 6, 6, 6, 7]
