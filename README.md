@@ -1,7 +1,7 @@
 # SpatialEcology
 
-[![Build Status](https://travis-ci.org/EcoJulia/SpatialEcology.jl.svg?branch=master)](https://travis-ci.org/EcoJulia/SpatialEcology.jl) [![SpatialEcology](http://pkg.julialang.org/badges/SpatialEcology_0.6.svg)](http://pkg.julialang.org/detail/SpatialEcology)
-[![SpatialEcology](http://pkg.julialang.org/badges/SpatialEcology_0.7.svg)](http://pkg.julialang.org/detail/SpatialEcology)
+[![Build Status](https://travis-ci.org/EcoJulia/SpatialEcology.jl.svg?branch=master)](https://travis-ci.org/EcoJulia/SpatialEcology.jl)
+[![SpatialEcology](http://pkg.julialang.org/badges/SpatialEcology_1.0.svg)](http://pkg.julialang.org/detail/SpatialEcology)
 
 ### Primary author: Michael Krabbe Borregaard (@mkborregaard)
 
