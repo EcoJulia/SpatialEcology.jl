@@ -14,7 +14,7 @@
     @test richness(vcom) == richness(comc)
     @test nsites(vcom) == nsites(comc)
     @test nspecies(vcom) == nspecies(comc)
-    #@test occurring(vcom) == occurring(comc)
+    #TODO problem with view #@test occurring(vcom) == occurring(comc)
     #@test occupied(vcom) == occupied(comc)
     #@test noccurring(vcom) == noccurring(comc)
     #@test noccupied(vcom) == noccupied(comc)
