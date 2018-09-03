@@ -31,7 +31,7 @@ nspecies(com::AbstractComMatrix) = size(com.occurrences, 1)
 nsites(com::AbstractComMatrix) = size(com.occurrences, 2)
 
 nsites(sd::SpatialData) = size(coordinates(sd.site), 1)
-nsites(sd::SiteFields) = DataFrames.nrow(sd.sitestats)
+nsites(sd::SiteFields) = DataFrames.ncol(sd.sitestats)
 
 getspecies(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, idx, :)
 getsite(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, :, idx)

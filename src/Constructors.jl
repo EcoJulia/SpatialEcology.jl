@@ -72,6 +72,7 @@ end
 OccFields(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: OccTypes = OccFields{T}(commatrix, traits)
 OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
 
+
 function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
     if DataFrames.ncol(occ) == 3 && eltypest(occ)[3] <: AbstractString
         println("Data format identified as Phylocom")
@@ -113,21 +114,24 @@ function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
     ComMatrix(occ, species, sites)
 end
 
-ComMatrix(occurrences::Array, specnames, sitenames; sitecolumns) =
+ComMatrix(occurrences::AbstractMatrix, specnames, sitenames; sitecolumns) =
     ComMatrix(occurrences; specnames = specnames, sitenames = sitenames, sitecolumns = sitecolumns)
 
 
 function ComMatrix(occurrences; specnames = :auto, sitenames = :auto, sitecolumns = true)
-    if sitecolumns
+    if !sitecolumns
         occurrences = occurrences'
     end
     if sitenames == :auto
-        sitenames = ["site$i" for i in 1:size(occurrences, 1)]
+        sitenames = ["site$i" for i in 1:size(occurrences, 2)]
     end
     if specnames == :auto
-        specnames = ["species$i" for i in 1:size(occurrences, 2)]
+        specnames = ["species$i" for i in 1:size(occurrences, 1)]
     end
-    ComMatrix(sparse(occurrences), string.(specnames), string.(sitenames))
+
+    length(specnames) == size(occurrences, 2) || ArgumentError("length of specnames ($(length(specnames))) different from number of species in occurrences ($(size(occurrences, 1)))")
+    length(sitenames) == size(occurrences, 1) || ArgumentError("length of sitenames ($(length(sitenames))) different from number of sites in occurrences ($(size(occurrences, 2)))")
+    ComMatrix{eltype(occurrences)}(sparse(occurrences), string.(specnames), string.(sitenames))
 end
 
 function GridData(coords::AbstractMatrix{<:Union{AbstractFloat, Missings.Missing}},

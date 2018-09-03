@@ -70,12 +70,12 @@ end
 mutable struct OccFields{T <: OccTypes} <: AbstractOccFields{T}
     commatrix::ComMatrix{T}
     traits::DataFrames.DataFrame
-
     function OccFields{T}(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: OccTypes
         DataFrames.nrow(traits) ==  nspecies(commatrix) || throw(DimensionMismatch("Wrong number of species in traits"))
         new(commatrix, traits)
     end
 end
+
 
 abstract type AbstractSiteData <: SpatialData end
 
