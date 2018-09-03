@@ -12,7 +12,7 @@ import StatsBase: nquantile
 export SiteData, ComMatrix, Assemblage, coordtype, DispersionField #types and their constructors
 export AbstractComMatrix
 export nspecies, nsites, occupancy, richness, nrecords, sitenames, specnames, coordinates
-export occurring, noccurring, occupied, noccupied, occurrences
+export occurring, noccurring, occupied, noccupied, occurrences, cooccurring
 export traits, sitestats, sitestatnames, traitnames, commatrix
 export addtraits!, addsitestats!
 export asquantiles, asquantiles!
