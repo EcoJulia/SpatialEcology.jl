@@ -19,7 +19,7 @@ datf = sprand(11,9,0.9)
     @test cmb isa ComMatrix{Bool}
     cmi = ComMatrix(dati,
         specnames = ["sp1", "sp2", "sp3", "sp4", "sp5", "sp6", "sp7", "sp8"],
-        sitenames = [:a, :b, :c, :d, :e, :f, :g, :h, :i, :j, :k, :l])
+        sitenames = [:a, :b, :c, :d, :e, :f, :g, :h, :i, :j, :k, :l, :m])
     @test cmi isa ComMatrix{<:Union{Int64, Int32}}
     cmf = ComMatrix(datf, sitecolumns = false)
     @test ComMatrix(Matrix(datf)).occurrences == ComMatrix(datf).occurrences
