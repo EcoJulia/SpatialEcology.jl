@@ -6,3 +6,4 @@ Random.seed!(1337)
 
 include("ComMatrix_tests.jl")
 include("Assemblage_tests.jl")
+include("Views_test.jl")
