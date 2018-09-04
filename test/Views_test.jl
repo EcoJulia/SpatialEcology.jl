@@ -14,11 +14,18 @@
     @test richness(vcom) == richness(comc)
     @test nsites(vcom) == nsites(comc)
     @test nspecies(vcom) == nspecies(comc)
-    #TODO problem with view #@test occurring(vcom) == occurring(comc)
-    #@test occupied(vcom) == occupied(comc)
-    #@test noccurring(vcom) == noccurring(comc)
-    #@test noccupied(vcom) == noccupied(comc)
-    #@test getspecies(vcom, 4) == getspecies(comc, 4)
+    @test occurring(vcom) == occurring(comc)
+    @test occupied(vcom) == occupied(comc)
+    @test noccurring(vcom) == noccurring(comc)
+    @test noccupied(vcom) == noccupied(comc)
+    @test getspecies(vcom, 4) == getspecies(comc, 4)
+    @test nrecords(vcom) == nrecords(comc)
+    @test size(vcom) == size(comc)
+    @test cooccurring(vcom, 1,3,4) == cooccurring(comc, [1,3,4])
+    @test cooccurring(vcom, 1:3) == [false, true, false, true, false]
+
+    @test SpatialEcology.asindices(1:5) == 1:5
+    @test SpatialEcology.asindices([1,2,4]) == [1,2,4]
 
 
 
