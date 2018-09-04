@@ -64,6 +64,7 @@ mutable struct ComMatrix{T} <: AbstractComMatrix{T}
     occurrences::SparseMatrixCSC{T}
     specnames::Vector{String}
     sitenames::Vector{String}
+    ComMatrix{T}(occ::SparseMatrixCSC{T}, spn::Vector{String}, sin::Vector{String}) where {T} = new(dropzeros!(occ), spn, sin)
 end
 
 # likewise, do I need a specnames here? Should traits have a :series field (like now) or all matching be done on the specnames?
