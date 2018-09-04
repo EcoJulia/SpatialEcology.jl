@@ -1,6 +1,11 @@
 using SparseArrays
+using Random
+using SpatialEcology
+using Test
 
 @testset "ComMatrix" begin
+    Random.seed!(1337)
+
     datb = sprand(Bool, 12,8,0.9)
 
     dati = sprand(8,13,0.9).*100

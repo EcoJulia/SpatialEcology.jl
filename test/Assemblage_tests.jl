@@ -1,9 +1,13 @@
 using DataFrames
 using CSV
+using SpatialEcology
+using Test
 
 @testset "Assemblage" begin
     amphdat = CSV.read(joinpath(dirname(pathof(SpatialEcology)), "..", "data", "amph_Europe.csv"))
     amph = Assemblage(amphdat[4:end], amphdat[1:3], sitecolumns = false)
+
+    @test typeof(amph) == Assemblage{SpatialEcology.GridData,Bool}
 
     # accesseors
     @test extrema(richness(amph)) == (1, 20)
