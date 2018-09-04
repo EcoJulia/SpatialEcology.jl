@@ -51,7 +51,7 @@ richness(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occur
 occupancy(com::AbstractComMatrix{T}) where T<:Bool = vec(rowsum(com.occurrences))
 occupancy(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, dims = 2))
 
-nrecords(com::ComMatrix) = nnz(occurrences(com))
+nrecords(com::AbstractComMatrix) = _nnz(occurrences(com))
 
 size(com::AbstractComMatrix) = size(occurrences(com))
 size(com::AbstractComMatrix, dims...) = size(occurrences(com), dims...)

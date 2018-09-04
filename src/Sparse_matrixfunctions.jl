@@ -115,3 +115,16 @@ function nzrows(b::SubArray{T,2,P,Tuple{UnitRange{Int64}, U}} where {T,P<:Sparse
     end
     return findall(active)
 end
+
+_nnz(x::AbstractMatrix) = nnz(x)
+function _nnz(b::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC}
+    ret = 0
+    @inbounds for c in b.indices[2]
+        for r in nzrange(b.parent,c)
+            if b.parent.rowval[r] in b.indices[1]
+                ret += 1
+            end
+        end
+    end
+    return ret
+end
