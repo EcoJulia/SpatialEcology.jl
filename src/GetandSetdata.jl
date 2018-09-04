@@ -20,8 +20,7 @@ commatrix(occ::AbstractOccFields) = occ.commatrix
 
 occurrences(asm) = occurrences(commatrix(asm))
 
-occurrences(cm::ComMatrix) = cm.occurrences
-occurrences(cm::SubComMatrix) = cm.occurrences
+occurrences(cm::AbstractComMatrix) = cm.occurrences
 
 function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::Symbol; validate = true, tolerance = 0.5)
     if validate
