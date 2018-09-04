@@ -3,17 +3,26 @@
 
 rowsum(x) = sum(x,dims=2)
 rowsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC} = (x.parent * sparse(x.indices[2],ones(Int,length(x.indices[2])), ones(Int,length(x.indices[2])), size(x.parent,2),1))[x.indices[1]]
+function rowsum(x::SparseMatrixCSC{Bool})
+    active = zeroes(Int, a.m)
+    @inbounds for i in 1:nnz(a)
+        active[a.rowval[i]] += 1
+    end
+    active
+end
+
 colsum(x) = sum(x,dims=1)
+colsum(x::SparseMatrixCSC{Bool}) = diff(view(x.colptr, 1:x.n+1))
 colsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC} = (sparse(ones(Int,length(x.indices[1])), x.indices[1], ones(Int,length(x.indices[1])),1,size(x.parent,1))*x.parent)[x.indices[2]]
 
 # Functions for finding nonzero rows and columns from Dan Getz, http://stackoverflow.com/questions/43968445/identify-which-rows-or-columns-have-values-in-sparse-matrix
 
 function nzrows(a::SparseMatrixCSC)
     active = falses(a.m)
-    @inbounds for r in a.rowval
-        active[r] = true
+    @inbounds for i in 1:nnz(a)
+        active[a.rowval[i]] = true
     end
-    return findall(active)
+    findall(active)
 end
 
 function nzcols(a::SparseMatrixCSC)
@@ -25,8 +34,8 @@ end
 inrange(v,r) = searchsortedlast(v,last(r))>=searchsortedfirst(v,first(r))
 
 function sortedintersecting(v1, v2)
-    i,j = start(v1), start(v2)
-    @inbounds while i <= length(v1) && j <= length(v2)
+    i,j = firstindex(v1), firstindex(v2)
+    @inbounds while i <= lastindex(v1) && j <= lastindex(v2)
         if v1[i] == v2[j] return true
         elseif v1[i] > v2[j] j += 1
         else i += 1
@@ -70,9 +79,9 @@ function nzcols(b::SubArray{T,2,P,Tuple{Vector{Int64},UnitRange{Int64}}} where {
 end
 
 function findin2(inds,v,w)
-    i,j = start(v),start(w)
+    i, j = firstindex(v), firstindex(w)
     res = Vector{Int}()
-    @inbounds while i<=length(v) && j<=length(w)
+    @inbounds while i<=lastindex(v) && j<=lastindex(w)
         if v[i]==w[j]
             push!(res,inds[i])
             i += 1
@@ -89,7 +98,7 @@ function nzrows(b::SubArray{T,2,P,Tuple{Vector{Int64}, U}} where {T,P<:SparseMat
     inds = sortperm(b.indices[1])
     brows = (b.indices[1])[inds]
     @inbounds for c in b.indices[2]
-      active[findin2(inds,brows,b.parent.rowval[nzrange(b.parent,c)])] = true
+      active[findin2(inds,brows,b.parent.rowval[nzrange(b.parent,c)])] .= true
     end
     return findall(active)
 end
@@ -100,7 +109,7 @@ function nzrows(b::SubArray{T,2,P,Tuple{UnitRange{Int64}, U}} where {T,P<:Sparse
     @inbounds for c in b.indices[2]
         for r in nzrange(b.parent,c)
             if b.parent.rowval[r] in b.indices[1]
-                active[b.parent.rowval[r]+1-start(b.indices[1])] = true
+                active[b.parent.rowval[r]+1-start(b.indices[1])] .= true
             end
         end
     end
