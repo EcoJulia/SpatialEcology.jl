@@ -116,3 +116,5 @@ function show(io::IO, com::SubAssemblage)
     si = createsummaryline(sitenames(com))
     println(io, "SubAssemblage with $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
+
+nrecords(com::SubComMatrix) = sum(colsum(com))
