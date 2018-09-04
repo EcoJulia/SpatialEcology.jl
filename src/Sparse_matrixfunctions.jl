@@ -4,9 +4,9 @@
 rowsum(x) = sum(x,dims=2)
 rowsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC} = (x.parent * sparse(x.indices[2],ones(Int,length(x.indices[2])), ones(Int,length(x.indices[2])), size(x.parent,2),1))[x.indices[1]]
 function rowsum(x::SparseMatrixCSC{Bool})
-    active = zeroes(Int, a.m)
-    @inbounds for i in 1:nnz(a)
-        active[a.rowval[i]] += 1
+    active = zeros(Int, x.m)
+    @inbounds for i in 1:nnz(x)
+        active[x.rowval[i]] += 1
     end
     active
 end
