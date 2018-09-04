@@ -11,6 +11,6 @@ ymax(g::GridTopology) = g.ymin + g.ycellsize*(g.ycells-1)
 xrange(g::GridTopology) = xmin(g):xcellsize(g):xmax(g)
 yrange(g::GridTopology) = ymin(g):ycellsize(g):ymax(g)
 boundingbox(g::GridTopology) = Bbox(xmin(g), xmax(g), ymin(g), ymax(g))
-show(io::IO, b::Bbox) = println("xmin:\t$(g.xmin)\nxmax:\t$(g.xmax)\nymin:\t$(g.ymin)\nymax:\t$(g.ymax)\n")
+show(io::IO, b::Bbox) = println(io, "xmin:\t$(b.xmin)\nxmax:\t$(b.xmax)\nymin:\t$(b.ymin)\nymax:\t$(b.ymax)")
 
 @forward_func AbstractGridData.grid xmin, ymin, cellsize, xcellsize, ycellsize, xcells, ycells, cells, xmax, ymax, xrange, yrange, boundingbox
