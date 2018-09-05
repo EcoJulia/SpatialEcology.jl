@@ -1,6 +1,5 @@
 
 @enum coordstype auto griddata pointdata
-#@enum inputdatatype auto phylocom worldmapfile benholtmatrix
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
