@@ -27,4 +27,4 @@ matrix:
 #  - julia -e 'import Pkg; Pkg.add(PackageSpec(url = pwd())); Pkg.build("SpatialEcology"); Pkg.test("SpatialEcology"; coverage=true)'
 
 after_success:
-- julia -e 'import SpatialEcology; cd(dirname(pathof(SpatialEcology))); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+- julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
