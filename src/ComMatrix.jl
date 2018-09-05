@@ -17,22 +17,10 @@ end
 #--------------------------------------------------------------------------
 # Basic summary functions
 
-EcoBase.occurring(com::AbstractComMatrix) = nzrows(com.occurrences)
-EcoBase.occupied(com::AbstractComMatrix) = nzcols(com.occurrences)
-EcoBase.occupied(com::AbstractComMatrix, idx) = findall(!iszero, com.occurrences[idx,:])
-EcoBase.occurring(com::AbstractComMatrix, idx) = findall(!iszero, com.occurrences[:,idx])
+nthings(com::AbstractComMatrix) = size(com.occurrences, 1)
+const nspecies = nthings
 
-EcoBase.noccurring(x) = length(occurring(x))
-EcoBase.noccupied(x) = length(occupied(x))
-EcoBase.noccurring(x, idx) = length(occurring(x, idx))
-EcoBase.noccupied(x, idx) = length(occupied(x, idx))
-
-const nspecies = EcoBase.nthings
-const nsites = EcoBase.nplaces
-
-nspecies(com::AbstractComMatrix) = size(com.occurrences, 1)
 nsites(com::AbstractComMatrix) = size(com.occurrences, 2)
-
 nsites(sd::SpatialData) = size(coordinates(sd.site), 1)
 nsites(sd::SiteFields) = DataFrames.ncol(sd.sitestats)
 
