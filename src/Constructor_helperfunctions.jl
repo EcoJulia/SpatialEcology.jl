@@ -90,10 +90,11 @@ function match_commat_coords(occ::ComMatrix, coords::AbstractMatrix, sitestats::
  ## so far this does nothing TODO
 end
 
-function dropspecies!(occ::OccFields)
-  occur = occurring(occ)
-  occ.commatrix = occ.commatrix[occur, :]
-  occ.traits = occ.traits[occur,:]
+function dropspecies!(com::ComMatrix, sp::Species)
+  occur = occurring(com)
+  com = com[occur, :]
+  sp.traits = sp.traits[occur,:]
+  sp.species = sp.species[occur,:]
 end
 
 function dropbyindex!(site::PointData, indicestokeep)

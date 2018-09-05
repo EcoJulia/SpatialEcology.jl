@@ -1,7 +1,7 @@
 
 # Big TODO we are still missing the functionality that does the aligning in the constructors
 
-Assemblage(assm::Assmbl) = Assemblage(assm.site, assm.occ) # Not a copy constructor - Just a function that will reduce derived types to the base type
+Assemblage(assm::AbstractAssemblage) = Assemblage(commat(assm), speciesfield(assm), sitefield(assm)) # Not a copy constructor - Just a function that will reduce derived types to the base type
 Assemblage(assm::SubAssemblage) = copy(assm)
 
 # a constructor that takes occ and coords as one single DataFrame format and separates them
@@ -40,19 +40,19 @@ function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
         occ, coords, sitestat = match_commat_coords(occ, coords, sitestat)
     end
 
-    Assemblage(createSiteFields(coords, cdtype, sitestat), OccFields(occ, traits))
+    Assemblage(occ, createSiteFields(coords, cdtype, sitestat), Species(traits[:name], traits))
   end
 
-function Assemblage(site::S, occ::OccFields{T};
-    dropemptyspecies::Bool = false, dropemptysites::Bool = false) where {T <: OccTypes, S <: SiteFields}
+function Assemblage(occ::ComMatrix, site::S, sp::Species;
+    dropemptyspecies::Bool = false, dropemptysites::Bool = false) where {S <: SiteFields}
 
     if dropemptyspecies
-        dropspecies!(occ)
+        dropspecies!(occ, sp)
     end
     if dropemptysites
         dropsites!(occ, site)
     end
-    Assemblage{S}{T}(site, occ)
+    Assemblage{S, T}(site, occ)
 end
 
 function createSiteFields(coords::AbstractMatrix, cdtype::coordstype = auto,  #by design, this is not type stable, but maybe that is OK for type constructors
