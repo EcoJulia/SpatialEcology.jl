@@ -13,7 +13,7 @@ type PhyloFields
 end
 
 
-type PhyloAssemblage{T} <: Assmbl # A type to keep subtypes together, ensuring that they are all aligned at all times
+type PhyloAssemblage{T} <: SEAssemblage # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::SiteFields
     occ::OccFields{T}
     phy::PhyloFields

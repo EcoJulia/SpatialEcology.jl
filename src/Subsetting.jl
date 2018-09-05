@@ -25,11 +25,12 @@ mutable struct SubPointData <: AbstractPointData
     sitestats::DataFrames.SubDataFrame
 end
 
-mutable struct SubAssemblage{S,T} <: AbstractAssemblage where {S <: Union{SubGridData, SubPointData}, T <: OccTypes}# A type to keep subtypes together, ensuring that they are all aligned at all times
-    site::S
-    occ::SubOccFields{T}
+mutable struct SubAssemblage{D <: Real, P <: Union{SubGridData, SubPointData} <: SEAssemblage{D, P} # A type to keep subtypes together, ensuring that they are all aligned at all times
+    site::P
+    occ::SubOccFields{D}
 end
 
+# TODO delete
 mutable struct SubSiteData{S} <: AbstractSiteData where S <: Union{SubGridData, SubPointData}
     site::S
 end
@@ -54,7 +55,7 @@ view(pd::AbstractPointData, sites) = SubPointData(view(pd.coords, sites), view(p
 view(gd::EcoBase.AbstractGrid, sites) = SubGridData(view(gd.indices, sites, :), gd.grid, view(gd.sitestats, sites))
 view(sp::AbstractSiteData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
 
-function view(asm::AbstractAssemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false)
+function view(asm::SEAssemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false)
     occ = view(asm.occ, species = species, sites = sites)
     site = view(asm.site, sites)
 
@@ -73,7 +74,7 @@ end
 
 Assemblage(assm::SubAssemblage) = copy(assm)
 
-copy(asm::AbstractAssemblage) = Assemblage(copy(asm.site), copy(asm.occ))
+copy(asm::SEAssemblage) = Assemblage(copy(asm.site), copy(asm.occ))
 copy(sp::AbstractSiteData) = SiteData(copy(sp.site))
 copy(pd::AbstractPointData) = PointData(copy(pd.coords), copy(pd.sitestats))
 copy(pd::AbstractComMatrix) = ComMatrix(copy(pd.occurrences), copy(pd.specnames), copy(pd.sitenames))

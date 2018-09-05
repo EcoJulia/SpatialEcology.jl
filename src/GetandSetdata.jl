@@ -8,14 +8,14 @@ function coordinates(gd::EcoBase.AbstractGrid)
 end
 
 traits(occ::AbstractOccFields) = occ.traits
-traits(asm::Assmbl) = traits(asm.occ)
+traits(asm::SEAssemblage) = traits(asm.occ)
 
-sitestats(asm::Assmbl) = asm.site.sitestats
+sitestats(asm::SEAssemblage) = asm.site.sitestats
 
-traitnames(asm::Assmbl) = names(traits(asm))
-sitestatnames(asm::Assmbl) = names(sitestats(asm))
+traitnames(asm::SEAssemblage) = names(traits(asm))
+sitestatnames(asm::SEAssemblage) = names(sitestats(asm))
 
-commatrix(asm::Assmbl) = commatrix(asm.occ)
+commatrix(asm::SEAssemblage) = commatrix(asm.occ)
 commatrix(occ::AbstractOccFields) = occ.commatrix
 
 occurrences(asm) = occurrences(commatrix(asm))

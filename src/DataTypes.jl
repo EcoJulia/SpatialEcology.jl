@@ -82,9 +82,9 @@ mutable struct SiteData{S} <: AbstractSiteData where S <: SiteFields
     site::S
 end
 
-mutable struct Assemblage{S, T} <: AbstractAssemblage where {S <: SiteFields, T <: OccTypes} # A type to keep subtypes together, ensuring that they are all aligned at all times
+abstract type SEAssemblage{D<:Real, P<:SiteFields} <: EcoBase.AbstractAssemblage{D, OccFields, P} end
     site::S
-    occ::OccFields{T}
+mutable struct Assemblage{D<:Real, P<:SiteFields} <: SEAssemblage{D, P} # A type to keep subtypes together, ensuring that they are all aligned at all times
 
     # inner constructor
     function Assemblage{S, T}(site::S, occ::OccFields{T}) where {S <: SiteFields, T <: OccTypes}

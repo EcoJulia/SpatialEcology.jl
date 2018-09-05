@@ -104,7 +104,7 @@ function getindex(site::S, inds) where S<:SiteFields
   S(coordinates(site)[inds,:], site.sitestats[inds,:])
 end
 
-function getindex(com::Assmbl, ind::Symbol)
+function getindex(com::SEAssemblage, ind::Symbol)
     if ind in names(com.site.sitestats)
         return com.site.sitestats[ind]
     elseif ind in names(com.occ.traits)
