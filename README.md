@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/EcoJulia/SpatialEcology.jl.svg?branch=master)](https://travis-ci.org/EcoJulia/SpatialEcology.jl)
 [![0.6](http://pkg.julialang.org/badges/SpatialEcology_0.6.svg)](http://pkg.julialang.org/?pkg=SpatialEcology)
+[![Coverage](https://codecov.io/gh/EcoJulia/SpatialEcology.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/EcoJulia/SpatialEcology.jl) 
 
 ### Primary author: Michael Krabbe Borregaard (@mkborregaard)
 
