@@ -32,7 +32,7 @@ mutable struct Bbox
     ymax::Number
 end
 
-abstract type AbstractPointData <: SiteFields end
+abstract type AbstractPointData <: EcoBase.AbstractLocations end
 
 # Do I need sitenames here? I think so, they should match those in sitestats, and be separate
 mutable struct PointData <: AbstractPointData
@@ -46,9 +46,7 @@ mutable struct PointData <: AbstractPointData
     end
 end
 
-abstract type AbstractGridData <: SiteFields end
-
-mutable struct GridData <: AbstractGridData
+mutable struct GridData <: EcoBase.AbstractGrid
     indices::Matrix{Int}
     grid::GridTopology
     sitestats::DataFrames.DataFrame
