@@ -50,18 +50,19 @@ mutable struct GridData <: EcoBase.AbstractGrid
     end
 end
 
-mutable struct ComMatrix{T} <: AbstractComMatrix{T}
-    occurrences::SparseMatrixCSC{T}
+#it's a question how many of these structs need to be mutable, as opposed to when you want to allocate a new object
+mutable struct ComMatrix{D} <: AbstractComMatrix{D}
+    occurrences::SparseMatrixCSC{D}
     specnames::Vector{String}
     sitenames::Vector{String}
-    ComMatrix{T}(occ::SparseMatrixCSC{T}, spn::Vector{String}, sin::Vector{String}) where {T} = new(dropzeros!(occ), spn, sin)
+    ComMatrix{D}(occ::SparseMatrixCSC{D}, spn::Vector{String}, sin::Vector{String}) where {D} = new(dropzeros!(occ), spn, sin)
 end
 
 # likewise, do I need a specnames here? Should traits have a :series field (like now) or all matching be done on the specnames?
-mutable struct OccFields{T <: OccTypes} <: AbstractOccFields{T}
-    commatrix::ComMatrix{T}
+mutable struct OccFields{D <: Real} <: AbstractOccFields{D}
+    commatrix::ComMatrix{D}
     traits::DataFrames.DataFrame
-    function OccFields{T}(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: OccTypes
+    function OccFields{D}(commatrix::ComMatrix{D}, traits::DataFrames.DataFrame) where D <: Real
         DataFrames.nrow(traits) ==  nspecies(commatrix) || throw(DimensionMismatch("Wrong number of species in traits"))
         new(commatrix, traits)
     end
@@ -76,12 +77,14 @@ mutable struct SiteData{S} <: AbstractSiteData where S <: SiteFields
 end
 
 abstract type SEAssemblage{D<:Real, P<:SiteFields} <: EcoBase.AbstractAssemblage{D, OccFields, P} end
-    site::S
+
 mutable struct Assemblage{D<:Real, P<:SiteFields} <: SEAssemblage{D, P} # A type to keep subtypes together, ensuring that they are all aligned at all times
+    site::P
+    occ::OccFields{D}
 
     # inner constructor
-    function Assemblage{S, T}(site::S, occ::OccFields{T}) where {S <: SiteFields, T <: OccTypes}
-        size(occ.commatrix.occurrences, 2) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
+    function Assemblage{D, P}(site::P, occ::OccFields{D}) where {P <: SiteFields, D <: Real}
+        size(occurrences(occ), 2) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
         #TODO activate this # sitenames(occ) == sitenames(site) || error("sitenames do not match") #I need a constructor that matches them up actively
         new(site, occ)
     end
