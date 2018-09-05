@@ -5,7 +5,12 @@ using DataFrames
 using SparseArrays
 using Statistics
 
-import EcoBase
+import EcoBase: nthings, nplaces, occupancy, richness, records, placenames, thingnames,
+        occurring, noccurring, occupied, noccupied, occurrences,
+        indices, coordinates, xcells, ycells, cells, xmin, xmax, ymin, ymax,
+        xrange, yrange, xcellsize, ycellsize, cellsize.
+        rowsum, colsum, nzrows, nzcols, _nnz
+
 import RecipesBase
 import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr
 import StatsBase: nquantile
