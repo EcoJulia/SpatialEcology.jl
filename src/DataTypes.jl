@@ -1,6 +1,5 @@
 
 @enum coordstype auto griddata pointdata
-#@enum inputdatatype auto phylocom worldmapfile benholtmatrix
 
 const OccTypes = Union{Bool, Int, Float64}
 
