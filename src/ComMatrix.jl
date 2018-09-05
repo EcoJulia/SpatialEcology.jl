@@ -17,21 +17,25 @@ end
 #--------------------------------------------------------------------------
 # Basic summary functions
 
-occurring(com::AbstractComMatrix) = nzrows(com.occurrences)
-occupied(com::AbstractComMatrix) = nzcols(com.occurrences)
-occupied(com::AbstractComMatrix, idx) = findall(!iszero, com.occurrences[idx,:])
-occurring(com::AbstractComMatrix, idx) = findall(!iszero, com.occurrences[:,idx])
+EcoBase.occurring(com::AbstractComMatrix) = nzrows(com.occurrences)
+EcoBase.occupied(com::AbstractComMatrix) = nzcols(com.occurrences)
+EcoBase.occupied(com::AbstractComMatrix, idx) = findall(!iszero, com.occurrences[idx,:])
+EcoBase.occurring(com::AbstractComMatrix, idx) = findall(!iszero, com.occurrences[:,idx])
 
-noccurring(x) = length(occurring(x))
-noccupied(x) = length(occupied(x))
-noccurring(x, idx) = length(occurring(x, idx))
-noccupied(x, idx) = length(occupied(x, idx))
+EcoBase.noccurring(x) = length(occurring(x))
+EcoBase.noccupied(x) = length(occupied(x))
+EcoBase.noccurring(x, idx) = length(occurring(x, idx))
+EcoBase.noccupied(x, idx) = length(occupied(x, idx))
+
+const nspecies = EcoBase.nthings
+const nsites = EcoBase.nplaces
 
 nspecies(com::AbstractComMatrix) = size(com.occurrences, 1)
 nsites(com::AbstractComMatrix) = size(com.occurrences, 2)
 
 nsites(sd::SpatialData) = size(coordinates(sd.site), 1)
 nsites(sd::SiteFields) = DataFrames.ncol(sd.sitestats)
+
 
 getspecies(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, idx, :)
 getsite(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, :, idx)
