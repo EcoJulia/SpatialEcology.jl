@@ -1,7 +1,7 @@
 coordinates(sd::SpatialData) = coordinates(sd.site)
 coordinates(pd::AbstractPointData) = pd.coords
 
-function coordinates(gd::AbstractGridData)
+function coordinates(gd::EcoBase.AbstractGrid)
     index1 = xrange(gd.grid)[gd.indices[:,1]]
     index2 = yrange(gd.grid)[gd.indices[:,2]]
     hcat(index1, index2)

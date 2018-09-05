@@ -14,7 +14,7 @@ mutable struct SubOccFields{T <: OccTypes} <: AbstractOccFields{T}
     traits::DataFrames.SubDataFrame
 end
 
-mutable struct SubGridData <: AbstractGridData
+mutable struct SubGridData <: EcoBase.AbstractGrid
     indices::SubArray{Int,2}
     grid::GridTopology
     sitestats::DataFrames.SubDataFrame
@@ -51,7 +51,7 @@ end
 
 view(pd::AbstractPointData, sites) = SubPointData(view(pd.coords, sites), view(pd.sitestats, sites))
 
-view(gd::AbstractGridData, sites) = SubGridData(view(gd.indices, sites, :), gd.grid, view(gd.sitestats, sites))
+view(gd::EcoBase.AbstractGrid, sites) = SubGridData(view(gd.indices, sites, :), gd.grid, view(gd.sitestats, sites))
 view(sp::AbstractSiteData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
 
 function view(asm::AbstractAssemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false)
@@ -79,7 +79,7 @@ copy(pd::AbstractPointData) = PointData(copy(pd.coords), copy(pd.sitestats))
 copy(pd::AbstractComMatrix) = ComMatrix(copy(pd.occurrences), copy(pd.specnames), copy(pd.sitenames))
 copy(occ::AbstractOccFields) = OccFields(copy(occ.commatrix), my_dataframe_copy(occ.traits))
 
-function copy(gd::AbstractGridData)
+function copy(gd::EcoBase.AbstractGrid)
     indices = copy(gd.indices)
     grid = subsetgrid(indices, gd.grid)
     x_shift = Int.((xmin(grid) - xmin(gd.grid)) / xcellsize(gd.grid))
