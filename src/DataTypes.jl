@@ -1,16 +1,9 @@
 
 @enum coordstype auto griddata pointdata
 
-const OccTypes = Union{Bool, Int, Float64}
-
-abstract type OccData end
-abstract type SpatialData end
-abstract type Assmbl <: SpatialData  end #Not sure about this structure - so far no type inherits from occdata. Perhaps SimpleTraits.jl is/has a solution
-# this is here because we also need phylogeny assemblages
-abstract type AbstractAssemblage <: Assmbl end
-abstract type AbstractOccFields{T<:OccTypes} end
-abstract type AbstractComMatrix{T<:OccTypes} end
-abstract type SiteFields end
+abstract type SiteFields <: EcoBase.AbstractLocations end
+abstract type AbstractOccFields{D} <: EcoBase.AbstractThings end
+abstract type AbstractComMatrix{D<:Real} end
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
@@ -31,7 +24,7 @@ mutable struct Bbox
     ymax::Number
 end
 
-abstract type AbstractPointData <: EcoBase.AbstractLocations end
+abstract type AbstractPointData <: SiteFields end
 
 # Do I need sitenames here? I think so, they should match those in sitestats, and be separate
 mutable struct PointData <: AbstractPointData
@@ -74,8 +67,8 @@ mutable struct OccFields{T <: OccTypes} <: AbstractOccFields{T}
     end
 end
 
-
-abstract type AbstractSiteData <: SpatialData end
+# TODO delete these two
+abstract type AbstractSiteData <: EcoBase.AbstractPlaces end
 
 # Not really sure what this type is for
 mutable struct SiteData{S} <: AbstractSiteData where S <: SiteFields
