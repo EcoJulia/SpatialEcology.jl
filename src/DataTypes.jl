@@ -2,18 +2,9 @@
 @enum coordstype auto griddata pointdata
 #@enum inputdatatype auto phylocom worldmapfile benholtmatrix
 
-const OccTypes = Union{Bool, Int, Float64}
-
-abstract type OccData end
-abstract type SpatialData end
-abstract type Assmbl <: SpatialData  end #Not sure about this structure - so far no type inherits from occdata. Perhaps SimpleTraits.jl is/has a solution
-# this is here because we also need phylogeny assemblages
-abstract type AbstractAssemblage <: Assmbl end
-abstract type AbstractOccFields{T<:OccTypes} end
-abstract type AbstractComMatrix{T<:OccTypes} end
-abstract type SiteFields end
-
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
+
+abstract type AbstractComMatrix{D<:Real} end
 
 # I could do a lot more with immutable types if I had a clearer view/copy implementation
 mutable struct GridTopology
@@ -58,16 +49,16 @@ mutable struct GridData <: EcoBase.AbstractGrid
     end
 end
 
-mutable struct ComMatrix{T} <: AbstractComMatrix{T}
-    occurrences::SparseMatrixCSC{T}
+mutable struct ComMatrix{D} <: AbstractComMatrix{D}
+    occurrences::SparseMatrixCSC{D}
     specnames::Vector{String}
     sitenames::Vector{String}
     ComMatrix{T}(occ::SparseMatrixCSC{T}, spn::Vector{String}, sin::Vector{String}) where {T} = new(dropzeros!(occ), spn, sin)
 end
 
 # likewise, do I need a specnames here? Should traits have a :series field (like now) or all matching be done on the specnames?
-mutable struct OccFields{T <: OccTypes} <: AbstractOccFields{T}
-    commatrix::ComMatrix{T}
+mutable struct Species <: AbstractThings
+    speciesnames::Vector{<:Union{String, Symbol}}
     traits::DataFrames.DataFrame
     function OccFields{T}(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: OccTypes
         DataFrames.nrow(traits) ==  nspecies(commatrix) || throw(DimensionMismatch("Wrong number of species in traits"))
@@ -88,9 +79,9 @@ mutable struct Assemblage{S, T} <: AbstractAssemblage where {S <: SiteFields, T 
     occ::OccFields{T}
 
     # inner constructor
-    function Assemblage{S, T}(site::S, occ::OccFields{T}) where {S <: SiteFields, T <: OccTypes}
-        size(occ.commatrix.occurrences, 2) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
-        #TODO activate this # sitenames(occ) == sitenames(site) || error("sitenames do not match") #I need a constructor that matches them up actively
-        new(site, occ)
+    function Assemblage{D,  P}(commat::ComMatrix{D}, species::Species, site::P) where {D <: Real,  P <: AbstractPlaces}
+        size(occurrences(commatrix), 2) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
+        size(occurrences(commatrix), 1) == nspecies(Species) || error("Length mismatch between occurrence matrix and coordinates")
+        new(commat, species, site)
     end
 end
