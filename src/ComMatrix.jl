@@ -9,9 +9,9 @@ macro forward_func(ex, fs)
     nothing)
 end
 
-@forward_func Assmbl.occ nspecies, nsites, occupancy, richness, nrecords, occurring, occupied, specnames
-@forward_func AbstractOccFields.commatrix nspecies, nsites, specnames, sitenames, occupancy, richness, nrecords, occurring, occupied
-@forward_func Assmbl.site sitenames
+@forward_func SEAssemblage.occ nthings, nplaces, occupancy, richness, nrecords, occurring, occupied, thingnames
+@forward_func AbstractOccFields.commatrix nthings, nplaces, thingnames, placenames, occupancy, richness, nrecords, occurring, occupied
+@forward_func SEAssemblage.site placenames
 
 
 #--------------------------------------------------------------------------
