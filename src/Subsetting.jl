@@ -71,6 +71,8 @@ function view(asm::AbstractAssemblage; species = 1:nspecies(asm), sites = 1:nsit
     SubAssemblage(site, occ)
 end
 
+Assemblage(assm::SubAssemblage) = copy(assm)
+
 copy(asm::AbstractAssemblage) = Assemblage(copy(asm.site), copy(asm.occ))
 copy(sp::AbstractSiteData) = SiteData(copy(sp.site))
 copy(pd::AbstractPointData) = PointData(copy(pd.coords), copy(pd.sitestats))
