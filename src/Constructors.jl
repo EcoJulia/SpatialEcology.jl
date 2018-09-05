@@ -43,8 +43,8 @@ function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
     Assemblage(createSiteFields(coords, cdtype, sitestat), OccFields(occ, traits))
   end
 
-function Assemblage(site::S, occ::OccFields{T};
-    dropemptyspecies::Bool = false, dropemptysites::Bool = false) where {T <: OccTypes, S <: SiteFields}
+function Assemblage(site::S, occ::OccFields{D};
+    dropemptyspecies::Bool = false, dropemptysites::Bool = false) where {D <: Real, S <: SiteFields}
 
     if dropemptyspecies
         dropspecies!(occ)
@@ -70,7 +70,7 @@ function createSiteFields(coords::AbstractMatrix, cdtype::coordstype = auto,  #b
 end
 
 
-OccFields(commatrix::ComMatrix{T}, traits::DataFrames.DataFrame) where T <: OccTypes = OccFields{T}(commatrix, traits)
+OccFields(commatrix::ComMatrix{D}, traits::DataFrames.DataFrame) where D <: Real = OccFields{D}(commatrix, traits)
 OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
 
 
