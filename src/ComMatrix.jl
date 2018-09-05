@@ -17,47 +17,31 @@ end
 #--------------------------------------------------------------------------
 # Basic summary functions
 
-nthings(com::AbstractComMatrix) = size(com.occurrences, 1)
 const nspecies = nthings
+nthings(com::AbstractComMatrix) = size(com.occurrences, 1)
 
-nsites(com::AbstractComMatrix) = size(com.occurrences, 2)
-nsites(sd::SpatialData) = size(coordinates(sd.site), 1)
-nsites(sd::SiteFields) = DataFrames.ncol(sd.sitestats)
+const nsites = nplaces
+nplaces(com::AbstractComMatrix) = size(com.occurrences, 2)
+nplaces(sd::SpatialData) = size(coordinates(sd.site), 1)
+nplaces(sd::SiteFields) = DataFrames.ncol(sd.sitestats)
 
+const getspecies = thingoccurrences
+const getsite = placeoccurrences
 
-getspecies(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, idx, :)
-getsite(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, :, idx)
+const specnames = thingnames
+thingnames(com::AbstractComMatrix) = com.specnames
 
-specnames(com::AbstractComMatrix) = com.specnames
+const sitenames = placenames
+placenames(com::AbstractComMatrix) = com.sitenames
+placenames(sd::SpatialData) = sitenames(sd.site)
+placenames(sd::SiteFields) = collect(sd.sitestats[:sites])
 
-sitenames(com::AbstractComMatrix) = com.sitenames
-sitenames(sd::SpatialData) = sitenames(sd.site)
-sitenames(sd::SiteFields) = collect(sd.sitestats[:sites])
 
 sitetotals(com::AbstractComMatrix) = vec(colsum(com.occurrences))
 speciestotals(com::AbstractComMatrix) = vec(rowsum(com.occurrences))
 
-richness(com::AbstractComMatrix{T}) where T<:Bool = vec(colsum(com.occurrences))
-richness(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, dims = 1))
-
-occupancy(com::AbstractComMatrix{T}) where T<:Bool = vec(rowsum(com.occurrences))
-occupancy(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, dims = 2))
-
-nrecords(com::AbstractComMatrix) = _nnz(occurrences(com))
-
 size(com::AbstractComMatrix) = size(occurrences(com))
 size(com::AbstractComMatrix, dims...) = size(occurrences(com), dims...)
-
-"""
-    cooccurring(com, inds...)
-
-Ret
-"""
-cooccurring(com::AbstractComMatrix, inds...) = cooccurring(com, [inds...])
-function cooccurring(com::AbstractComMatrix, inds::AbstractVector)
-    sub = view(com, species = inds)
-    richness(sub) .== nspecies(sub)
-end
 
 
 #----------------------------------------------------------------------------------------------
