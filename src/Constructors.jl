@@ -2,6 +2,7 @@
 # Big TODO we are still missing the functionality that does the aligning in the constructors
 
 Assemblage(assm::Assmbl) = Assemblage(assm.site, assm.occ) # Not a copy constructor - Just a function that will reduce derived types to the base type
+Assemblage(assm::SubAssemblage) = copy(assm)
 
 # a constructor that takes occ and coords as one single DataFrame format and separates them
 function Assemblage(occ::DataFrames.DataFrame; kwargs...)
