@@ -10,7 +10,7 @@ macro forward_func(ex, fs)
 end
 
 @forward_func SEAssemblage.occ nthings, nplaces, occupancy, richness, nrecords, occurring, occupied, thingnames
-@forward_func AbstractOccFields.commatrix nthings, nplaces, thingnames, placenames, occupancy, richness, nrecords, occurring, occupied
+@forward_func SEThings.commatrix nthings, nplaces, thingnames, placenames, occupancy, richness, nrecords, occurring, occupied
 @forward_func SEAssemblage.site placenames
 
 
@@ -22,8 +22,10 @@ nthings(com::AbstractComMatrix) = size(com.occurrences, 1)
 
 const nsites = nplaces
 nplaces(com::AbstractComMatrix) = size(com.occurrences, 2)
-nplaces(sd::SpatialData) = size(coordinates(sd.site), 1)
-nplaces(sd::SiteFields) = DataFrames.ncol(sd.sitestats)
+nplaces(sd::SiteData) = size(coordinates(sd.site), 1)
+nplaces(sd::SELocations) = DataFrames.ncol(sd.sitestats)
+
+nrecords(com::AbstractComMatrix) = _nnz(occurrences(asm))
 
 const getspecies = thingoccurrences
 const getsite = placeoccurrences
@@ -33,8 +35,8 @@ thingnames(com::AbstractComMatrix) = com.specnames
 
 const sitenames = placenames
 placenames(com::AbstractComMatrix) = com.sitenames
-placenames(sd::SpatialData) = sitenames(sd.site)
-placenames(sd::SiteFields) = collect(sd.sitestats[:sites])
+placenames(sd::SiteData) = sitenames(sd.site)
+placenames(sd::SELocations) = collect(sd.sitestats[:sites])
 
 
 sitetotals(com::AbstractComMatrix) = vec(colsum(com.occurrences))
@@ -84,7 +86,7 @@ getindex(com::AbstractComMatrix, inds...) = ComMatrix(getindex(com.occurrences, 
 
 setindex!(com::AbstractComMatrix, X, inds...) = setindex!(com.occurrences, X, inds...)
 
-function getindex(site::S, inds) where S<:SiteFields
+function getindex(site::S, inds) where S<:SELocations
   S(coordinates(site)[inds,:], site.sitestats[inds,:])
 end
 

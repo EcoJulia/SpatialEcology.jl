@@ -1,13 +1,13 @@
-coordinates(sd::SpatialData) = coordinates(sd.site)
-coordinates(pd::AbstractPointData) = pd.coords
+coordinates(sd::SiteData) = coordinates(sd.site)
+coordinates(pd::SEPointData) = pd.coords
 
-function coordinates(gd::EcoBase.AbstractGrid)
+function coordinates(gd::SEGrid)
     index1 = xrange(gd.grid)[gd.indices[:,1]]
     index2 = yrange(gd.grid)[gd.indices[:,2]]
     hcat(index1, index2)
 end
 
-traits(occ::AbstractOccFields) = occ.traits
+traits(occ::SEThings) = occ.traits
 traits(asm::SEAssemblage) = traits(asm.occ)
 
 sitestats(asm::SEAssemblage) = asm.site.sitestats
@@ -16,7 +16,7 @@ traitnames(asm::SEAssemblage) = names(traits(asm))
 sitestatnames(asm::SEAssemblage) = names(sitestats(asm))
 
 commatrix(asm::SEAssemblage) = commatrix(asm.occ)
-commatrix(occ::AbstractOccFields) = occ.commatrix
+commatrix(occ::SEThings) = occ.commatrix
 
 occurrences(asm) = occurrences(commatrix(asm))
 

@@ -1,6 +1,6 @@
 
-mutable struct DispersionField <: SpatialData
-    site::SiteFields
+mutable struct DispersionField <: SESpatialData
+    site::SELocations
     DFmat::Matrix{Int}
 
     function DispersionField(asm::Assemblage)

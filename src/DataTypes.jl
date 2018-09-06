@@ -1,9 +1,17 @@
 
 @enum coordstype auto griddata pointdata
 
-abstract type SiteFields <: EcoBase.AbstractLocations end
-abstract type AbstractOccFields{D} <: EcoBase.AbstractThings end
-abstract type AbstractComMatrix{D<:Real} end
+# Insertion point for defining my own functions. They are mainly abstract
+# over the full type and it's view, so another possibility would be to
+# implement with unions
+abstract type SESpatialData <: EcoBase.AbstractPlaces end
+abstract type SELocations <: EcoBase.AbstractLocations end
+abstract type SEPointData <: SELocations end
+abstract type SEGrid <: EcoBase.AbstractGrid end
+abstract type SEThings{D} <: EcoBase.AbstractThings end
+
+abstract type AbstractComMatrix{ D<:Real } end
+
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
@@ -24,10 +32,9 @@ mutable struct Bbox
     ymax::Number
 end
 
-abstract type AbstractPointData <: SiteFields end
 
 # Do I need sitenames here? I think so, they should match those in sitestats, and be separate
-mutable struct PointData <: AbstractPointData
+mutable struct PointData <: SEPointData
     coords::Matrix{Float64}
     sitestats::DataFrames.DataFrame
     # inner constructor
@@ -38,13 +45,13 @@ mutable struct PointData <: AbstractPointData
     end
 end
 
-mutable struct GridData <: EcoBase.AbstractGrid
+
+mutable struct GridData <: SEGrid
     indices::Matrix{Int}
     grid::GridTopology
     sitestats::DataFrames.DataFrame
 
     function GridData(indices, grid, sitestats = DataFrames.DataFrame(id = 1:size(coords,1)))
-
         DataFrames.nrow(sitestats) == size(indices, 1) || throw(DimensionMismatch("Wrong number of rows in sitestat")) # a little check for the right number
         new(indices, grid, sitestats)
     end
@@ -59,31 +66,28 @@ mutable struct ComMatrix{D} <: AbstractComMatrix{D}
 end
 
 # likewise, do I need a specnames here? Should traits have a :series field (like now) or all matching be done on the specnames?
-mutable struct OccFields{D <: Real} <: AbstractOccFields{D}
+mutable struct SpeciesData <: SEThings
     commatrix::ComMatrix{D}
     traits::DataFrames.DataFrame
-    function OccFields{D}(commatrix::ComMatrix{D}, traits::DataFrames.DataFrame) where D <: Real
+    function SpeciesData{D}(commatrix::ComMatrix{D}, traits::DataFrames.DataFrame) where D <: Real
         DataFrames.nrow(traits) ==  nspecies(commatrix) || throw(DimensionMismatch("Wrong number of species in traits"))
         new(commatrix, traits)
     end
 end
 
-# TODO delete these two
-abstract type AbstractSiteData <: EcoBase.AbstractPlaces end
-
 # Not really sure what this type is for
-mutable struct SiteData{S} <: AbstractSiteData where S <: SiteFields
+mutable struct SiteData{S} <: SESpatialData where S <: SELocations
     site::S
 end
 
-abstract type SEAssemblage{D<:Real, P<:SiteFields} <: EcoBase.AbstractAssemblage{D, OccFields, P} end
+abstract type SEAssemblage{D<:Real, P<:SELocations} <: EcoBase.AbstractAssemblage{D, SpeciesData, P} end
 
-mutable struct Assemblage{D<:Real, P<:SiteFields} <: SEAssemblage{D, P} # A type to keep subtypes together, ensuring that they are all aligned at all times
+mutable struct Assemblage{D<:Real, P<:SELocations} <: SEAssemblage{D, P} # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::P
-    occ::OccFields{D}
+    occ::SpeciesData
 
     # inner constructor
-    function Assemblage{D, P}(site::P, occ::OccFields{D}) where {P <: SiteFields, D <: Real}
+    function Assemblage{D, P}(site::P, occ::SpeciesData, com::ComMatrix{D}) where {P <: SELocations, D <: Real}
         size(occurrences(occ), 2) == size(coordinates(site), 1) || error("Length mismatch between occurrence matrix and coordinates")
         #TODO activate this # sitenames(occ) == sitenames(site) || error("sitenames do not match") #I need a constructor that matches them up actively
         new(site, occ)

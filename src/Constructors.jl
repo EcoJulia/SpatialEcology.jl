@@ -40,10 +40,10 @@ function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
         occ, coords, sitestat = match_commat_coords(occ, coords, sitestat)
     end
 
-    Assemblage(createSiteFields(coords, cdtype, sitestat), OccFields(occ, traits))
+    Assemblage(createSELocations(coords, cdtype, sitestat), SpeciesData(traits), occ)
   end
 
-function Assemblage(site::S, occ::OccFields{D};
+function Assemblage(site::S, occ::SpeciesData{D};
     dropemptyspecies::Bool = false, dropemptysites::Bool = false) where {D <: Real, S <: SiteFields}
 
     if dropemptyspecies
@@ -55,7 +55,7 @@ function Assemblage(site::S, occ::OccFields{D};
     Assemblage{S}{T}(site, occ)
 end
 
-function createSiteFields(coords::AbstractMatrix, cdtype::coordstype = auto,  #by design, this is not type stable, but maybe that is OK for type constructors
+function createSELocations(coords::AbstractMatrix, cdtype::coordstype = auto,  #by design, this is not type stable, but maybe that is OK for type constructors
         sitestat = DataFrames.DataFrame(sites = sitenames(occ)))
 
     cdtype == pointdata && return PointData(coords, sitestat)
@@ -68,10 +68,6 @@ function createSiteFields(coords::AbstractMatrix, cdtype::coordstype = auto,  #b
         end
     end
 end
-
-
-OccFields(commatrix::ComMatrix{D}, traits::DataFrames.DataFrame) where D <: Real = OccFields{D}(commatrix, traits)
-OccFields(com::ComMatrix) = OccFields(com, DataFrames.DataFrame(id = specnames(commatrix)))
 
 
 function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
