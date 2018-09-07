@@ -74,6 +74,7 @@ mutable struct SpeciesData{D} <: SEThings{D}
         new(commatrix, traits)
     end
 end
+SpeciesData(commatrix::ComMatrix{D}, traits) where D<:Real = SpeciesData{D}(commatrix, traits)
 
 # Not really sure what this type is for
 mutable struct SiteData{S} <: SESpatialData where S <: SELocations
