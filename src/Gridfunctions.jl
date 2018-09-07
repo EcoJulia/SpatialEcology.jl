@@ -8,3 +8,9 @@ boundingbox(g::GridTopology) = Bbox(xmin(g), xmax(g), ymin(g), ymax(g))
 show(io::IO, b::Bbox) = println(io, "xmin:\t$(b.xmin)\nxmax:\t$(b.xmax)\nymin:\t$(b.ymin)\nymax:\t$(b.ymax)")
 
 @forward_func SEGrid.grid xmin, ymin, xcellsize, ycellsize, xcells, ycells, boundingbox
+show(io::IO, g::SEGrid) = println(io,
+    """Spatial grid
+       Lower left corner: $(xmin(g)), $(ymin(g))
+       Cellsizes        : $(xcellsize(g)), $(ycellsize(g))
+       Size             : $(xcells(g)), $(ycells(g))
+       """)
