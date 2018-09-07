@@ -10,7 +10,7 @@ mutable struct SubComMatrix{D <: Real} <: AbstractComMatrix{D}
 end
 
 mutable struct SubSpeciesData{D <: Real} <: SEThings{D}
-    commatrix::SubComMatrix{T}
+    commatrix::SubComMatrix{D}
     traits::DataFrames.SubDataFrame
 end
 

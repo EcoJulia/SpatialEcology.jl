@@ -8,7 +8,7 @@ abstract type SESpatialData <: EcoBase.AbstractPlaces end
 abstract type SELocations <: EcoBase.AbstractLocations end
 abstract type SEPointData <: SELocations end
 abstract type SEGrid <: EcoBase.AbstractGrid end
-abstract type SEThings{D} <: EcoBase.AbstractThings end
+abstract type SEThings{D <: Real} <: EcoBase.AbstractThings end
 
 abstract type AbstractComMatrix{ D<:Real } end
 
@@ -66,7 +66,7 @@ mutable struct ComMatrix{D} <: AbstractComMatrix{D}
 end
 
 # likewise, do I need a specnames here? Should traits have a :series field (like now) or all matching be done on the specnames?
-mutable struct SpeciesData <: SEThings
+mutable struct SpeciesData{D} <: SEThings{D}
     commatrix::ComMatrix{D}
     traits::DataFrames.DataFrame
     function SpeciesData{D}(commatrix::ComMatrix{D}, traits::DataFrames.DataFrame) where D <: Real

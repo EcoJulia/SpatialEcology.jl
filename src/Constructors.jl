@@ -44,7 +44,7 @@ function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
   end
 
 function Assemblage(site::S, occ::SpeciesData{D};
-    dropemptyspecies::Bool = false, dropemptysites::Bool = false) where {D <: Real, S <: SiteFields}
+    dropemptyspecies::Bool = false, dropemptysites::Bool = false) where {D <: Real, S <: SELocations}
 
     if dropemptyspecies
         dropspecies!(occ)
