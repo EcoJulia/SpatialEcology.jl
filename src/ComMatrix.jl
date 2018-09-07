@@ -17,6 +17,11 @@ end
 #--------------------------------------------------------------------------
 # Basic summary functions
 
+occupancy(com::AbstractComMatrix) = occupancy(occurrences(com))
+richness(com::AbstractComMatrix) = richness(occurrences(com))
+occurring(com::AbstractComMatrix) = occurring(occurrences(com))
+occupied(com::AbstractComMatrix) = occupied(occurrences(com))
+
 const nspecies = nthings
 nthings(com::AbstractComMatrix) = size(com.occurrences, 1)
 
@@ -28,7 +33,10 @@ nplaces(sd::SELocations) = DataFrames.ncol(sd.sitestats)
 nrecords(com::AbstractComMatrix) = _nnz(occurrences(asm))
 
 const getspecies = thingoccurrences
+thingoccurrences(com::AbstractComMatrix, idx) = thingoccurrences(occurrences(com), idx)
+
 const getsite = placeoccurrences
+placeoccurrences(com::AbstractComMatrix, idx) = placeoccurrences(occurrences(com), idx)
 
 const specnames = thingnames
 thingnames(com::AbstractComMatrix) = com.specnames
