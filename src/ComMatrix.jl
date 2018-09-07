@@ -30,7 +30,7 @@ nplaces(com::AbstractComMatrix) = size(com.occurrences, 2)
 nplaces(sd::SiteData) = size(coordinates(sd.site), 1)
 nplaces(sd::SELocations) = DataFrames.ncol(sd.sitestats)
 
-nrecords(com::AbstractComMatrix) = _nnz(occurrences(asm))
+nrecords(com::AbstractComMatrix) = _nnz(occurrences(com))
 
 const getspecies = thingoccurrences
 thingoccurrences(com::AbstractComMatrix, idx) = thingoccurrences(occurrences(com), idx)
