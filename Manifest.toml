@@ -56,7 +56,7 @@ deps = ["LinearAlgebra", "Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[EcoBase]]
-deps = ["RecipesBase"]
+deps = ["Compat", "RecipesBase"]
 path = "/Users/michael/.julia/dev/EcoBase"
 uuid = "114b7694-c2f9-553f-b274-2039aeb36090"
 version = "0.0.0"
