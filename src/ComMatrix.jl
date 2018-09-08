@@ -19,8 +19,8 @@ end
 
 occupancy(com::AbstractComMatrix) = occupancy(occurrences(com))
 richness(com::AbstractComMatrix) = richness(occurrences(com))
-occurring(com::AbstractComMatrix) = occurring(occurrences(com))
-occupied(com::AbstractComMatrix) = occupied(occurrences(com))
+occurring(com::AbstractComMatrix, idx...) = occurring(occurrences(com), idx...)
+occupied(com::AbstractComMatrix, idx...) = occupied(occurrences(com), idx...)
 
 const nspecies = nthings
 nthings(com::AbstractComMatrix) = size(com.occurrences, 1)
@@ -29,6 +29,8 @@ const nsites = nplaces
 nplaces(com::AbstractComMatrix) = size(com.occurrences, 2)
 nplaces(sd::SiteData) = size(coordinates(sd.site), 1)
 nplaces(sd::SELocations) = DataFrames.ncol(sd.sitestats)
+nplaces(gr::GridData) = size(gr.indices, 1)
+nplaces(pd::PointData) = size(pd.coords, 1)
 
 nrecords(com::AbstractComMatrix) = _nnz(occurrences(com))
 

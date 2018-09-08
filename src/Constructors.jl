@@ -40,11 +40,11 @@ function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
         occ, coords, sitestat = match_commat_coords(occ, coords, sitestat)
     end
 
-    Assemblage(createSELocations(coords, cdtype, sitestat), SpeciesData(occ, traits))
+    Assemblage(createLocations(coords, cdtype, sitestat), SpeciesData(occ, traits))
   end
 
-function Assemblage(site::S, occ::SpeciesData{D};
-    dropemptyspecies::Bool = false, dropemptysites::Bool = false) where {D <: Real, S <: SELocations}
+function Assemblage(site::P, occ::SpeciesData{D};
+    dropemptyspecies::Bool = false, dropemptysites::Bool = false) where {D <: Real, P <: SELocations}
 
     if dropemptyspecies
         dropspecies!(occ)
@@ -52,19 +52,19 @@ function Assemblage(site::S, occ::SpeciesData{D};
     if dropemptysites
         dropsites!(occ, site)
     end
-    Assemblage{S}{T}(site, occ)
+    Assemblage{D, P}(site, occ)
 end
 
-function createSELocations(coords::AbstractMatrix, cdtype::coordstype = auto,  #by design, this is not type stable, but maybe that is OK for type constructors
+function createLocations(coords::AbstractMatrix, cdtype::coordstype = auto,  #by design, this is not type stable, but maybe that is OK for type constructors
         sitestat = DataFrames.DataFrame(sites = sitenames(occ)))
 
-    cdtype == pointdata && return PointData(coords, sitestat)
-    cdtype == griddata && return GridData(coords, sitestat)
+    cdtype == pointdata && return Locations{PointData}(PointData(coords), sitestat)
+    cdtype == griddata && return Locations{GridData}(GridData(coords), sitestat)
     if cdtype == auto
         try
-            return GridData(coords, sitestat)
+            return Locations{GridData}(GridData(coords), sitestat)
         catch
-            return PointData(coords, sitestat)
+            return Locations{PointData}(PointData(coords), sitestat)
         end
     end
 end
@@ -131,9 +131,8 @@ function ComMatrix(occurrences; specnames = :auto, sitenames = :auto, sitecolumn
     ComMatrix{eltype(occurrences)}(sparse(occurrences), string.(specnames), string.(sitenames))
 end
 
-function GridData(coords::AbstractMatrix{<:Union{AbstractFloat, Missings.Missing}},
-        sitestats::DataFrames.DataFrame = DataFrames.DataFrame(id = 1:size(coords,1)))
+function GridData(coords::AbstractMatrix{<:Union{AbstractFloat, Missing}})
     grid = creategrid(coords)
     indices = getindices(coords, grid)
-    GridData(indices, grid, sitestats)
+    GridData(indices, grid)
 end

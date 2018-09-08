@@ -14,24 +14,27 @@ mutable struct SubSpeciesData{D <: Real} <: SEThings{D}
     traits::DataFrames.SubDataFrame
 end
 
-mutable struct SubGridData <: SEGrid
+mutable struct SubGridData <: EcoBase.AbstractGrid
     indices::SubArray{Int,2}
     grid::GridTopology
-    sitestats::DataFrames.SubDataFrame
 end
 
-mutable struct SubPointData <: SEPointData
+mutable struct SubPointData
     coords::SubArray{Float64,2}
+end
+
+mutable struct SubLocations{T<:Union{SubGridData, SubPointData}} <: SELocations
+    coords::T
     sitestats::DataFrames.SubDataFrame
 end
 
-mutable struct SubAssemblage{D <: Real, P <: Union{SubGridData, SubPointData}} <: SEAssemblage{D, P} # A type to keep subtypes together, ensuring that they are all aligned at all times
+mutable struct SubAssemblage{D <: Real, P <: SubLocations} <: SEAssemblage{D, SubSpeciesData{D}, P} # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::P
-    occ::SubSpeciesData
+    occ::SubSpeciesData{D}
 end
 
 # TODO delete
-mutable struct SubSiteData{S} <: SESpatialData where S <: Union{SubGridData, SubPointData}
+mutable struct SubSiteData{S} <: SESpatialData where S <: SubLocations
     site::S
 end
 
@@ -50,12 +53,12 @@ function view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsite
     SubComMatrix(view(com.occurrences, spec, sit), view(com.specnames, spec), view(com.sitenames, sit)) #TODO change the order of these in the object to fit the array index order
 end
 
-view(pd::SEPointData, sites) = SubPointData(view(pd.coords, sites), view(pd.sitestats, sites))
-
-view(gd::SEGrid, sites) = SubGridData(view(gd.indices, sites, :), gd.grid, view(gd.sitestats, sites))
+view(pd::SEPointData, sites) = SubPointData(view(pd.coords, sites))
+view(gd::SEGrid, sites) = SubGridData(view(gd.indices, sites, :), gd.grid)
+view(gd::SELocations, sites) = SubLocations{SubGridData}(view(gd.coords, sites), view(gd.sitestats, sites))
 view(sp::SESpatialData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
 
-function view(asm::SEAssemblage; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false)
+ function view(asm::SEAssemblage{D, P}; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false) where D where P
     occ = view(asm.occ, species = species, sites = sites)
     site = view(asm.site, sites)
 
@@ -69,7 +72,7 @@ function view(asm::SEAssemblage; species = 1:nspecies(asm), sites = 1:nsites(asm
         occ = view(occ, species = occurring(occ))
     end
 
-    SubAssemblage(site, occ)
+    SubAssemblage{D, typeof(site)}(site, occ)
 end
 
 Assemblage(assm::SubAssemblage) = copy(assm)

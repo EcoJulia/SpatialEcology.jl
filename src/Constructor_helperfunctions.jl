@@ -96,7 +96,7 @@ function dropspecies!(occ::SpeciesData)
   occ.traits = occ.traits[occur,:]
 end
 
-function dropbyindex!(site::PointData, indicestokeep)
+function dropbyindex!(site::Locations{PointData}, indicestokeep)
   site.coords = site.coords[indicestokeep,:]
   site.sitestats = site.sitestats[indicestokeep,:]
 end
@@ -106,7 +106,7 @@ maxrange(x) = diff([extrema(x)...])[1]
 
 # remember here - something wrong with the indices, make sure they are based from 1!
 
-function dropbyindex!(site::GridData, indicestokeep)
+function dropbyindex!(site::Locations{GridData}, indicestokeep)
   site.indices = site.indices[indicestokeep,:]
   site.sitestats = site.sitestats[indicestokeep,:]
   site.grid.xmin = xrange(site.grid)[minimum(site.indices[:,1])]
