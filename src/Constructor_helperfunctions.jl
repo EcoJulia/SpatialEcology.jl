@@ -44,7 +44,7 @@ function testbool(x::Int)
 end
 
 testbool(x) = error("Value can not be interpreted as Boolean")
-testbool(x::Missings.Missing) = false
+testbool(x::Missing) = false
 testbool(x::Bool) = x
 function testbool(x::Number)
   x == 0 && return false
@@ -74,7 +74,7 @@ function dataFrametoSparseMatrix(dat::DataFrames.DataFrame, ::Type{T}) where T<:
     @inbounds for j in 1:DataFrames.ncol(dat)
         col = dat[:,j]
         for i in 1:DataFrames.nrow(dat)
-            if !Missings.ismissing(col[i]) && col[i] != 0
+            if !ismissing(col[i]) && col[i] != 0
                 push!(is, i)
                 push!(js, j)
                 push!(vals, col[i])
@@ -132,7 +132,7 @@ function createsitenames(coords::DataFrames.DataFrame)
   ["$(coords[i,1])_$(coords[i,2])" for i in 1:DataFrames.nrow(coords)]
 end
 
-creategrid(coords::AbstractMatrix{<:Union{AbstractFloat, Missings.Missing}}, tolerance = sqrt(eps())) =
+creategrid(coords::AbstractMatrix{<:Union{AbstractFloat, Missing}}, tolerance = sqrt(eps())) =
     GridTopology(gridvar(coords[:,1], tolerance)..., gridvar(coords[:,2], tolerance)...)
 
 # could allow for n-dimensional binning, using code from StatsBase.Histogram
@@ -161,7 +161,7 @@ function gridvar(x, tolerance = sqrt(eps()))
   min, cellsize, cellnumber
 end
 
-function getindices(coords::AbstractMatrix{<:Union{AbstractFloat, Missings.Missing}}, grid::GridTopology, tolerance = 2*sqrt(eps()))
+function getindices(coords::AbstractMatrix{<:Union{AbstractFloat, Missing}}, grid::GridTopology, tolerance = 2*sqrt(eps()))
   index1 = 1 .+ floor.(Int,(coords[:,1] .- grid.xmin) ./ grid.xcellsize .+ tolerance)
   index2 = 1 .+ floor.(Int,(coords[:,2] .- grid.ymin) ./ grid.ycellsize .+ tolerance)
   hcat(index1, index2)
