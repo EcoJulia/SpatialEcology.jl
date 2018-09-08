@@ -8,9 +8,9 @@ using Statistics
 import EcoBase
 import EcoBase: nthings, nplaces, occupancy, richness, nrecords, placenames, thingnames,
         occurring, noccurring, occupied, noccupied, occurrences,
-        placeoccurrences, thingoccurrences, cooccurring,
+        placeoccurrences, thingoccurrences, cooccurring, places, things,
         indices, coordinates, xcells, ycells, cells, xmin, xmax, ymin, ymax,
-        xrange, yrange, xcellsize, ycellsize, cellsize
+        xrange, yrange, xcellsize, ycellsize, cellsize, getcoords
 
 import RecipesBase
 import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr

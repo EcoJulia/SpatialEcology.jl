@@ -1,14 +1,17 @@
 coordinates(sd::SiteData) = coordinates(sd.site)
 coordinates(pd::SEPointData) = pd.coords
-
+coordinates(l::SELocations) = coordinates(getcoords(l))
 function coordinates(gd::SEGrid)
     index1 = xrange(gd.grid)[gd.indices[:,1]]
     index2 = yrange(gd.grid)[gd.indices[:,2]]
     hcat(index1, index2)
 end
 
+getcoords(l::SELocations) = l.coords
+
 traits(occ::SEThings) = occ.traits
 traits(asm::SEAssemblage) = traits(asm.occ)
+places(asm::SEAssemblage) = asm.site
 
 sitestats(asm::SEAssemblage) = asm.site.sitestats
 

@@ -14,7 +14,7 @@ mutable struct SubSpeciesData{D <: Real} <: SEThings{D}
     traits::DataFrames.SubDataFrame
 end
 
-mutable struct SubGridData <: EcoBase.AbstractGrid
+mutable struct SubGridData <: SEGrid
     indices::SubArray{Int,2}
     grid::GridTopology
 end
