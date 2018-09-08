@@ -39,5 +39,6 @@ include("GetandSetdata.jl")
 include("Gridfunctions.jl")
 include("Grouping.jl")
 include("DispersionFields.jl")
+include("PlotRecipes.jl")
 
 end # module
