@@ -5,6 +5,13 @@ using DataFrames
 using SparseArrays
 using Statistics
 
+import EcoBase
+import EcoBase: nthings, nplaces, occupancy, richness, nrecords, placenames, thingnames,
+        occurring, noccurring, occupied, noccupied, occurrences,
+        placeoccurrences, thingoccurrences, cooccurring, places, things,
+        indices, coordinates, xcells, ycells, cells, xmin, xmax, ymin, ymax,
+        xrange, yrange, xcellsize, ycellsize, cellsize, getcoords
+
 import RecipesBase
 import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr
 import StatsBase: nquantile
@@ -31,7 +38,7 @@ include("Subsetting.jl")
 include("GetandSetdata.jl")
 include("Gridfunctions.jl")
 include("Grouping.jl")
-include("PlotRecipes.jl")
 include("DispersionFields.jl")
+include("PlotRecipes.jl")
 
 end # module

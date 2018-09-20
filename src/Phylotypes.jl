@@ -13,9 +13,9 @@ type PhyloFields
 end
 
 
-type PhyloAssemblage{T} <: Assmbl # A type to keep subtypes together, ensuring that they are all aligned at all times
-    site::SiteFields
-    occ::OccFields{T}
+type PhyloAssemblage{T} <: SEAssemblage # A type to keep subtypes together, ensuring that they are all aligned at all times
+    site::SELocations
+    occ::SpeciesData{T}
     phy::PhyloFields
 
     function PhyloAssemblage(site, occ, phy)
@@ -27,7 +27,7 @@ end
 
 
 
-function PhyloAssemblage(site::SiteFields, occ::OccFields, phylo::Phylogeny)
+function PhyloAssemblage(site::SELocations, occ::SpeciesData, phylo::Phylogeny)
   nodespec = createNodeBySpeciesMatrix(phylo)
   PhyloAssemblage(site, occ, PhyloFields(phylo, nodespec))
 end

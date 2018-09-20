@@ -9,63 +9,51 @@ macro forward_func(ex, fs)
     nothing)
 end
 
-@forward_func Assmbl.occ nspecies, nsites, occupancy, richness, nrecords, occurring, occupied, specnames
-@forward_func AbstractOccFields.commatrix nspecies, nsites, specnames, sitenames, occupancy, richness, nrecords, occurring, occupied
-@forward_func Assmbl.site sitenames
+@forward_func SEAssemblage.occ nthings, nplaces, occupancy, richness, nrecords, occurring, occupied, thingnames
+@forward_func SEThings.commatrix nthings, nplaces, thingnames, placenames, occupancy, richness, nrecords, occurring, occupied
+@forward_func SEAssemblage.site placenames
 
 
 #--------------------------------------------------------------------------
 # Basic summary functions
 
-occurring(com::AbstractComMatrix) = nzrows(com.occurrences)
-occupied(com::AbstractComMatrix) = nzcols(com.occurrences)
-occupied(com::AbstractComMatrix, idx) = findall(!iszero, com.occurrences[idx,:])
-occurring(com::AbstractComMatrix, idx) = findall(!iszero, com.occurrences[:,idx])
+occupancy(com::AbstractComMatrix) = occupancy(occurrences(com))
+richness(com::AbstractComMatrix) = richness(occurrences(com))
+occurring(com::AbstractComMatrix, idx...) = occurring(occurrences(com), idx...)
+occupied(com::AbstractComMatrix, idx...) = occupied(occurrences(com), idx...)
 
-noccurring(x) = length(occurring(x))
-noccupied(x) = length(occupied(x))
-noccurring(x, idx) = length(occurring(x, idx))
-noccupied(x, idx) = length(occupied(x, idx))
+const nspecies = nthings
+nthings(com::AbstractComMatrix) = size(com.occurrences, 1)
 
-nspecies(com::AbstractComMatrix) = size(com.occurrences, 1)
-nsites(com::AbstractComMatrix) = size(com.occurrences, 2)
+const nsites = nplaces
+nplaces(com::AbstractComMatrix) = size(com.occurrences, 2)
+nplaces(sd::SiteData) = size(coordinates(sd.site), 1)
+nplaces(sd::SELocations) = DataFrames.ncol(sd.sitestats)
+nplaces(gr::GridData) = size(gr.indices, 1)
+nplaces(pd::PointData) = size(pd.coords, 1)
 
-nsites(sd::SpatialData) = size(coordinates(sd.site), 1)
-nsites(sd::SiteFields) = DataFrames.ncol(sd.sitestats)
+nrecords(com::AbstractComMatrix) = _nnz(occurrences(com))
 
-getspecies(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, idx, :)
-getsite(com::AbstractComMatrix{T}, idx) where T = view(com.occurrences, :, idx)
+const getspecies = thingoccurrences
+thingoccurrences(com::AbstractComMatrix, idx) = thingoccurrences(occurrences(com), idx)
 
-specnames(com::AbstractComMatrix) = com.specnames
+const getsite = placeoccurrences
+placeoccurrences(com::AbstractComMatrix, idx) = placeoccurrences(occurrences(com), idx)
 
-sitenames(com::AbstractComMatrix) = com.sitenames
-sitenames(sd::SpatialData) = sitenames(sd.site)
-sitenames(sd::SiteFields) = collect(sd.sitestats[:sites])
+const specnames = thingnames
+thingnames(com::AbstractComMatrix) = com.specnames
+
+const sitenames = placenames
+placenames(com::AbstractComMatrix) = com.sitenames
+placenames(sd::SiteData) = sitenames(sd.site)
+placenames(sd::SELocations) = collect(sd.sitestats[:sites])
+
 
 sitetotals(com::AbstractComMatrix) = vec(colsum(com.occurrences))
 speciestotals(com::AbstractComMatrix) = vec(rowsum(com.occurrences))
 
-richness(com::AbstractComMatrix{T}) where T<:Bool = vec(colsum(com.occurrences))
-richness(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, dims = 1))
-
-occupancy(com::AbstractComMatrix{T}) where T<:Bool = vec(rowsum(com.occurrences))
-occupancy(com::AbstractComMatrix{T}) where T<:Real = vec(mapslices(nnz, com.occurrences, dims = 2))
-
-nrecords(com::AbstractComMatrix) = _nnz(occurrences(com))
-
 size(com::AbstractComMatrix) = size(occurrences(com))
 size(com::AbstractComMatrix, dims...) = size(occurrences(com), dims...)
-
-"""
-    cooccurring(com, inds...)
-
-Ret
-"""
-cooccurring(com::AbstractComMatrix, inds...) = cooccurring(com, [inds...])
-function cooccurring(com::AbstractComMatrix, inds::AbstractVector)
-    sub = view(com, species = inds)
-    richness(sub) .== nspecies(sub)
-end
 
 
 #----------------------------------------------------------------------------------------------
@@ -108,11 +96,11 @@ getindex(com::AbstractComMatrix, inds...) = ComMatrix(getindex(com.occurrences, 
 
 setindex!(com::AbstractComMatrix, X, inds...) = setindex!(com.occurrences, X, inds...)
 
-function getindex(site::S, inds) where S<:SiteFields
+function getindex(site::S, inds) where S<:SELocations
   S(coordinates(site)[inds,:], site.sitestats[inds,:])
 end
 
-function getindex(com::Assmbl, ind::Symbol)
+function getindex(com::SEAssemblage, ind::Symbol)
     if ind in names(com.site.sitestats)
         return com.site.sitestats[ind]
     elseif ind in names(com.occ.traits)

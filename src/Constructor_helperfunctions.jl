@@ -44,7 +44,7 @@ function testbool(x::Int)
 end
 
 testbool(x) = error("Value can not be interpreted as Boolean")
-testbool(x::Missings.Missing) = false
+testbool(x::Missing) = false
 testbool(x::Bool) = x
 function testbool(x::Number)
   x == 0 && return false
@@ -74,7 +74,7 @@ function dataFrametoSparseMatrix(dat::DataFrames.DataFrame, ::Type{T}) where T<:
     @inbounds for j in 1:DataFrames.ncol(dat)
         col = dat[:,j]
         for i in 1:DataFrames.nrow(dat)
-            if !Missings.ismissing(col[i]) && col[i] != 0
+            if !ismissing(col[i]) && col[i] != 0
                 push!(is, i)
                 push!(js, j)
                 push!(vals, col[i])
@@ -90,13 +90,13 @@ function match_commat_coords(occ::ComMatrix, coords::AbstractMatrix, sitestats::
  ## so far this does nothing TODO
 end
 
-function dropspecies!(occ::OccFields)
+function dropspecies!(occ::SpeciesData)
   occur = occurring(occ)
   occ.commatrix = occ.commatrix[occur, :]
   occ.traits = occ.traits[occur,:]
 end
 
-function dropbyindex!(site::PointData, indicestokeep)
+function dropbyindex!(site::Locations{PointData}, indicestokeep)
   site.coords = site.coords[indicestokeep,:]
   site.sitestats = site.sitestats[indicestokeep,:]
 end
@@ -106,7 +106,7 @@ maxrange(x) = diff([extrema(x)...])[1]
 
 # remember here - something wrong with the indices, make sure they are based from 1!
 
-function dropbyindex!(site::GridData, indicestokeep)
+function dropbyindex!(site::Locations{GridData}, indicestokeep)
   site.indices = site.indices[indicestokeep,:]
   site.sitestats = site.sitestats[indicestokeep,:]
   site.grid.xmin = xrange(site.grid)[minimum(site.indices[:,1])]
@@ -116,7 +116,7 @@ function dropbyindex!(site::GridData, indicestokeep)
   site.indices = site.indices - minimum(site.indices) + 1
 end
 
-function dropsites!(occ::OccFields, site::SiteFields)
+function dropsites!(occ::ComMatrix, site::SELocations)
   hasspecies = occupied(occ)
   occ.commatrix = occ.commatrix[:, hasspecies]
   dropbyindex!(site, hasspecies)
@@ -132,7 +132,7 @@ function createsitenames(coords::DataFrames.DataFrame)
   ["$(coords[i,1])_$(coords[i,2])" for i in 1:DataFrames.nrow(coords)]
 end
 
-creategrid(coords::AbstractMatrix{<:Union{AbstractFloat, Missings.Missing}}, tolerance = sqrt(eps())) =
+creategrid(coords::AbstractMatrix{<:Union{AbstractFloat, Missing}}, tolerance = sqrt(eps())) =
     GridTopology(gridvar(coords[:,1], tolerance)..., gridvar(coords[:,2], tolerance)...)
 
 # could allow for n-dimensional binning, using code from StatsBase.Histogram
@@ -161,7 +161,7 @@ function gridvar(x, tolerance = sqrt(eps()))
   min, cellsize, cellnumber
 end
 
-function getindices(coords::AbstractMatrix{<:Union{AbstractFloat, Missings.Missing}}, grid::GridTopology, tolerance = 2*sqrt(eps()))
+function getindices(coords::AbstractMatrix{<:Union{AbstractFloat, Missing}}, grid::GridTopology, tolerance = 2*sqrt(eps()))
   index1 = 1 .+ floor.(Int,(coords[:,1] .- grid.xmin) ./ grid.xcellsize .+ tolerance)
   index2 = 1 .+ floor.(Int,(coords[:,2] .- grid.ymin) ./ grid.ycellsize .+ tolerance)
   hcat(index1, index2)

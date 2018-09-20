@@ -1,22 +1,25 @@
-coordinates(sd::SpatialData) = coordinates(sd.site)
-coordinates(pd::AbstractPointData) = pd.coords
-
-function coordinates(gd::AbstractGridData)
+coordinates(sd::SiteData) = coordinates(sd.site)
+coordinates(pd::SEPointData) = pd.coords
+coordinates(l::SELocations) = coordinates(getcoords(l))
+function coordinates(gd::SEGrid)
     index1 = xrange(gd.grid)[gd.indices[:,1]]
     index2 = yrange(gd.grid)[gd.indices[:,2]]
     hcat(index1, index2)
 end
 
-traits(occ::AbstractOccFields) = occ.traits
-traits(asm::Assmbl) = traits(asm.occ)
+getcoords(l::SELocations) = l.coords
 
-sitestats(asm::Assmbl) = asm.site.sitestats
+traits(occ::SEThings) = occ.traits
+traits(asm::SEAssemblage) = traits(asm.occ)
+places(asm::SEAssemblage) = asm.site
 
-traitnames(asm::Assmbl) = names(traits(asm))
-sitestatnames(asm::Assmbl) = names(sitestats(asm))
+sitestats(asm::SEAssemblage) = asm.site.sitestats
 
-commatrix(asm::Assmbl) = commatrix(asm.occ)
-commatrix(occ::AbstractOccFields) = occ.commatrix
+traitnames(asm::SEAssemblage) = names(traits(asm))
+sitestatnames(asm::SEAssemblage) = names(sitestats(asm))
+
+commatrix(asm::SEAssemblage) = commatrix(asm.occ)
+commatrix(occ::SEThings) = occ.commatrix
 
 occurrences(asm) = occurrences(commatrix(asm))
 

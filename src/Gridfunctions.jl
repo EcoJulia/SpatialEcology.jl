@@ -1,16 +1,23 @@
 xmin(g::GridTopology) = g.xmin
 ymin(g::GridTopology) = g.ymin
-cellsize(g::GridTopology) = g.xcellsize, g.ycellsize
 xcellsize(g::GridTopology) = g.xcellsize
 ycellsize(g::GridTopology) = g.ycellsize
 xcells(g::GridTopology) = g.xcells
 ycells(g::GridTopology) = g.ycells
-cells(g::GridTopology) = g.xcells, g.ycells
-xmax(g::GridTopology) = g.xmin + g.xcellsize*(g.xcells-1)
-ymax(g::GridTopology) = g.ymin + g.ycellsize*(g.ycells-1)
-xrange(g::GridTopology) = xmin(g):xcellsize(g):xmax(g)
-yrange(g::GridTopology) = ymin(g):ycellsize(g):ymax(g)
+indices(g::SEGrid) = g.indices
+indices(g::SEGrid, idx) = g.indices[:,idx] 
 boundingbox(g::GridTopology) = Bbox(xmin(g), xmax(g), ymin(g), ymax(g))
-show(io::IO, b::Bbox) = println(io, "xmin:\t$(b.xmin)\nxmax:\t$(b.xmax)\nymin:\t$(b.ymin)\nymax:\t$(b.ymax)")
 
-@forward_func AbstractGridData.grid xmin, ymin, cellsize, xcellsize, ycellsize, xcells, ycells, cells, xmax, ymax, xrange, yrange, boundingbox
+@forward_func GridData.grid xmin, ymin, xcellsize, ycellsize, cellsize, xcells, ycells, cells, xrange, yrange, xmax, ymax, boundingbox
+@forward_func Locations{GridData}.coords xmin, ymin, xcellsize, ycellsize, cellsize, xcells, ycells, cells, xrange, yrange, xmax, ymax, boundingbox
+@forward_func SubGridData.grid xmin, ymin, xcellsize, ycellsize, cellsize, xcells, ycells, cells, xrange, yrange, xmax, ymax, boundingbox
+@forward_func SubLocations{SubGridData}.coords xmin, ymin, xcellsize, ycellsize, cellsize, xcells, ycells, cells, xrange, yrange, xmax, ymax, boundingbox
+
+
+show(io::IO, b::Bbox) = println(io, "xmin:\t$(b.xmin)\nxmax:\t$(b.xmax)\nymin:\t$(b.ymin)\nymax:\t$(b.ymax)")
+show(io::IO, g::GridData) = println(io,
+    """
+    Spatial grid
+       lower left : $(xmin(g)), $(ymin(g))
+       cellsizes  : $(xcellsize(g)), $(ycellsize(g))
+       size       : $(xcells(g)), $(ycells(g))""")
