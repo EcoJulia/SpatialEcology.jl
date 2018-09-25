@@ -3,9 +3,9 @@ uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
 [[BinaryProvider]]
 deps = ["Libdl", "Pkg", "SHA", "Test"]
-git-tree-sha1 = "b530fbeb6f41ab5a83fbe3db1fcbe879334bcd2d"
+git-tree-sha1 = "48c147e63431adbcee69bc40b04c3f0fec0a4982"
 uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
-version = "0.4.2"
+version = "0.5.0"
 
 [[CategoricalArrays]]
 deps = ["Compat", "Future", "JSON", "Missings", "Printf", "Reexport"]
@@ -32,16 +32,16 @@ uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 version = "0.13.1"
 
 [[DataStreams]]
-deps = ["Dates", "Missings", "Test", "WeakRefStrings"]
-git-tree-sha1 = "c54fb051465fb0741caa57972b67bd21ce2f39c7"
+deps = ["Dates", "Missings", "Pkg", "Test", "WeakRefStrings"]
+git-tree-sha1 = "69c72a1beb4fc79490c361635664e13c8e4a9548"
 uuid = "9a8bc11e-79be-5b39-94d7-1ccc349a1a85"
-version = "0.4.0"
+version = "0.4.1"
 
 [[DataStructures]]
-deps = ["InteractiveUtils", "REPL", "Random", "Serialization", "Test"]
-git-tree-sha1 = "2afbbd0294306b0b74a753c196be50b35edb625c"
+deps = ["InteractiveUtils", "OrderedCollections", "REPL", "Random", "Serialization", "Test"]
+git-tree-sha1 = "8fc6e166e24fda04b2b648d4260cdad241788c54"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.11.1"
+version = "0.14.0"
 
 [[Dates]]
 deps = ["Printf"]
@@ -57,9 +57,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[EcoBase]]
 deps = ["Compat", "RecipesBase"]
-path = "/Users/michael/.julia/dev/EcoBase"
-uuid = "114b7694-c2f9-553f-b274-2039aeb36090"
-version = "0.0.0"
+git-tree-sha1 = "2ff9771903b042fe3b73c52d59c425c9001abe65"
+uuid = "a58aae7d-b440-5a11-b283-399458f99aac"
+version = "0.0.1"
 
 [[Future]]
 deps = ["Random"]
@@ -94,12 +94,18 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[Missings]]
 deps = ["Dates", "InteractiveUtils", "SparseArrays", "Test"]
-git-tree-sha1 = "196528fa1df03df435025f52f9c1ff8356f94738"
+git-tree-sha1 = "adc26d2ee85a49c413464110d922cf21efc9d233"
 uuid = "e1d29d7a-bbdc-5cf2-9ac0-f12de2c33e28"
-version = "0.3.0"
+version = "0.3.1"
 
 [[Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+
+[[OrderedCollections]]
+deps = ["Pkg", "Random", "Serialization", "Test"]
+git-tree-sha1 = "41da1edba028376b58520ca01d9a41e29f855d55"
+uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
+version = "1.0.1"
 
 [[Pkg]]
 deps = ["Dates", "LibGit2", "Markdown", "Printf", "REPL", "Random", "SHA", "UUIDs"]
@@ -181,6 +187,6 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
 [[WeakRefStrings]]
 deps = ["Missings", "Random", "Test"]
-git-tree-sha1 = "d4631352d65840254d33ab703e2de3d9768cdb77"
+git-tree-sha1 = "1087e8be380f2c8b96434b02bb1150fc1c511135"
 uuid = "ea10d353-3f73-51f8-a26c-33c1cb351aa5"
-version = "0.5.2"
+version = "0.5.3"

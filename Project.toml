@@ -3,7 +3,7 @@ uuid = "348f2d5d-71a3-5ad4-b565-8af070f99681"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-EcoBase = "114b7694-c2f9-553f-b274-2039aeb36090"
+EcoBase = "a58aae7d-b440-5a11-b283-399458f99aac"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
