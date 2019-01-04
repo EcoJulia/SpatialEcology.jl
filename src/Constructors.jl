@@ -110,6 +110,15 @@ function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
     ComMatrix(occ, species, sites)
 end
 
+function ComMatrix(; species::AbstractVector = error("keyword `species` must be specified"), sites::AbstractVector = error("keyword `sites` must be specified"), abundances = 0)
+    usites = unique(sites)
+    uspecies = unique(species)
+    js = indexin(sites, usites)
+    is = indexin(species, uspecies)
+    occ = abundances isa AbstractVector && length(unique(abundances)) > 1 ? sparse(is, js, abundances) : sparse(is, js, true)
+    return ComMatrix(occ, string.(collect(uspecies)), string.(collect(usites)))
+end
+
 ComMatrix(occurrences::AbstractMatrix, specnames, sitenames; sitecolumns = true) =
     ComMatrix(occurrences; specnames = specnames, sitenames = sitenames, sitecolumns = sitecolumns)
 
