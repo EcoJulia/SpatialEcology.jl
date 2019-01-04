@@ -1,7 +1,7 @@
 julia 0.7
 
 RecipesBase
-DataFrames
+DataFrames 0.15
 StatsBase
 EcoBase
 #Phylo

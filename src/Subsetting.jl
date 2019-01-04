@@ -45,7 +45,7 @@ asindices(x::AbstractArray{T}) where T <: Bool = findall(x)
 asindices(x, y) = asindices(x)
 asindices(x::AbstractArray{T}, y::AbstractArray{T}) where T <: AbstractString = indexin(x, y)
 # creating views
-view(occ::SEThings; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubSpeciesData(view(occ.commatrix, sites = sites, species = species), view(occ.traits,species))
+view(occ::SEThings; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubSpeciesData(view(occ.commatrix, sites = sites, species = species), view(occ.traits,species, :))
 # The SELocations things are missing as of yet - need to go by the dropbyindex functionality
 function view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com))
     sit = asindices(sites, sitenames(com))
@@ -53,9 +53,9 @@ function view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsite
     SubComMatrix(view(com.occurrences, spec, sit), view(com.specnames, spec), view(com.sitenames, sit)) #TODO change the order of these in the object to fit the array index order
 end
 
-view(pd::SEPointData, sites) = SubPointData(view(pd.coords, sites))
+view(pd::SEPointData, sites) = SubPointData(view(pd.coords, sites, :))
 view(gd::SEGrid, sites) = SubGridData(view(gd.indices, sites, :), gd.grid)
-view(gd::SELocations, sites) = SubLocations{SubGridData}(view(gd.coords, sites), view(gd.sitestats, sites))
+view(lo::SELocations, sites) = SubLocations{SubGridData}(view(lo.coords, sites), view(lo.sitestats, sites, :))
 view(sp::SESpatialData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
 
  function view(asm::SEAssemblage{D, P}; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false) where D where P
