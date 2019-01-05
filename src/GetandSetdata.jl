@@ -12,6 +12,7 @@ getcoords(l::SELocations) = l.coords
 traits(occ::SEThings) = occ.traits
 traits(asm::SEAssemblage) = traits(asm.occ)
 places(asm::SEAssemblage) = asm.site
+things(asm::SEAssemblage) = asm.occ
 
 sitestats(asm::SEAssemblage) = asm.site.sitestats
 
