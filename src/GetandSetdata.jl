@@ -21,8 +21,7 @@ sitestatnames(asm::SEAssemblage) = names(sitestats(asm))
 commatrix(asm::SEAssemblage) = commatrix(asm.occ)
 commatrix(occ::SEThings) = occ.commatrix
 
-occurrences(asm) = occurrences(commatrix(asm))
-
+occurrences(asm::Union{SEAssemblage, SEThings}) = occurrences(commatrix(asm))
 occurrences(cm::AbstractComMatrix) = cm.occurrences
 
 function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::Symbol; validate = true, tolerance = 0.5)
