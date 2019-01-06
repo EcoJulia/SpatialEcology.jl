@@ -54,12 +54,12 @@ end
 #it's a question how many of these structs need to be mutable, as opposed to when you want to allocate a new object
 mutable struct ComMatrix{D} <: AbstractComMatrix{D}
     occurrences::SparseMatrixCSC{D}
-    specnames::Vector{String}
+    speciesnames::Vector{String}
     sitenames::Vector{String}
     ComMatrix{D}(occ::SparseMatrixCSC{D}, spn::Vector{String}, sin::Vector{String}) where {D} = new(dropzeros!(occ), spn, sin)
 end
 
-# likewise, do I need a specnames here? Should traits have a :series field (like now) or all matching be done on the specnames?
+# likewise, do I need a speciesnames here? Should traits have a :series field (like now) or all matching be done on the speciesnames?
 mutable struct SpeciesData{D} <: SEThings{D}
     commatrix::ComMatrix{D}
     traits::DataFrames.DataFrame

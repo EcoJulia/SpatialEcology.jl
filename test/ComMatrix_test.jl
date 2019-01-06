@@ -16,7 +16,7 @@ using Test
     cmb = ComMatrix(datb)
     @test cmb isa ComMatrix{Bool}
     cmi = ComMatrix(dati,
-        specnames = ["sp1", "sp2", "sp3", "sp4", "sp5", "sp6", "sp7", "sp8"],
+        speciesnames = ["sp1", "sp2", "sp3", "sp4", "sp5", "sp6", "sp7", "sp8"],
         sitenames = [:a, :b, :c, :d, :e, :f, :g, :h, :i, :j, :k, :l, :m])
     @test cmi isa ComMatrix{<:Union{Int64, Int32}}
     cmf = ComMatrix(datf, sitecolumns = false)
@@ -61,8 +61,8 @@ using Test
     @test gcm[3] == 0.37980641711782925
     @test gcm isa SubArray
 
-    @test specnames(cmi)[8] == "sp8"
-    @test specnames(cmf)[3] == "species3"
+    @test speciesnames(cmi)[8] == "sp8"
+    @test speciesnames(cmf)[3] == "species3"
 
     @test sitenames(cmi)[4] == "d"
     @test sitenames(cmb)[5] == "site5"
@@ -71,9 +71,9 @@ using Test
     @test length(sitenames(cmi)) == nsites(cmi)
     @test length(sitenames(cmb)) == nsites(cmb)
 
-    @test length(specnames(cmf)) == nspecies(cmf)
-    @test length(specnames(cmi)) == nspecies(cmi)
-    @test length(specnames(cmb)) == nspecies(cmb)
+    @test length(speciesnames(cmf)) == nspecies(cmf)
+    @test length(speciesnames(cmi)) == nspecies(cmi)
+    @test length(speciesnames(cmb)) == nspecies(cmb)
 
     @test sitetotals(cmb) == [12, 11, 10, 10, 11, 10, 12, 7]
     @test sitetotals(cmb) == richness(cmb)

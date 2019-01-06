@@ -40,8 +40,8 @@ thingoccurrences(com::AbstractComMatrix, idx) = thingoccurrences(occurrences(com
 const getsite = placeoccurrences
 placeoccurrences(com::AbstractComMatrix, idx) = placeoccurrences(occurrences(com), idx)
 
-const specnames = thingnames
-thingnames(com::AbstractComMatrix) = com.specnames
+const speciesnames = thingnames
+thingnames(com::AbstractComMatrix) = com.speciesnames
 
 const sitenames = placenames
 placenames(com::AbstractComMatrix) = com.sitenames
@@ -75,13 +75,13 @@ function createsummaryline(vec::AbstractVector{T}) where T<:AbstractString
 end
 
 function show(io::IO, com::ComMatrix)
-    sp = createsummaryline(specnames(com))
+    sp = createsummaryline(speciesnames(com))
     si = createsummaryline(sitenames(com))
     println(io, "ComMatrix with $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
 
 function show(io::IO, com::Assemblage)
-    sp = createsummaryline(specnames(com))
+    sp = createsummaryline(speciesnames(com))
     si = createsummaryline(sitenames(com))
     println(io, "Assemblage with $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end

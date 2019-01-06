@@ -33,7 +33,7 @@ end
 
 function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
       dropemptyspecies::Bool = false, dropemptysites::Bool = false, match_to_coords = true,
-      traits = DataFrames.DataFrame(name = specnames(occ)), sitestat = DataFrames.DataFrame(sites = sitenames(occ)),
+      traits = DataFrames.DataFrame(name = speciesnames(occ)), sitestat = DataFrames.DataFrame(sites = sitenames(occ)),
       cdtype::coordstype = auto)
 
     if match_to_coords
@@ -119,24 +119,24 @@ function ComMatrix(; species::AbstractVector = error("keyword `species` must be 
     return ComMatrix(occ, string.(collect(uspecies)), string.(collect(usites)))
 end
 
-ComMatrix(occurrences::AbstractMatrix, specnames, sitenames; sitecolumns = true) =
-    ComMatrix(occurrences; specnames = specnames, sitenames = sitenames, sitecolumns = sitecolumns)
+ComMatrix(occurrences::AbstractMatrix, speciesnames, sitenames; sitecolumns = true) =
+    ComMatrix(occurrences; speciesnames = speciesnames, sitenames = sitenames, sitecolumns = sitecolumns)
 
 
-function ComMatrix(occurrences; specnames = :auto, sitenames = :auto, sitecolumns = true)
+function ComMatrix(occurrences; speciesnames = :auto, sitenames = :auto, sitecolumns = true)
     if !sitecolumns
         occurrences = occurrences'
     end
     if sitenames == :auto
         sitenames = ["site$i" for i in 1:size(occurrences, 2)]
     end
-    if specnames == :auto
-        specnames = ["species$i" for i in 1:size(occurrences, 1)]
+    if speciesnames == :auto
+        speciesnames = ["species$i" for i in 1:size(occurrences, 1)]
     end
 
-    length(specnames) == size(occurrences, 1) || throw(ArgumentError("length of specnames ($(length(specnames))) different from number of species in occurrences ($(size(occurrences, 1)))"))
+    length(speciesnames) == size(occurrences, 1) || throw(ArgumentError("length of speciesnames ($(length(speciesnames))) different from number of species in occurrences ($(size(occurrences, 1)))"))
     length(sitenames) == size(occurrences, 2) || throw(ArgumentError("length of sitenames ($(length(sitenames))) different from number of sites in occurrences ($(size(occurrences, 2)))"))
-    ComMatrix{eltype(occurrences)}(sparse(occurrences), string.(specnames), string.(sitenames))
+    ComMatrix{eltype(occurrences)}(sparse(occurrences), string.(speciesnames), string.(sitenames))
 end
 
 function GridData(coords::AbstractMatrix{<:Union{AbstractFloat, Missing}})

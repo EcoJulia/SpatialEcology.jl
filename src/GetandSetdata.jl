@@ -27,7 +27,7 @@ occurrences(cm::AbstractComMatrix) = cm.occurrences
 
 function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::Symbol; validate = true, tolerance = 0.5)
     if validate
-        dif, left, right = length(intersect(newtraits[species], specnames(asm))), nspecies(asm), size(newtraits,1)
+        dif, left, right = length(intersect(newtraits[species], speciesnames(asm))), nspecies(asm), size(newtraits,1)
         max(dif/left, dif/right) == 0 && error("No match between species names, aborting join")
         println("$dif matching species names,\n",
                 "\t$(signif(100*dif/left,3))% of $left species in the Assemblage\n",

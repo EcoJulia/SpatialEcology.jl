@@ -5,7 +5,7 @@
 # Definition is the same, but importantly this keeps a Subarray
 mutable struct SubComMatrix{D <: Real} <: AbstractComMatrix{D}
     occurrences::SubArray{D,2}
-    specnames::SubArray{String,1}
+    speciesnames::SubArray{String,1}
     sitenames::SubArray{String,1}
 end
 
@@ -49,8 +49,8 @@ view(occ::SEThings; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubSpeci
 # The SELocations things are missing as of yet - need to go by the dropbyindex functionality
 function view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com))
     sit = asindices(sites, sitenames(com))
-    spec = asindices(species, specnames(com))
-    SubComMatrix(view(com.occurrences, spec, sit), view(com.specnames, spec), view(com.sitenames, sit)) #TODO change the order of these in the object to fit the array index order
+    spec = asindices(species, speciesnames(com))
+    SubComMatrix(view(com.occurrences, spec, sit), view(com.speciesnames, spec), view(com.sitenames, sit)) #TODO change the order of these in the object to fit the array index order
 end
 
 view(pd::SEPointData, sites) = SubPointData(view(pd.coords, sites, :))
@@ -80,7 +80,7 @@ Assemblage(assm::SubAssemblage) = copy(assm)
 copy(asm::SEAssemblage) = Assemblage(copy(asm.site), copy(asm.occ))
 copy(sp::SESpatialData) = SiteData(copy(sp.site))
 copy(pd::SEPointData) = PointData(copy(pd.coords), copy(pd.sitestats))
-copy(pd::AbstractComMatrix) = ComMatrix(copy(pd.occurrences), copy(pd.specnames), copy(pd.sitenames))
+copy(pd::AbstractComMatrix) = ComMatrix(copy(pd.occurrences), copy(pd.speciesnames), copy(pd.sitenames))
 copy(occ::SEThings) = SpeciesData(copy(occ.commatrix), my_dataframe_copy(occ.traits))
 
 function copy(gd::SEGrid)
@@ -112,13 +112,13 @@ function subsetgrid(indices, grid)
 end
 
 function show(io::IO, com::SubComMatrix)
-    sp = createsummaryline(specnames(com))
+    sp = createsummaryline(speciesnames(com))
     si = createsummaryline(sitenames(com))
     println(io, "SubComMatrix with $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
 
 function show(io::IO, com::SubAssemblage)
-    sp = createsummaryline(specnames(com))
+    sp = createsummaryline(speciesnames(com))
     si = createsummaryline(sitenames(com))
     println(io, "SubAssemblage with $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
