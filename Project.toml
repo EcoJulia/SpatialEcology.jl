@@ -3,6 +3,7 @@ uuid = "348f2d5d-71a3-5ad4-b565-8af070f99681"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+DataFramesMeta = "1313f7d8-7da2-5740-9ea0-a2ca25f37964"
 EcoBase = "a58aae7d-b440-5a11-b283-399458f99aac"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"

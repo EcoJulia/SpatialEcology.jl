@@ -2,7 +2,7 @@ __precompile__(true)
 module SpatialEcology
 
 using DataFrames
-import DataFramesMeta
+import DataFramesMeta: @with
 using SparseArrays
 using Statistics
 
@@ -28,7 +28,7 @@ export coordstype, subset
 export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these
 export sitetotals, speciestotals, getspecies, getsite
 export groupspecies, groupsites
-export DataFramesMeta.@with
+export DataFramesMeta: @with
 
 include("DataTypes.jl")
 include("Constructor_helperfunctions.jl")
