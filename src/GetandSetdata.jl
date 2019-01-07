@@ -1,3 +1,4 @@
+coordinates(asm::SEAssemblage) = coordinates(asm.site)
 coordinates(sd::SiteData) = coordinates(sd.site)
 coordinates(pd::SEPointData) = pd.coords
 coordinates(l::SELocations) = coordinates(getcoords(l))
