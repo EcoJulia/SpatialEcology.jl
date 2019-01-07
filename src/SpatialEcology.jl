@@ -5,6 +5,7 @@ using DataFrames
 import DataFramesMeta: @with
 using SparseArrays
 using Statistics
+using RandomBooleanMatrices
 
 import EcoBase
 import EcoBase: nthings, nplaces, occupancy, richness, nrecords, placenames, thingnames,
@@ -29,6 +30,7 @@ export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize,
 export sitetotals, speciestotals, getspecies, getsite
 export groupspecies, groupsites
 export DataFramesMeta: @with
+export assemblage_randomizer
 
 include("DataTypes.jl")
 include("Constructor_helperfunctions.jl")
@@ -40,6 +42,7 @@ include("Subsetting.jl")
 include("GetandSetdata.jl")
 include("Gridfunctions.jl")
 include("Grouping.jl")
+include("Randomizations.jl")
 include("DispersionFields.jl")
 include("PlotRecipes.jl")
 

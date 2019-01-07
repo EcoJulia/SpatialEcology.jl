@@ -5,4 +5,5 @@ DataFrames 0.15
 DataFramesMeta
 StatsBase
 EcoBase
+RandomBooleanMatrices
 #Phylo

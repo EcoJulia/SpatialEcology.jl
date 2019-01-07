@@ -131,6 +131,18 @@ uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 deps = ["Serialization"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
+[[RandomBooleanMatrices]]
+deps = ["Random", "RandomNumbers", "SparseArrays", "StatsBase", "Test"]
+git-tree-sha1 = "735bd45a274a28db9c8a02d2c088513fa66fd1fe"
+uuid = "9ae346a0-3d16-5633-ad70-ddb60ab77eac"
+version = "0.1.0"
+
+[[RandomNumbers]]
+deps = ["Libdl", "Printf", "Random", "Test"]
+git-tree-sha1 = "0687ea782f88706ef7969bc298f170e1ac7cb606"
+uuid = "e6cf234a-135c-5ec9-84dd-332b85af5143"
+version = "1.0.3"
+
 [[RecipesBase]]
 deps = ["Random", "Test"]
 git-tree-sha1 = "0b3cb370ee4dc00f47f1193101600949f3dcf884"
