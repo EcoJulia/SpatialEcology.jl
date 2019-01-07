@@ -82,3 +82,11 @@ end
 #     right = DataFrames.without(right, on_right)
 #     DataFrames.hcat!(df1, right)
 # end
+
+macro traits(x, expr)
+    :(@with(traits($x), $expr))
+end
+
+macro sitestats(x, expr)
+    :(@with(sitestats($x), $expr))
+end
