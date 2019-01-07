@@ -51,6 +51,8 @@ mutable struct Locations{T<:Union{GridData, PointData}} <: SELocations
     end
 end
 
+Locations(coords, sitestats) = Locations{typeof(coords)}(coords, sitestats)
+
 #it's a question how many of these structs need to be mutable, as opposed to when you want to allocate a new object
 mutable struct ComMatrix{D} <: AbstractComMatrix{D}
     occurrences::SparseMatrixCSC{D}
