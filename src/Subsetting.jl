@@ -40,10 +40,12 @@ end
 
 # TODO not sure this is necessary anymore - perhaps remove, or update with a string (for names)
 
-asindices(x::AbstractArray{T}) where T <: Integer = x
+asindices(x::AbstractArray{T}) where T <: Union{Missing, Integer} = x
+asindices(x::AbstractArray{Union{Missing, Bool}})  = findall(y->!ismissing(y) && y, x)
 asindices(x::AbstractArray{T}) where T <: Bool = findall(x)
 asindices(x, y) = asindices(x)
-asindices(x::AbstractArray{T}, y::AbstractArray{T}) where T <: AbstractString = indexin(x, y)
+asindices(x::AbstractArray{T}, y::AbstractArray{T}) where T <: Union{Missing, AbstractString} = [el for el in indexin(x, y) if el !== nothing]
+asindices(x::AbstractArray{T}, y::AbstractArray{<:AbstractString}) where T <: Union{Missing, Symbol} = asindices(string.(x), y)
 # creating views
 view(occ::SEThings; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubSpeciesData(view(occ.commatrix, sites = sites, species = species), view(occ.traits,species, :))
 # The SELocations things are missing as of yet - need to go by the dropbyindex functionality
@@ -59,8 +61,10 @@ view(lo::SELocations, sites) = SubLocations{SubGridData}(view(lo.coords, sites),
 view(sp::SESpatialData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
 
  function view(asm::SEAssemblage{D, P}; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false) where D where P
-    occ = view(asm.occ, species = species, sites = sites)
-    site = view(asm.site, sites)
+    sit = asindices(sites, sitenames(asm))
+    spec = asindices(species, speciesnames(asm))
+    occ = view(asm.occ, species = spec, sites = sit)
+    site = view(asm.site, sit)
 
     if dropsites || dropempty
         hasspecies = occupied(occ)
