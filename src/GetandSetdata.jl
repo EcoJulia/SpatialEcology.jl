@@ -25,7 +25,7 @@ commatrix(occ::SEThings) = occ.commatrix
 occurrences(asm::Union{SEAssemblage, SEThings}) = occurrences(commatrix(asm))
 occurrences(cm::AbstractComMatrix) = cm.occurrences
 
-function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::Symbol; validate = true, tolerance = 0.5)
+function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::Symbol; validate = true, tolerance = 0.5, makeunique = false)
     if validate
         dif, left, right = length(intersect(newtraits[species], speciesnames(asm))), nspecies(asm), size(newtraits,1)
         max(dif/left, dif/right) == 0 && error("No match between species names, aborting join")
@@ -37,7 +37,7 @@ function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::S
 
     nm = names(newtraits)
     rename!(newtraits, species => :name)
-    asm.occ.traits = join(asm.occ.traits, newtraits, kind = :left, on = :name)
+    asm.occ.traits = join(asm.occ.traits, newtraits, kind = :left, on = :name, makeunique = makeunique)
     names!(newtraits, nm)
     #assemblagejoin!(asm.occ.traits, newtraits, :name, species)
     nothing
@@ -48,20 +48,20 @@ function addtraits!(asm::Assemblage, newtraits::AbstractVector, name::Union{Stri
     asm.occ.traits[Symbol(name)] = newtraits
 end
 
-function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::Symbol; validate = true, tolerance = 0.5)
+function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::Symbol; validate = true, tolerance = 0.5, makeunique = false)
     if validate
         dif, left, right = length(intersect(newsites[sites], sitenames(asm))) , nsites(asm), size(newsites,1)
         max(dif/left, dif/right) == 0 && error("No match between site names, aborting join")
         println("$dif matching site names,\n",
-                "\t$(signif(100*dif/left,3))% of $left sites in the Assemblage\n",
-                "\t$(signif(100*dif/right,3))% of $right sites in the new sitestats data\n")
+                "\t$(round(100*dif/left, sigdigits = 3))% of $left sites in the Assemblage\n",
+                "\t$(round(100*dif/right, sigdigits = 3))% of $right sites in the new sitestats data\n")
         max(dif/left, dif/right) < tolerance && error("Aborting join, as fit was smaller than the tolerance of $tolerance . To perform the join decrease the tolerance value")
     end
 
     #assemblagejoin!(asm.site.sitestats, newsites, :sites, sites) #TODO this should instead be on the sitenames of the objects and adjusted below
     nm = names(newsites)
     rename!(newsites, sites => :sites)
-    asm.site.sitestats = join(asm.site.sitestats, newsites, kind = :left, on = :sites)
+    asm.site.sitestats = join(asm.site.sitestats, newsites, kind = :left, on = :sites, makeunique = makeunique)
     names!(newsites, nm)
     nothing
 end
