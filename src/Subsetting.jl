@@ -86,6 +86,7 @@ copy(sp::SESpatialData) = SiteData(copy(sp.site))
 copy(pd::SEPointData) = PointData(copy(pd.coords), copy(pd.sitestats))
 copy(pd::AbstractComMatrix) = ComMatrix(copy(pd.occurrences), copy(pd.speciesnames), copy(pd.sitenames))
 copy(occ::SEThings) = SpeciesData(copy(occ.commatrix), my_dataframe_copy(occ.traits))
+copy(lo::SELocations) = Locations(copy(lo.coords), my_dataframe_copy(lo.sitestats))
 
 function copy(gd::SEGrid)
     indices = copy(gd.indices)
@@ -94,7 +95,7 @@ function copy(gd::SEGrid)
     y_shift = Int.((ymin(grid) - ymin(gd.grid)) / ycellsize(gd.grid))
     indices[:,1] .-= x_shift
     indices[:,2] .-= y_shift
-    GridData(indices, grid, my_dataframe_copy(gd.sitestats))
+    GridData(indices, grid)
 end
 
 # because I cannot define a new copy method for DataFrames
