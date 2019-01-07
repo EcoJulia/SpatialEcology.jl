@@ -6,6 +6,8 @@ import DataFramesMeta: @with
 using SparseArrays
 using Statistics
 using RandomBooleanMatrices
+import RandomNumbers.Xorshifts: Xoroshiro128Plus
+import RandomBooleanMatrices: matrixrandomizer, MatrixGenerator
 
 import EcoBase
 import EcoBase: nthings, nplaces, occupancy, richness, nrecords, placenames, thingnames,
@@ -30,7 +32,7 @@ export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize,
 export sitetotals, speciestotals, getspecies, getsite
 export groupspecies, groupsites
 export @with, @traits, @sitestats
-export assemblage_randomizer
+export matrixrandomizer, matrixrandomizations
 
 include("DataTypes.jl")
 include("Constructor_helperfunctions.jl")
