@@ -65,9 +65,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[EcoBase]]
 deps = ["Compat", "RecipesBase"]
-git-tree-sha1 = "a5deb04ba67db3c21360f01bbbb6e16a9f5c582e"
+git-tree-sha1 = "7d05be63ecb77148b3807c89b8977d6397499618"
 uuid = "a58aae7d-b440-5a11-b283-399458f99aac"
-version = "0.0.2"
+version = "0.0.4"
 
 [[Future]]
 deps = ["Random"]
@@ -133,9 +133,9 @@ uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [[RandomBooleanMatrices]]
 deps = ["Random", "RandomNumbers", "SparseArrays", "StatsBase", "Test"]
-git-tree-sha1 = "735bd45a274a28db9c8a02d2c088513fa66fd1fe"
+git-tree-sha1 = "c13963a90c579b3bc241d858e4d063d778deeef5"
 uuid = "9ae346a0-3d16-5633-ad70-ddb60ab77eac"
-version = "0.1.0"
+version = "0.1.1"
 
 [[RandomNumbers]]
 deps = ["Libdl", "Printf", "Random", "Test"]
