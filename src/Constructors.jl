@@ -99,7 +99,7 @@ function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
         catch
             occ = dataFrametoSparseMatrix(occ, Float64)
             println("Matrix data assumed to be relative abundances, minimum $(minimum(occ)), maximum $(maximum(occ))")
-            (minimum(occ) < 0 || maximum(occ) > 1) && info("Values don't fall in the 0,1 range")
+            (minimum(occ) < 0 || maximum(occ) > 1) && @info("Values don't fall in the 0,1 range")
         end
     end
 
@@ -123,10 +123,9 @@ ComMatrix(occurrences::AbstractMatrix, speciesnames, sitenames; sitecolumns = tr
     ComMatrix(occurrences; speciesnames = speciesnames, sitenames = sitenames, sitecolumns = sitecolumns)
 
 
-function ComMatrix(occurrences; speciesnames = :auto, sitenames = :auto, sitecolumns = true)
-    if !sitecolumns
-        occurrences = occurrences'
-    end
+function ComMatrix(occs; speciesnames = :auto, sitenames = :auto, sitecolumns = true)
+    occurrences = sitecolumns ? occs : occs'
+
     if sitenames == :auto
         sitenames = ["site$i" for i in 1:size(occurrences, 2)]
     end
