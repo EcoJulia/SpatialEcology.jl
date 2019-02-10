@@ -1,11 +1,11 @@
-xmin(g::GridTopology) = g.xmin
-ymin(g::GridTopology) = g.ymin
-xcellsize(g::GridTopology) = g.xcellsize
-ycellsize(g::GridTopology) = g.ycellsize
-xcells(g::GridTopology) = g.xcells
-ycells(g::GridTopology) = g.ycells
+xmin(g::GridTopology) = minimum(g.xs)
+ymin(g::GridTopology) = minimum(g.ys)
+xcellsize(g::GridTopology) = step(g.xs)
+ycellsize(g::GridTopology) = step(g.ys)
+xcells(g::GridTopology) = length(g.xs)
+ycells(g::GridTopology) = length(g.ys)
 indices(g::SEGrid) = g.indices
-indices(g::SEGrid, idx) = g.indices[:,idx] 
+indices(g::SEGrid, idx) = g.indices[:,idx]
 boundingbox(g::GridTopology) = Bbox(xmin(g), xmax(g), ymin(g), ymax(g))
 
 @forward_func GridData.grid xmin, ymin, xcellsize, ycellsize, cellsize, xcells, ycells, cells, xrange, yrange, xmax, ymax, boundingbox

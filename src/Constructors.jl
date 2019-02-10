@@ -56,7 +56,7 @@ function Assemblage(site::P, occ::SpeciesData{D};
 end
 
 function createLocations(coords::AbstractMatrix, cdtype::coordstype = auto,  #by design, this is not type stable, but maybe that is OK for type constructors
-        sitestat = DataFrames.DataFrame(sites = sitenames(occ)))
+        sitestat = DataFrames.DataFrame(sites = 1:size(coords, 1)))
 
     cdtype == pointdata && return Locations{PointData}(PointData(coords), sitestat)
     cdtype == griddata && return Locations{GridData}(GridData(coords), sitestat)

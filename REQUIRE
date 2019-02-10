@@ -4,7 +4,7 @@ RecipesBase
 DataFrames 0.15
 DataFramesMeta
 StatsBase
-EcoBase 0.0.4
+EcoBase 0.0.5
 RandomBooleanMatrices 0.1.1
 RandomNumbers
 #Phylo
