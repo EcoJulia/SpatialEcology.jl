@@ -1,6 +1,6 @@
 coordinates(asm::SEAssemblage) = coordinates(asm.site)
 coordinates(sd::SiteData) = coordinates(sd.site)
-coordinates(pd::SEPointData) = pd.coords
+coordinates(pd::SEPoints) = pd.coords
 coordinates(l::SELocations) = coordinates(getcoords(l))
 function coordinates(gd::SEGrid)
     index1 = xrange(gd.grid)[gd.indices[:,1]]

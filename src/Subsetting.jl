@@ -19,11 +19,11 @@ mutable struct SubGridData <: SEGrid
     grid::GridTopology
 end
 
-mutable struct SubPointData
+mutable struct SubPointData <: SEPoints
     coords::SubArray{Float64,2}
 end
 
-mutable struct SubLocations{T<:Union{SubGridData, SubPointData}} <: SELocations
+mutable struct SubLocations{T<:Union{SubGridData, SubPointData}} <: SELocations{T}
     coords::T
     sitestats::DataFrames.SubDataFrame
 end
@@ -34,7 +34,7 @@ mutable struct SubAssemblage{D <: Real, P <: SubLocations} <: SEAssemblage{D, Su
 end
 
 # TODO delete
-mutable struct SubSiteData{S} <: SESpatialData where S <: SubLocations
+mutable struct SubSiteData{S<:SubLocations} <: SESpatialData{S}
     site::S
 end
 
@@ -55,7 +55,7 @@ function view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsite
     SubComMatrix(view(com.occurrences, spec, sit), view(com.speciesnames, spec), view(com.sitenames, sit)) #TODO change the order of these in the object to fit the array index order
 end
 
-view(pd::SEPointData, sites) = SubPointData(view(pd.coords, sites, :))
+view(pd::SEPoints, sites) = SubPointData(view(pd.coords, sites, :))
 view(gd::SEGrid, sites) = SubGridData(view(gd.indices, sites, :), gd.grid)
 view(lo::SELocations, sites) = SubLocations{SubGridData}(view(lo.coords, sites), view(lo.sitestats, sites, :))
 view(sp::SESpatialData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
@@ -83,7 +83,7 @@ Assemblage(assm::SubAssemblage) = copy(assm)
 
 copy(asm::SEAssemblage) = Assemblage(copy(asm.site), copy(asm.occ))
 copy(sp::SESpatialData) = SiteData(copy(sp.site))
-copy(pd::SEPointData) = PointData(copy(pd.coords), copy(pd.sitestats))
+copy(pd::SEPoints) = PointData(copy(pd.coords), copy(pd.sitestats))
 copy(pd::AbstractComMatrix) = ComMatrix(copy(pd.occurrences), copy(pd.speciesnames), copy(pd.sitenames))
 copy(occ::SEThings) = SpeciesData(copy(occ.commatrix), my_dataframe_copy(occ.traits))
 copy(lo::SELocations) = Locations(copy(lo.coords), my_dataframe_copy(lo.sitestats))
@@ -113,7 +113,7 @@ function subsetgrid(indices, grid)
    ymin = yrange(grid)[minimum(indices[:,2])]
    xcells = maxrange(indices[:,1]) + 1
    ycells = maxrange(indices[:,2]) + 1
-   GridTopology(xmin, grid.xcellsize, xcells, ymin, grid.ycellsize, ycells)
+   GridTopology(range(xmin, step = xcellsize(grid), length = xcells), range(ymin, step = ycellsize(grid), length = ycells))
 end
 
 function show(io::IO, com::SubComMatrix)

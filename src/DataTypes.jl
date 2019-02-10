@@ -4,25 +4,21 @@
 # Insertion point for defining my own functions. They are mainly abstract
 # over the full type and it's view, so another possibility would be to
 # implement with unions
-abstract type SESpatialData <: EcoBase.AbstractPlaces end
-abstract type SELocations <: EcoBase.AbstractLocations end
+abstract type SESpatialData{T<:EcoBase.AbstractLocationData} <: EcoBase.AbstractPlaces{T} end
+abstract type SELocations{T<:EcoBase.AbstractLocationData} <: EcoBase.AbstractPlaces{T} end
 abstract type SEThings{D <: Real} <: EcoBase.AbstractThings end
 abstract type SEGrid <: EcoBase.AbstractGrid end
-abstract type SEPointData end
+abstract type SEPoints <: EcoBase.AbstractPoints end
 
-abstract type AbstractComMatrix{ D<:Real } end
+abstract type AbstractComMatrix{D<:Real} end
 
 
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
 # I could do a lot more with immutable types if I had a clearer view/copy implementation
 mutable struct GridTopology <: EcoBase.AbstractGrid
-    xmin::Number
-    xcellsize::Number
-    xcells::Int
-    ymin::Number
-    ycellsize::Number
-    ycells::Int
+    xs::StepRangeLen{Float64}
+    ys::StepRangeLen{Float64}
 end
 
 mutable struct Bbox
@@ -33,7 +29,7 @@ mutable struct Bbox
 end
 
 # Do I need sitenames here? I think so, they should match those in sitestats, and be separate
-mutable struct PointData <: SEPointData
+mutable struct PointData <: SEPoints
     coords::Matrix{Float64}
 end
 
@@ -42,7 +38,7 @@ mutable struct GridData <: SEGrid
     grid::GridTopology
 end
 
-mutable struct Locations{T<:Union{GridData, PointData}} <: SELocations
+mutable struct Locations{T<:Union{GridData, PointData}} <: SELocations{T}
     coords::T
     sitestats::DataFrames.DataFrame
     function Locations{T}(coords, sitestats = DataFrames.DataFrame(id = 1:size(coords,1))) where T
@@ -73,8 +69,8 @@ end
 SpeciesData(commatrix::ComMatrix{D}, traits) where D<:Real = SpeciesData{D}(commatrix, traits)
 
 # Not really sure what this type is for
-mutable struct SiteData{S} <: SESpatialData where S <: Locations
-    site::S
+mutable struct SiteData{T<:Union{GridData, PointData}} <: SESpatialData{T}
+    site::T
 end
 
 abstract type SEAssemblage{D<:Real, T<:SEThings, P<:SELocations} <: EcoBase.AbstractAssemblage{D, T, P} end

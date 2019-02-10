@@ -133,7 +133,7 @@ function createsitenames(coords::DataFrames.DataFrame)
 end
 
 creategrid(coords::AbstractMatrix{<:Union{AbstractFloat, Missing}}, tolerance = sqrt(eps())) =
-    GridTopology(gridvar(coords[:,1], tolerance)..., gridvar(coords[:,2], tolerance)...)
+    GridTopology(gridvar(coords[:,1], tolerance), gridvar(coords[:,2], tolerance))
 
 # could allow for n-dimensional binning, using code from StatsBase.Histogram
 function gridvar(x, tolerance = sqrt(eps()))
@@ -158,11 +158,11 @@ function gridvar(x, tolerance = sqrt(eps()))
   min = minimum(sux)
   cellnumber = round(Int, maxrange(sux) / cellsize) + 1
 
-  min, cellsize, cellnumber
+  range(min, step = cellsize, length = cellnumber)
 end
 
 function getindices(coords::AbstractMatrix{<:Union{AbstractFloat, Missing}}, grid::GridTopology, tolerance = 2*sqrt(eps()))
-  index1 = 1 .+ floor.(Int,(coords[:,1] .- grid.xmin) ./ grid.xcellsize .+ tolerance)
-  index2 = 1 .+ floor.(Int,(coords[:,2] .- grid.ymin) ./ grid.ycellsize .+ tolerance)
+  index1 = 1 .+ floor.(Int,(coords[:,1] .- xmin(grid)) ./ xcellsize(grid) .+ tolerance)
+  index2 = 1 .+ floor.(Int,(coords[:,2] .- ymin(grid)) ./ ycellsize(grid) .+ tolerance)
   hcat(index1, index2)
 end
