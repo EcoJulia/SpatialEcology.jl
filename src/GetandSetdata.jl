@@ -90,3 +90,6 @@ end
 macro sitestats(x, expr)
     :(@with(sitestats($x), $expr))
 end
+
+dispersionfield(asm::EcoBase.AbstractAssemblage, site) =
+    occurrences(asm)' * placeoccurrences(asm, site)

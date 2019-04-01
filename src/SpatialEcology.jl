@@ -33,6 +33,7 @@ export sitetotals, speciestotals, getspecies, getsite
 export groupspecies, groupsites
 export @with, @traits, @sitestats
 export matrixrandomizer, matrixrandomizations
+export dispersionfield
 
 include("DataTypes.jl")
 include("Constructor_helperfunctions.jl")
@@ -45,7 +46,6 @@ include("GetandSetdata.jl")
 include("Gridfunctions.jl")
 include("Grouping.jl")
 include("Randomizations.jl")
-include("DispersionFields.jl")
 include("PlotRecipes.jl")
 
 end # module
