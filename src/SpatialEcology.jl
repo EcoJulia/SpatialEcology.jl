@@ -20,7 +20,7 @@ import RecipesBase
 import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr
 import StatsBase: nquantile
 
-export SiteData, ComMatrix, Assemblage, coordtype, DispersionField #types and their constructors
+export SiteData, ComMatrix, Assemblage, coordtype #types and their constructors
 export AbstractComMatrix
 export nspecies, nsites, occupancy, richness, nrecords, sitenames, speciesnames, coordinates
 export occurring, noccurring, occupied, noccupied, occurrences, cooccurring
