@@ -132,7 +132,7 @@ function createsitenames(coords::DataFrames.DataFrame)
   ["$(coords[i,1])_$(coords[i,2])" for i in 1:DataFrames.nrow(coords)]
 end
 
-creategrid(coords::AbstractMatrix{<:Union{AbstractFloat, Missing}}, tolerance = sqrt(eps())) =
+creategrid(coords::AbstractMatrix{<:Union{Number, Missing}}, tolerance = sqrt(eps())) =
     GridTopology(gridvar(coords[:,1], tolerance), gridvar(coords[:,2], tolerance))
 
 # could allow for n-dimensional binning, using code from StatsBase.Histogram
@@ -140,18 +140,18 @@ function gridvar(x, tolerance = sqrt(eps()))
   sux = sort(unique(x))
   difx = diff(sux)
   length(difx) == 0 && error("Cannot make a grid with width 1 in the current implementation") #TODO
-  rudifx = [extrema(unique(difx))...]
-  if rudifx[1]/rudifx[2] < tolerance
-    difx = difx[difx .> rudifx[2] * tolerance]
-    rudifx = [extrema(unique(difx))...]
+  rudifxmin, rudifxmax = extrema(unique(difx))
+  if rudifxmax/rudifxmin < tolerance
+    filter!(x->x>rudifxmax * tolerance, difx)
+    rudifxmin, rudifxmax = extrema(unique(difx))
   end
 
-  err1 = diff(rudifx)[1]
+  err1 = rudifxmax - rudifxmin
   if err1 > tolerance
-    xx = rudifx ./ minimum(rudifx)
+    xx = [1, rudifxmax / rudifxmin]
     err2 = maximum(abs.(floor.(xx) - xx))
     err2  > tolerance && error("Cannot be converted to grid, as coordinate intervals are not constant. Try adjusting the tolerance (currently $tolerance)")
-    difx = difx[difx .< rudifx[1] + tolerance]
+    difx = difx[difx .< rudifxmin + tolerance]
   end
 
   cellsize = mean(difx)
