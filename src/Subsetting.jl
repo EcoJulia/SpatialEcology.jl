@@ -60,7 +60,7 @@ view(gd::SEGrid, sites) = SubGridData(view(gd.indices, sites, :), gd.grid)
 view(lo::SELocations, sites) = SubLocations{SubGridData}(view(lo.coords, sites), view(lo.sitestats, sites, :))
 view(sp::SESpatialData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
 
- function view(asm::SEAssemblage{D, P}; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false) where D where P
+ function view(asm::SEAssemblage{D}; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false) where D
     sit = asindices(sites, sitenames(asm))
     spec = asindices(species, speciesnames(asm))
     occ = view(asm.occ, species = spec, sites = sit)
