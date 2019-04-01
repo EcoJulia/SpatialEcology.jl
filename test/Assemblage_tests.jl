@@ -20,4 +20,9 @@ using Test
 
     # views
     va = view(amph, species = 1:10)
+
+    #operations
+    amp2 = aggregate(amph, 2)
+    @test sum(richness(amp2)) == 2948
+    @test nsites(amp2) == 298
 end
