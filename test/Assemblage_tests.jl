@@ -26,7 +26,7 @@ using Test
     @test sum(richness(amp2)) == 2948
     @test nsites(amp2) == 298
 
-    pointamph = Assemblage(amphdat[4:end], amphdat[1:3], sitecolumns = false, cdtype = points)
+    pointamph = Assemblage(amphdat[4:end], amphdat[1:3], sitecolumns = false, cdtype = SpatialEcology.pointdata)
     amp3 = aggregate(pointamph, 2)
     @test amp3 == amp2
 end
