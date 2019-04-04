@@ -1,14 +1,19 @@
+#------------------
+# aggregate
 
-#aggregate(sd::SpeciesData{D}) where D =
-#function aggregate(com::ComMatrix{T}, factor, fun = :auto) where {T}
+"""
+    aggregate(object, grid [, fun])
 
+Aggregate `object` (either an `Assemblage` or `Locations` type) to `grid`.
+If `object` is an `Assemblage{PointData}` this will grid all points and return an
+`Assemblage{GridData}`. `grid` can be a `GridTopology` or a single `Integer`
+signifying the aggregation factor for already gridded data, the cellsize for
+point data. `fun` is an optional function specifying how to lump occurrences. If
+not specified the default function is `any` for Boolean Assemblages and `sum` for
+Integer ones.
+"""
 aggregate(lo::SELocations, factor) = Locations{GridData}(aggregate(lo.coords, factor))
 aggregate(gr::GridTopology, factor) = GridTopology(gr.xs[1]:step(gr.xs)*factor:gr.xs[end], gr.ys[1]:step(gr.ys)*factor:gr.ys[end])
-
-
-#aggregate(asm::SEAssemblage{D, T, P}, factor::Integer, fun = :auto; data_function = :auto) where D where T where P <: SEGrid =
-#    Assemblage{D, GridData}(aggregate(asm.site, factor, fun; data_function), aggregate_grid(asm.occ, factor, fun; data_function))
-
 aggregate(gr::SEGrid, factor::Integer) = (g = aggregate(gr.grid, factor); aggregate(gr, g))
 aggregate(gr::SEGrid, newgrid::GridTopology) = (ind = apply_grid(gr, newgrid); GridData(sortslices(unique(ind, dims = 1), dims = 1), newgrid))
 
