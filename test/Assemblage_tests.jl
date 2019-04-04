@@ -20,4 +20,13 @@ using Test
 
     # views
     va = view(amph, species = 1:10)
+
+    #operations
+    amp2 = aggregate(amph, 2)
+    @test sum(richness(amp2)) == 2948
+    @test nsites(amp2) == 298
+
+    pointamph = Assemblage(amphdat[4:end], amphdat[1:3], sitecolumns = false, cdtype = points)
+    amp3 = aggregate(pointamph, 2)
+    @test amp3 == amp2
 end

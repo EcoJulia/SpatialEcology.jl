@@ -41,7 +41,7 @@ end
 mutable struct Locations{T<:Union{GridData, PointData}} <: SELocations{T}
     coords::T
     sitestats::DataFrames.DataFrame
-    function Locations{T}(coords, sitestats = DataFrames.DataFrame(id = 1:nsites(coords))) where T
+    function Locations{T}(coords, sitestats = DataFrames.DataFrame(sites = string.(1:nsites(coords)))) where T
         DataFrames.nrow(sitestats) == nsites(coords) || throw(DimensionMismatch("Wrong number of rows in sitestat")) # a little check for the right number
         new(coords, sitestats)
     end

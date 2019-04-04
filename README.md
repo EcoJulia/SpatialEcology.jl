@@ -90,3 +90,19 @@ extrema(coordinates(triturus), 1)
     #  (-10.5, 29.5)  (34.5, 70.5)
     # Triturus exists between latitudes 34 and 71 in Europe
 ```
+
+## Aggregation and other operations
+Aggregate by an integer factor, or by supplying a new GridTopology
+```julia
+amp2 = aggregate(amph, 2)
+default(c = :Spectral_r)
+plot(plot(amph), plot(amp2))
+```
+![](img/aggregate.png)
+
+Show the dispersion field (Graves & Rahbek 2005 PNAS) of a site
+```julia
+clibrary(:colorcet)
+plot(dispersionfield(amph, 50), amph, c = :rainbow)
+```
+![](img/dispfield.png)
