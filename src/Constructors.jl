@@ -143,3 +143,6 @@ function GridData(coords::AbstractMatrix{<:Union{AbstractFloat, Missing}})
     indices = getindices(coords, grid)
     GridData(indices, grid)
 end
+
+GridTopology(min_x, max_x, cellsize_x, min_y, max_y, cellsize_y) =
+    GridTopology(range(min_x, stop = max_x, step = cellsize_x), range(min_y, stop = max_y, step = cellsize_y))
