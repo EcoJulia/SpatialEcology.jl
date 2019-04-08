@@ -162,7 +162,7 @@ function gridvar(x, tolerance = sqrt(eps()))
 end
 
 function getindices(coords::AbstractMatrix{<:Union{AbstractFloat, Missing}}, grid::GridTopology, tolerance = 2*sqrt(eps()))
-  index1 = 1 .+ floor.(Int,(coords[:,1] .- xmin(grid)) ./ xcellsize(grid) .+ tolerance)
-  index2 = 1 .+ floor.(Int,(coords[:,2] .- ymin(grid)) ./ ycellsize(grid) .+ tolerance)
+  index1 = 1 .+ floor.(Int,(coords[:,1] .- xmin(grid) .+ 0.5xcellsize(grid)) ./ xcellsize(grid) .+ tolerance)
+  index2 = 1 .+ floor.(Int,(coords[:,2] .- ymin(grid) .+ 0.5xcellsize(grid)) ./ ycellsize(grid) .+ tolerance)
   hcat(index1, index2)
 end
