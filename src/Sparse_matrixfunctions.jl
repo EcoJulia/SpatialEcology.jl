@@ -53,7 +53,7 @@ function nzcols(b::SubArray{T,2,P,Tuple{Vector{Int64},Vector{Int64}}} where {T,P
         sortedintersecting(b.parent.rowval[nzrange(b.parent,i)], brows)]
 end
 
-function nzcols(b::SubArray{T,2,P,Tuple{UnitRange{Int64},UnitRange{Int64}}} where {T,P<:SparseMatrixCSC}
+function nzcols(b::SubArray{T,2,P,M} where {T,P<:SparseMatrixCSC, M<:Tuple{AbstractUnitRange{Int64},AbstractUnitRange{Int64}}}
   )
     @inbounds return collect(i+1-start(b.indices[2])
       for i in b.indices[2]
@@ -61,7 +61,7 @@ function nzcols(b::SubArray{T,2,P,Tuple{UnitRange{Int64},UnitRange{Int64}}} wher
         inrange(b.parent.rowval[nzrange(b.parent,i)], b.indices[1]))
 end
 
-function nzcols(b::SubArray{T,2,P,Tuple{UnitRange{Int64},Vector{Int64}}} where {T,P<:SparseMatrixCSC}
+function nzcols(b::SubArray{T,2,P,M} where {T,P<:SparseMatrixCSC, M<:Tuple{AbstractUnitRange{Int64},Vector{Int64}}}
   )
   @inbounds return [k
     for (k,i) in enumerate(b.indices[2])
@@ -69,7 +69,7 @@ function nzcols(b::SubArray{T,2,P,Tuple{UnitRange{Int64},Vector{Int64}}} where {
         inrange(b.parent.rowval[nzrange(b.parent,i)], b.indices[1])]
 end
 
-function nzcols(b::SubArray{T,2,P,Tuple{Vector{Int64},UnitRange{Int64}}} where {T,P<:SparseMatrixCSC}
+function nzcols(b::SubArray{T,2,P,M} where {T,P<:SparseMatrixCSC,M<:Tuple{Vector{Int64},AbstractUnitRange{Int64}}}
   )
     brows = sort(unique(b.indices[1]))
     @inbounds return collect(i+1-start(b.indices[2])
@@ -92,7 +92,7 @@ function findin2(inds,v,w)
     return res
 end
 
-function nzrows(b::SubArray{T,2,P,Tuple{Vector{Int64}, U}} where {T,P<:SparseMatrixCSC, U<:Union{UnitRange{Int64}, Vector{Int}}}
+function nzrows(b::SubArray{T,2,P,Tuple{Vector{Int64}, U}} where {T,P<:SparseMatrixCSC, U<:Union{M, Vector{Int}}} where {M <: AbstractUnitRange{Int64}}
   )
     active = falses(length(b.indices[1]))
     inds = sortperm(b.indices[1])
@@ -103,13 +103,13 @@ function nzrows(b::SubArray{T,2,P,Tuple{Vector{Int64}, U}} where {T,P<:SparseMat
     return findall(active)
 end
 
-function nzrows(b::SubArray{T,2,P,Tuple{UnitRange{Int64}, U}} where {T,P<:SparseMatrixCSC, U<:Union{UnitRange{Int64}, Vector{Int}}}
+function nzrows(b::SubArray{T,2,P,Tuple{M, U}} where {T,P<:SparseMatrixCSC, U<:Union{M, Vector{Int}}} where M <: AbstractUnitRange{Int64}
   )
     active = falses(length(b.indices[1]))
     @inbounds for c in b.indices[2]
         for r in nzrange(b.parent,c)
             if b.parent.rowval[r] in b.indices[1]
-                active[b.parent.rowval[r]+1-start(b.indices[1])] .= true
+                active[b.parent.rowval[r]+1-first(b.indices[1])] = true
             end
         end
     end
