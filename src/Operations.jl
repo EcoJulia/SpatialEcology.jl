@@ -31,9 +31,26 @@ function aggregate(asm::SEAssemblage{D}, gt::GridTopology, fun = _default_fun(D)
 
     # fill a new occurrence matrix
     retmat = spzeros(D, nspecies(asm), size(tmpsites, 1))
+
+    # get a dictionary of the indices of each new group
+    groupinds = Dict{typeof(first(eachrow(tmpgrid))), Vector{Int}}()
+    for (i, row) in enumerate(eachrow(tmpgrid))
+        if haskey(groupinds, row)
+            push!(groupinds[row], i)
+        else
+            groupinds[row] = [i]
+        end
+    end
+
     for newcell in axes(tmpsites, 1)
-        inds = findall(x->tmpgrid[x, :] == tmpsites[newcell, :], 1:size(tmpgrid, 1))
-        retmat[:, newcell] = mapslices(fun, view(occurrences(asm), :, inds), dims = 2)
+        inds = groupinds[tmpsites[newcell, :]]
+        if fun === Base.any
+            retmat[nzrows(view(occurrences(asm), :, inds)), newcell] .= true
+        elseif fun === Base.sum
+            retmat[:, newcell] .= vec(colsum(view(occurrences(asm), :, inds)))
+        else
+            retmat[:, newcell] .= vec(mapslices(fun, occurrences(asm)[:, inds], dims = 2))
+        end
     end
 
     #build the basic objects
