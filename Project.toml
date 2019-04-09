@@ -1,5 +1,10 @@
 name = "SpatialEcology"
 uuid = "348f2d5d-71a3-5ad4-b565-8af070f99681"
+keywords = ["macroecology", "ecology", "biology", "geography"]
+license = "MIT"
+desc = "Julia framework for spatial ecology"
+authors = ["mkborregaard <mkborregaard@snm.ku.dk"]
+version = "0.7.1"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
