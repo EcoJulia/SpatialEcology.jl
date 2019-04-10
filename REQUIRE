@@ -1,4 +1,4 @@
-julia 0.7
+julia 1.1
 
 RecipesBase
 DataFrames 0.15

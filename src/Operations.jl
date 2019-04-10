@@ -75,8 +75,8 @@ end
 _apply_grid(pt::SEPoints, newgrid::GridTopology) = getindices(coordinates(pt), newgrid)
 
 function _range_from_factor(mi, ma, factor; inmin = nothing)
-    newmin = inmin === nothing ? (floor(mi / factor) + 0.5) * factor : inmin
-    newmax = inmin === nothing ? (ceil(ma/factor) - 0.5) * factor : floor((ma - inmin) / factor) * factor + inmin
+    newmin = isnothing(inmin) ? (floor(mi / factor) + 0.5) * factor : inmin
+    newmax = isnothing(inmin) ? (ceil(ma/factor) - 0.5) * factor : floor((ma - inmin) / factor) * factor + inmin
     range(newmin, stop = newmax, step = factor)
 end
 
