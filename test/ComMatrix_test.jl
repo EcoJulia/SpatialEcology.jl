@@ -1,6 +1,7 @@
 using SparseArrays
 using Random
 using SpatialEcology
+using Distances
 using Test
 
 @testset "ComMatrix" begin
@@ -92,6 +93,8 @@ using Test
     @test cooccurring(cmb, 1, 3) == [true, true, true, true, true, false, true, false]
     @test cooccurring(cmf, [8, 3]) == [false, true, false, true, true, true, false, true, true, true, true]
 
+    dist = pairwise(BrayCurtis(), view(cmi, sites=1:2))
+    @test round.(dist, digits=1) == [0.0 0.5; 0.5 0.0]
   # getindex and setindex are to do
 
 end

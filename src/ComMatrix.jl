@@ -112,4 +112,4 @@ end
 
 # Extend Distances interface for pairwise distances
 
-pairwise(m::PreMetric, com::AbstractComMatrix) = Distances.pairwise(m, occurences(com))
+pairwise(m::PreMetric, com::AbstractComMatrix; dims=2) = pairwise(m, collect(occurrences(com)), dims=dims)

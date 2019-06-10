@@ -20,7 +20,7 @@ import EcoBase: nthings, nplaces, occupancy, richness, nrecords, placenames, thi
 import RecipesBase
 import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr
 import StatsBase: nquantile
-import Disatances: pairwise, PreMetric
+import Distances: pairwise, PreMetric
 
 export SiteData, ComMatrix, Assemblage, coordtype #types and their constructors
 export AbstractComMatrix
