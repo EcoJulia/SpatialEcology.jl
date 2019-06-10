@@ -109,3 +109,7 @@ function getindex(com::SEAssemblage, ind::Symbol)
         error("No such name in traits or sitestats")
     end
 end
+
+# Extend Distances interface for pairwise distances
+
+pairwise(m::PreMetric, com::AbstractComMatrix) = Distances.pairwise(m, occurences(com))
