@@ -20,6 +20,7 @@ import EcoBase: nthings, nplaces, occupancy, richness, nrecords, placenames, thi
 import RecipesBase
 import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr
 import StatsBase: nquantile
+import Distances: pairwise, PreMetric
 
 export SiteData, ComMatrix, Assemblage, coordtype #types and their constructors
 export AbstractComMatrix
@@ -36,6 +37,7 @@ export aggregate
 export @with, @traits, @sitestats
 export matrixrandomizer, matrixrandomizations
 export dispersionfield
+export pairwise
 
 include("DataTypes.jl")
 include("Constructor_helperfunctions.jl")
