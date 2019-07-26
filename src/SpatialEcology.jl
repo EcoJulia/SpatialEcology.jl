@@ -1,6 +1,7 @@
 __precompile__(true)
 module SpatialEcology
 
+using Tables
 using DataFrames
 import DataFrames: aggregate
 import DataFramesMeta: @with
