@@ -53,5 +53,6 @@ include("Grouping.jl")
 include("Operations.jl")
 include("Randomizations.jl")
 include("PlotRecipes.jl")
+include("TablesInterface.jl")
 
 end # module
