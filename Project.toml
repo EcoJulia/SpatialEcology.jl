@@ -21,6 +21,9 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 StatsBase = "0.32"
+DataFramesMeta = "0.5"
+RandomBooleanMatrices = "0.1"
+DataFrames = "0.20"
 
 [extras]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
