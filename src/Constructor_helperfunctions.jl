@@ -21,9 +21,9 @@ end
 function parsesingleDataFrame(occ::DataFrames.DataFrame)
     if isWorldmapData(occ)
       println("Data format identified as Worldmap export file")
-      coords = occ[4:5]
-      coords[:sites] = createsitenames(coords)
-      occ = DataFrame(site = coords[:sites], abu = ones(Int, DataFrames.nrow(occ)), species = occ[1])
+      coords = occ[!,4:5]
+      coords[!,:sites] = createsitenames(coords)
+      occ = DataFrame(site = coords[!,:sites], abu = ones(Int, DataFrames.nrow(occ)), species = occ[!,1])
       coords = unique(coords, :sites)
     else
         error("If coords is not specified, data must be in the worldmap format - of the column format [speciesnames, (ignored), (ignored), longitude, latitude]")

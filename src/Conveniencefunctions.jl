@@ -15,5 +15,5 @@ function asquantiles(x::AbstractVector, n::Int)
     ret
 end
 
-eltypest(df) = map(x->Base.nonmissingtype(x), eltypes(df))
+eltypest(df) = map(x->Base.nonmissingtype(x), eltype.(eachcol(df)))
 eltypet(x) = Base.nonmissingtype(eltype(x))
