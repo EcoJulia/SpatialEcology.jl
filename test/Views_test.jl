@@ -26,7 +26,7 @@ using SparseArrays
     @test nrecords(vcom) == nrecords(comc)
     @test size(vcom) == size(comc)
     @test cooccurring(vcom, 1,3,4) == cooccurring(comc, [1,3,4])
-    @test cooccurring(vcom, 3:5) == [false, true, false, true, false]
+    @test cooccurring(vcom, 3:5) == [false, false, true, false, false]
 
     @test SpatialEcology.asindices(1:5) == 1:5
     @test SpatialEcology.asindices([1,2,4]) == [1,2,4]

@@ -24,13 +24,13 @@ using Test
 
     @test ComMatrix(Matrix(datf)).occurrences == ComMatrix(datf).occurrences
 
-    @test occupancy(cmb) == [6, 6, 8, 7, 7, 8, 8, 8, 6, 6, 6, 7]
-    @test occupancy(cmi) == [11, 13, 10, 12, 12, 13, 9, 13]
-    @test occupancy(cmf) == [10, 10, 9, 10, 11, 8, 8, 10, 9]
+    @test occupancy(cmb) == [8, 7, 7, 8, 8, 6, 6, 7, 8, 6, 6, 8]
+    @test occupancy(cmi) == [11, 12, 11, 13, 10, 13, 10, 12]
+    @test occupancy(cmf) == [9, 9, 9, 10, 9, 10, 11, 11, 8]
 
-    @test richness(cmb) == [12, 11, 10, 10, 11, 10, 12, 7]
-    @test richness(cmi) == [7, 7, 8, 8, 5, 8, 8, 7, 8, 6, 6, 8, 7]
-    @test richness(cmf) == [8, 8, 8, 9, 8, 8, 8, 7, 7, 7, 7]
+    @test richness(cmb) == [11, 12, 11, 9, 11, 10, 11, 10]
+    @test richness(cmi) == [7, 7, 7, 6, 8, 8, 6, 7, 8, 8, 7, 6, 7]
+    @test richness(cmf) == [8, 7, 8, 7, 7, 8, 8, 8, 7, 9, 9]
 
     @test nsites(cmb) == 8
     @test nsites(cmi) == 13
@@ -56,10 +56,10 @@ using Test
     @test noccupied(cmi) == 13
     @test noccupied(cmf) == 11
 
-    @test getspecies(cmb, 4) == [true, true, true, true, true, true, true, false]
-    @test getspecies(cmi, 2) == [48, 89, 34, 39, 29, 73, 49, 23, 62, 71, 60, 57, 19]
+    @test getspecies(cmb, 3) == [false, true, true, true, true, true, true, true]
+    @test getspecies(cmi, 2) == [15, 15, 0, 2, 28, 99, 25, 29, 23, 90, 96, 7, 43]
     gcm = getspecies(cmf, 6)
-    @test gcm[3] == 0.37980641711782925
+    @test gcm[3] == 0.08724510824225518
     @test gcm isa SubArray
 
     @test speciesnames(cmi)[8] == "sp8"
@@ -76,25 +76,25 @@ using Test
     @test length(speciesnames(cmi)) == nspecies(cmi)
     @test length(speciesnames(cmb)) == nspecies(cmb)
 
-    @test sitetotals(cmb) == [12, 11, 10, 10, 11, 10, 12, 7]
+    @test sitetotals(cmb) == [11, 12, 11, 9, 11, 10, 11, 10]
     @test sitetotals(cmb) == richness(cmb)
-    @test sitetotals(cmi) == [334, 352, 466, 443, 139, 339, 314, 448, 414, 303, 473, 411, 275]
+    @test sitetotals(cmi) == [351, 228, 359, 291, 357, 496, 319, 242, 297, 356, 443, 316, 357]
     @test length(sitetotals(cmf)) == nsites(cmf)
-    @test sitetotals(cmf)[5] ≈ 4.52174342959108
+    @test sitetotals(cmf)[5] ≈ 2.918329485324914
 
     @test speciestotals(cmb) == occupancy(cmb)
-    @test speciestotals(cmi) == [474, 653, 501, 577, 777, 521, 464, 744]
+    @test speciestotals(cmi) == [511, 472, 599, 620, 423, 664, 464, 659]
     @test length(speciestotals(cmf)) == nspecies(cmf)
-    @test speciestotals(cmf)[8] ≈ 6.542348823677926
+    @test speciestotals(cmf)[8] ≈ 4.780138474567269
 
     @test size(cmb) == (12, 8)
     @test size(cmi, 1) == 8
 
-    @test cooccurring(cmb, 1, 3) == [true, true, true, true, true, false, true, false]
-    @test cooccurring(cmf, [8, 3]) == [false, true, false, true, true, true, false, true, true, true, true]
+    @test cooccurring(cmb, 1, 3) == [false, true, true, true, true, true, true, true]
+    @test cooccurring(cmf, [8, 3]) == [true, true, true, false, true, false, true, true, true, true, true]
 
     dist = pairwise(BrayCurtis(), view(cmi, sites=1:2))
-    @test round.(dist, digits=1) == [0.0 0.5; 0.5 0.0]
+    @test round.(dist, digits=1) == [0.0 0.3; 0.3 0.0]
   # getindex and setindex are to do
 
 end
