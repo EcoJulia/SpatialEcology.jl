@@ -57,6 +57,7 @@ using Test
     @test noccupied(cmf) == 11
 
     @test getspecies(cmb, 3) == [false, true, true, true, true, true, true, true]
+    @test getspecies(cmb, "species2") == [true, true, true, true, false, true, true, true]
     @test getspecies(cmi, 2) == [15, 15, 0, 2, 28, 99, 25, 29, 23, 90, 96, 7, 43]
     gcm = getspecies(cmf, 6)
     @test gcm[3] == 0.08724510824225518

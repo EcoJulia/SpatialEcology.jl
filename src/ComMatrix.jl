@@ -35,10 +35,10 @@ nplaces(pd::PointData) = size(pd.coords, 1)
 nrecords(com::AbstractComMatrix) = _nnz(occurrences(com))
 
 const getspecies = thingoccurrences
-thingoccurrences(com::AbstractComMatrix, idx) = thingoccurrences(occurrences(com), idx)
+thingoccurrences(com::AbstractComMatrix, idx) = thingoccurrences(occurrences(com), asindices(idx, thingnames(com)))
 
 const getsite = placeoccurrences
-placeoccurrences(com::AbstractComMatrix, idx) = placeoccurrences(occurrences(com), idx)
+placeoccurrences(com::AbstractComMatrix, idx) = placeoccurrences(occurrences(com), asindices(idx, placenames(com)))
 
 const speciesnames = thingnames
 thingnames(com::AbstractComMatrix) = com.speciesnames
