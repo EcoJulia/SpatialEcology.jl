@@ -11,7 +11,7 @@ import RandomNumbers.Xorshifts: Xoroshiro128Plus
 import RandomBooleanMatrices: matrixrandomizer, MatrixGenerator
 
 import EcoBase
-import EcoBase: nthings, nplaces, occupancy, richness, nrecords, placenames, thingnames,
+import EcoBase: asindices, nthings, nplaces, occupancy, richness, nrecords, placenames, thingnames,
         occurring, noccurring, occupied, noccupied, occurrences,
         placeoccurrences, thingoccurrences, cooccurring, places, things,
         indices, coordinates, xcells, ycells, cells, xmin, xmax, ymin, ymax,
