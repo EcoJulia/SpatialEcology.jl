@@ -28,7 +28,7 @@ occurrences(cm::AbstractComMatrix) = cm.occurrences
 
 function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::Symbol; validate = true, tolerance = 0.5, makeunique = false)
     if validate
-        dif, left, right = length(intersect(newtraits[species], speciesnames(asm))), nspecies(asm), size(newtraits,1)
+        dif, left, right = length(intersect(newtraits[!,species], speciesnames(asm))), nspecies(asm), size(newtraits,1)
         max(dif/left, dif/right) == 0 && error("No match between species names, aborting join")
         println("$dif matching species names,\n",
                 "\t$(signif(100*dif/left,3))% of $left species in the Assemblage\n",
@@ -46,12 +46,12 @@ end
 
 function addtraits!(asm::Assemblage, newtraits::AbstractVector, name::Union{String, Symbol})
     length(newtraits) == nspecies(asm) || error("Cannot add a vector of length $(length(newtraits)) to an Assemblage with $(nspecies(asm)) species")
-    asm.occ.traits[Symbol(name)] = newtraits
+    asm.occ.traits[!,Symbol(name)] = newtraits
 end
 
 function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::Symbol; validate = true, tolerance = 0.5, makeunique = false)
     if validate
-        dif, left, right = length(intersect(newsites[sites], sitenames(asm))) , nsites(asm), size(newsites,1)
+        dif, left, right = length(intersect(newsites[!,sites], sitenames(asm))) , nsites(asm), size(newsites,1)
         max(dif/left, dif/right) == 0 && error("No match between site names, aborting join")
         println("$dif matching site names,\n",
                 "\t$(round(100*dif/left, sigdigits = 3))% of $left sites in the Assemblage\n",
@@ -69,7 +69,7 @@ end
 
 function addsitestats!(asm::Assemblage, newsites::AbstractVector, name::Union{String, Symbol})
     length(newsites) == nsites(asm) || error("Cannot add a vector of length $(length(newsites)) to an Assemblage with $(nsites(asm)) sites")
-    asm.site.sitestats[Symbol(name)] = newsites
+    asm.site.sitestats[!,Symbol(name)] = newsites
 end
 #
 # function assemblagejoin!(df1::AbstractDataFrame, df2::AbstractDataFrame, on_left::Symbol, on_right::Symbol)

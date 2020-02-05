@@ -46,7 +46,7 @@ thingnames(com::AbstractComMatrix) = com.speciesnames
 const sitenames = placenames
 placenames(com::AbstractComMatrix) = com.sitenames
 placenames(sd::SiteData) = sitenames(sd.site)
-placenames(sd::SELocations) = collect(sd.sitestats[:sites])
+placenames(sd::SELocations) = sd.sitestats[:,:sites]
 
 
 sitetotals(com::AbstractComMatrix) = vec(colsum(com.occurrences))
@@ -102,13 +102,27 @@ end
 
 function getindex(com::SEAssemblage, ind::Symbol)
     if ind in names(com.site.sitestats)
-        return com.site.sitestats[ind]
+        return com.site.sitestats[:,ind]
     elseif ind in names(com.occ.traits)
-        return com.occ.traits[ind]
+        return com.occ.traits[:,ind]
     else
         error("No such name in traits or sitestats")
     end
 end
+
+getindex(com::SEAssemblage, ::Colon, ind::Symbol) = getindex(com, ind)
+
+function getindex(com::SEAssemblage, ::typeof(!), ind::Symbol)
+    if ind in names(com.site.sitestats)
+        return com.site.sitestats[!,ind]
+    elseif ind in names(com.occ.traits)
+        return com.occ.traits[!,ind]
+    else
+        error("No such name in traits or sitestats")
+    end
+end
+
+
 
 # Extend Distances interface for pairwise distances
 

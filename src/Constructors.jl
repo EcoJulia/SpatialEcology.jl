@@ -23,7 +23,7 @@ function Assemblage(occ::ComMatrix, coords::DataFrames.DataFrame; kwargs...)
     elseif DataFrames.ncol(coords) == 3
         xind, yind = guess_xycols(coords)
         siteind = setdiff(1:3, [xind, yind])[1]
-        coords = convert(Matrix, coords[[xind, yind]])
+        coords = convert(Matrix, coords[!,[xind, yind]])
     else
         error("coords must be a DataFrame with a column for sites and two columns for coordinates")
     end
@@ -72,17 +72,17 @@ end
 function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
     if DataFrames.ncol(occ) == 3 && eltypest(occ)[3] <: AbstractString
         println("Data format identified as Phylocom")
-        sites = unique(occ[1])
-        species = unique(occ[3])
-        js = indexin(occ[1], sites)
-        is = indexin(occ[3], species)
-        occ = maximum(occ[2]) == 1 ? sparse(is, js, true) : sparse(is, js, occ[2])
+        sites = unique(occ[!,1])
+        species = unique(occ[!,3])
+        js = indexin(occ[!,1], sites)
+        is = indexin(occ[!,3], species)
+        occ = maximum(occ[!,2]) == 1 ? sparse(is, js, true) : sparse(is, js, occ[2])
         return ComMatrix(occ, string.(collect(species)), string.(collect(sites)))
     end
 
-    if eltypet(occ[1]) <: AbstractString
-        species = string.(collect(occ[1]))
-        occ = occ[2:end]
+    if eltypet(occ[!,1]) <: AbstractString
+        species = string.(occ[:,1])
+        occ = occ[!,2:end]
         sites = string.(collect(names(occ)))
     else
         species = string.(1:DataFrames.nrow(occ))
