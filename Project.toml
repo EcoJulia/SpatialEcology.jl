@@ -22,7 +22,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 [compat]
 DataFrames = "0.20"
 DataFramesMeta = "0.5"
-Distances = "0.8"
+Distances = "0.8, 0.9"
 EcoBase = "0.1.1"
 RandomBooleanMatrices = "0.1"
 RandomNumbers = "1.4"
