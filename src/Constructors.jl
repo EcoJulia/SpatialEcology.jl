@@ -83,10 +83,10 @@ function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
     if eltypet(occ[!,1]) <: AbstractString
         species = string.(occ[:,1])
         occ = occ[!,2:end]
-        sites = string.(collect(names(occ)))
+        sites = names(occ)
     else
         species = string.(1:DataFrames.nrow(occ))
-        sites = string.(collect(names(occ)))
+        sites = names(occ)
     end
 
     try

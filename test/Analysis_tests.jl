@@ -5,10 +5,10 @@ using Test
 using Plots
 
 @testset "Analysis" begin
-    amphdat = CSV.read(joinpath(dirname(pathof(SpatialEcology)), "..", "data", "amph_Europe.csv"))
+    amphdat = CSV.read(joinpath(dirname(pathof(SpatialEcology)), "..", "data", "amph_Europe.csv"), DataFrame)
     amph = Assemblage(amphdat[!,4:end], amphdat[!,1:3], sitecolumns = false)
     addtraits!(amph, asquantiles(occupancy(amph), 4), :quantile)
-    gb = groupspecies(amph, :quantile)
+    gb = groupspecies(amph, :quantile) # error ?
     ps = [plot(g) for g in gb]
     p = ps[4];
 
