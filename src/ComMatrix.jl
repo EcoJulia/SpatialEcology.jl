@@ -101,9 +101,9 @@ function getindex(site::S, inds) where S<:SELocations
 end
 
 function getindex(com::SEAssemblage, ind::Symbol)
-    if ind in names(com.site.sitestats)
+    if ind in propertynames(com.site.sitestats)
         return com.site.sitestats[:,ind]
-    elseif ind in names(com.occ.traits)
+    elseif ind in propertynames(com.occ.traits)
         return com.occ.traits[:,ind]
     else
         error("No such name in traits or sitestats")
@@ -113,9 +113,9 @@ end
 getindex(com::SEAssemblage, ::Colon, ind::Symbol) = getindex(com, ind)
 
 function getindex(com::SEAssemblage, ::typeof(!), ind::Symbol)
-    if ind in names(com.site.sitestats)
+    if ind in propertynames(com.site.sitestats)
         return com.site.sitestats[!,ind]
-    elseif ind in names(com.occ.traits)
+    elseif ind in propertynames(com.occ.traits)
         return com.occ.traits[!,ind]
     else
         error("No such name in traits or sitestats")

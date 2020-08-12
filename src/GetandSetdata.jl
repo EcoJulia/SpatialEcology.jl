@@ -36,7 +36,7 @@ function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::S
         max(dif/left, dif/right) < tolerance && error("Aborting join, as fit was smaller than the tolerance of $tolerance . To perform the join decrease the tolerance value")
     end
 
-    nm = names(newtraits)
+    nm = propertynames(newtraits)
     rename!(newtraits, species => :name)
     asm.occ.traits = join(asm.occ.traits, newtraits, kind = :left, on = :name, makeunique = makeunique)
     names!(newtraits, nm)
@@ -60,7 +60,7 @@ function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::S
     end
 
     #assemblagejoin!(asm.site.sitestats, newsites, :sites, sites) #TODO this should instead be on the sitenames of the objects and adjusted below
-    nm = names(newsites)
+    nm = propertynames(newsites)
     rename!(newsites, sites => :sites)
     asm.site.sitestats = join(asm.site.sitestats, newsites, kind = :left, on = :sites, makeunique = makeunique)
     names!(newsites, nm)

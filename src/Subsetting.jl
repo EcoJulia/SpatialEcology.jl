@@ -95,8 +95,8 @@ end
 # because I cannot define a new copy method for DataFrames
 function my_dataframe_copy(sdf::AbstractDataFrame)
     ret = DataFrame()
-    for n in names(sdf)
-        ret[n] = sdf[n]
+    for n in propertynames(sdf)
+        ret[!,n] = sdf[:,n]
     end
     ret
 end
