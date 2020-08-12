@@ -4,7 +4,7 @@ using SpatialEcology
 using Test
 
 @testset "Assemblage" begin
-    amphdat = CSV.read(joinpath(dirname(pathof(SpatialEcology)), "..", "data", "amph_Europe.csv"))
+    amphdat = CSV.read(joinpath(dirname(pathof(SpatialEcology)), "..", "data", "amph_Europe.csv"), DataFrame)
     amph = Assemblage(amphdat[!,4:end], amphdat[!,1:3], sitecolumns = false)
 
     @test typeof(amph) == Assemblage{Bool,SpatialEcology.Locations{SpatialEcology.GridData}}
