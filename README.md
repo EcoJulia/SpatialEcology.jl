@@ -25,7 +25,7 @@ This package is part of the [EcoJulia](https://github.com/EcoJulia) organisation
 ## Getting started:
 
 ```julia
-using SpatialEcology, Plots, CSV, DataFrames
+using SpatialEcology, Plots, CSV, DataFrames, Statistics
 
 # the object constructors take a wide range of objects, a typical being a presence-absence matrix as a DataFrame and a 3-column dataframe with coordinates
 amphdata = CSV.read(joinpath(dirname(pathof(SpatialEcology)), "..", "data", "amph_Europe.csv"));
