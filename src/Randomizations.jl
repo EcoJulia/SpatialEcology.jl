@@ -21,13 +21,13 @@ function matrixrandomizer(com::C, rng = Xoroshiro128Plus();
     ret
 end
 
-Random.rand(r::MatrixGenerator{R, <:Assemblage}) where R = copy(rand!(r))
+Random.rand(r::MatrixGenerator{R, <:Assemblage}) where R = copy(Random.rand!(r))
 function Random.rand!(r::MatrixGenerator{R, A}) where {R} where {A <: Assemblage}
     RandomBooleanMatrices._curveball!(r.m.occ.commatrix.occurrences)
     r.m
 end
 
-Random.rand(r::MatrixGenerator{<:ComMatrix}) where R = copy(rand!(r))
+Random.rand(r::MatrixGenerator{<:ComMatrix}) where R = copy(Random.rand!(r))
 function Random.rand!(r::MatrixGenerator{C}) where {C <: ComMatrix}
     RandomBooleanMatrices._curveball!(r.m.occurrences)
     r.m
