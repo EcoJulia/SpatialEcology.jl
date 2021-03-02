@@ -1,7 +1,6 @@
 # SpatialEcology
 
 [![Build Status](https://travis-ci.org/EcoJulia/SpatialEcology.jl.svg?branch=master)](https://travis-ci.org/EcoJulia/SpatialEcology.jl)
-[![0.6](http://pkg.julialang.org/badges/SpatialEcology_0.6.svg)](http://pkg.julialang.org/?pkg=SpatialEcology)
 [![Coverage](https://codecov.io/gh/EcoJulia/SpatialEcology.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/EcoJulia/SpatialEcology.jl)
 
 ### Primary author: Michael Krabbe Borregaard (@mkborregaard)
@@ -12,7 +11,7 @@ This package offers a set of base types for interoperability in spatial ecology.
 
 The emphasis is on fast, flexible code operating mainly with views into the larger dataset. It currently holds fast, specialized code for operations on views into sparse matrices (such as presence-absence matrices). This allows analyses to be done in a split-apply-combine framework.
 
-The package originated as a port of my R package `nodiv`, available from CRAN.
+The package originated as a port of the R package `nodiv`, available from CRAN.
 
 - Types:
     - Assemblage (holds presence-absence information along with information on traits and sites)

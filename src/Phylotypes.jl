@@ -1,19 +1,18 @@
 
 
 
-type PhyloFields
+struct PhyloFields
     phylo::Phylo.Phylogeny
     nodespecies::Matrix{Bool}
 
     function PhyloFields(phylo, nodespecies)
-        (Ntip(phylo) == size(nodespecies, 1) && Nnode(phylo) == size(nodespecies, 2))
-            || throw(DimensionMismatch("Dimension mismatch between nodespecies matrix and phylogeny"))
+        (Ntip(phylo) == size(nodespecies, 1) && Nnode(phylo) == size(nodespecies, 2)) || throw(DimensionMismatch("Dimension mismatch between nodespecies matrix and phylogeny"))
         new(phylo, nodespecies)
     end
 end
 
 
-type PhyloAssemblage{T} <: SEAssemblage # A type to keep subtypes together, ensuring that they are all aligned at all times
+struct PhyloAssemblage{T} <: SEAssemblage # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::SELocations
     occ::SpeciesData{T}
     phy::PhyloFields
