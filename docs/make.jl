@@ -1,7 +1,7 @@
 using Documenter, SpatialEcology
 
 makedocs(
-    sitename="Spatial Ecology"
+    sitename="Spatial Ecology in Julia"
 )
 
 deploydocs(
