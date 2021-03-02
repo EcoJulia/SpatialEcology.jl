@@ -2,6 +2,7 @@
 
 [![d_stable](https://img.shields.io/badge/Doc-stable-green?style=flat-square)](https://ecojulia.github.io/SpatialEcology.jl/stable/)
 
+
 ![version](https://img.shields.io/github/v/tag/EcoJulia/SpatialEcology.jl?sort=semver&style=flat-square)
 ![CI](https://img.shields.io/github/workflow/status/EcoJulia/SpatialEcology.jl/CI?label=CI&style=flat-square)
 ![Doc](https://img.shields.io/github/workflow/status/EcoJulia/SpatialEcology.jl/Documentation?label=Doc&style=flat-square)
