@@ -63,7 +63,7 @@ function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::S
     nm = propertynames(newsites)
     rename!(newsites, sites => :sites)
     asm.site.sitestats = join(asm.site.sitestats, newsites, kind = :left, on = :sites, makeunique = makeunique)
-    names!(newsites, nm)
+    rename!(newsites, nm)
     nothing
 end
 
