@@ -19,8 +19,8 @@ end
 
 occupancy(com::AbstractComMatrix) = occupancy(occurrences(com))
 richness(com::AbstractComMatrix) = richness(occurrences(com))
-occurring(com::AbstractComMatrix, idx...) = occurring(occurrences(com), idx...)
-occupied(com::AbstractComMatrix, idx...) = occupied(occurrences(com), idx...)
+occurring(com::AbstractComMatrix, idx...) = occurring(occurrences(com), asindices([idx...], sitenames(com)))
+occupied(com::AbstractComMatrix, idx...) = occupied(occurrences(com), asindices([idx...], speciesnames(com)))
 
 const nspecies = nthings
 nthings(com::AbstractComMatrix) = size(com.occurrences, 1)
