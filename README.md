@@ -1,7 +1,7 @@
 # SpatialEcology
 
 [![d_stable](https://img.shields.io/badge/Doc-stable-green?style=flat-square)](https://ecojulia.github.io/SpatialEcology.jl/stable/)
-[![d_latest](https://img.shields.io/badge/Doc-latest-blue?style=flat-square)](https://ecojulia.github.io/SpatialEcology.jl/latest/)
+[![d_latest](https://img.shields.io/badge/Doc-latest-blue?style=flat-square)](https://ecojulia.github.io/SpatialEcology.jl/dev/)
 
 
 ![version](https://img.shields.io/github/v/tag/EcoJulia/SpatialEcology.jl?sort=semver&style=flat-square)
