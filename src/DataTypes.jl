@@ -52,9 +52,9 @@ Locations(coords, sitestats) = Locations{typeof(coords)}(coords, sitestats)
 #it's a question how many of these structs need to be mutable, as opposed to when you want to allocate a new object
 mutable struct ComMatrix{D} <: AbstractComMatrix{D}
     occurrences::SparseMatrixCSC{D}
-    speciesnames::Vector{String}
-    sitenames::Vector{String}
-    ComMatrix{D}(occ::SparseMatrixCSC{D}, spn::Vector{String}, sin::Vector{String}) where {D} = new(dropzeros!(occ), spn, sin)
+    speciesnames::Vector{<:AbstractString}
+    sitenames::Vector{<:AbstractString}
+    ComMatrix{D}(occ::SparseMatrixCSC{D}, spn::Vector{<:AbstractString}, sin::Vector{<:AbstractString}) where {D} = new(dropzeros!(occ), spn, sin)
 end
 
 # likewise, do I need a speciesnames here? Should traits have a :series field (like now) or all matching be done on the speciesnames?

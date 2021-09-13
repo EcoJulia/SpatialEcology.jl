@@ -5,8 +5,8 @@
 # Definition is the same, but importantly this keeps a Subarray
 mutable struct SubComMatrix{D <: Real} <: AbstractComMatrix{D}
     occurrences::SubArray{D,2}
-    speciesnames::SubArray{String,1}
-    sitenames::SubArray{String,1}
+    speciesnames::SubArray{<:AbstractString,1}
+    sitenames::SubArray{<:AbstractString,1}
 end
 
 mutable struct SubSpeciesData{D <: Real} <: SEThings{D}
