@@ -19,11 +19,11 @@ Assemblage(occ::AbstractMatrix, coords::Union{AbstractMatrix, DataFrames.DataFra
 function Assemblage(occ::ComMatrix, coords::DataFrames.DataFrame; kwargs...)
 
     if DataFrames.ncol(coords) == 2 && all(map(x -> x<:Number, eltypest(coords)))
-        coords = convert(Matrix, coords)
+        coords = Matrix(coords)
     elseif DataFrames.ncol(coords) == 3
         xind, yind = guess_xycols(coords)
         siteind = setdiff(1:3, [xind, yind])[1]
-        coords = convert(Matrix, coords[!,[xind, yind]])
+        coords = Matrix(coords[!,[xind, yind]])
     else
         error("coords must be a DataFrame with a column for sites and two columns for coordinates")
     end
