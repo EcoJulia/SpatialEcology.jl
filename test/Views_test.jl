@@ -3,11 +3,12 @@ using Test
 using SpatialEcology
 using DataFrames
 using SparseArrays
+using StableRNGs
 
 @testset "Views" begin
-    Random.seed!(1337)
+    rng = StableRNG(1337)
 
-    datf = sprand(11,9,0.6)
+    datf = sprand(rng, 11,9,0.6)
     datf./=SpatialEcology.colsum(datf)
     com = ComMatrix(datf)
 
@@ -26,7 +27,7 @@ using SparseArrays
     @test nrecords(vcom) == nrecords(comc)
     @test size(vcom) == size(comc)
     @test cooccurring(vcom, 1,3,4) == cooccurring(comc, [1,3,4])
-    @test cooccurring(vcom, 3:5) == [false, false, true, false, false]
+    @test cooccurring(vcom, 3:5) == [true, false, false, false, false]
 
     @test SpatialEcology.asindices(1:5) == 1:5
     @test SpatialEcology.asindices([1,2,4]) == [1,2,4]
