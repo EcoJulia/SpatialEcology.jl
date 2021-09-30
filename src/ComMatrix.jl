@@ -9,8 +9,8 @@ macro forward_func(ex, fs)
     nothing)
 end
 
-@forward_func SEAssemblage.occ nthings, nplaces, occupancy, richness, nrecords, occurring, occupied, thingnames
-@forward_func SEThings.commatrix nthings, nplaces, thingnames, placenames, occupancy, richness, nrecords, occurring, occupied
+@forward_func SEAssemblage.occ nthings, nplaces, occupancy, richness, nrecords, thingnames
+@forward_func SEThings.commatrix nthings, nplaces, thingnames, placenames, occupancy, richness, nrecords
 @forward_func SEAssemblage.site placenames
 
 
@@ -19,8 +19,10 @@ end
 
 occupancy(com::AbstractComMatrix) = occupancy(occurrences(com))
 richness(com::AbstractComMatrix) = richness(occurrences(com))
-occurring(com::AbstractComMatrix, idx...) = occurring(occurrences(com), asindices([idx...], sitenames(com)))
-occupied(com::AbstractComMatrix, idx...) = occupied(occurrences(com), asindices([idx...], speciesnames(com)))
+occurring(com::AbstractComMatrix) = occurring(occurrences(com))
+occupied(com::AbstractComMatrix) = occupied(occurrences(com))
+occurring(com::AbstractComMatrix, idx) = occurring(occurrences(com), asindices(idx, sitenames(com)))
+occupied(com::AbstractComMatrix, idx) = occupied(occurrences(com), asindices(idx, speciesnames(com)))
 
 const nspecies = nthings
 nthings(com::AbstractComMatrix) = size(com.occurrences, 1)
