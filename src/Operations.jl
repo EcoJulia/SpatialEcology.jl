@@ -18,13 +18,11 @@ aggregate(gr::SEGrid, factor::Integer) = (g = _grid_from_factor(gr.grid, factor)
 aggregate(gr::SEGrid, newgrid::GridTopology) = (ind = _apply_grid(gr, newgrid); GridData(sortslices(unique(ind, dims = 1), dims = 1), newgrid))
 
 function aggregate(asm::SEAssemblage{D, T, P}, factor::Union{Integer, Tuple{Integer, Integer}}, fun = _default_fun(D); xmin = nothing, ymin = nothing) where D where T where P <: SELocations
-
     gt = _grid_from_factor(asm.site.coords, factor; xmin = xmin, ymin = ymin)
     aggregate(asm, gt, fun)
 end
 
-function aggregate(asm::SEAssemblage{D}, gt::GridTopology, fun = _default_fun(D)) where D where T where P <: SELocations
-
+function aggregate(asm::SEAssemblage{D}, gt::GridTopology, fun = _default_fun(D)) where D
     # create the new grid
     tmpgrid = _apply_grid(asm.site.coords, gt)
     tmpsites = sortslices(unique(tmpgrid, dims = 1), dims = 1)

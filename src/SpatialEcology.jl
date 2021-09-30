@@ -18,18 +18,18 @@ import EcoBase: asindices, nthings, nplaces, occupancy, richness, nrecords, plac
         xrange, yrange, xcellsize, ycellsize, cellsize, getcoords
 
 import RecipesBase
-import Base: copy, getindex, setindex!, size, show, summary, view, Meta.isexpr
+import Base: copy, getindex, setindex!, size, show, summary, view
 import StatsBase: nquantile
 import Distances: pairwise, PreMetric
 
-export SiteData, ComMatrix, Assemblage, coordtype #types and their constructors
+export SiteData, ComMatrix, Assemblage  #types and their constructors
 export AbstractComMatrix
 export nspecies, nsites, occupancy, richness, nrecords, sitenames, speciesnames, coordinates
 export occurring, noccurring, occupied, noccupied, occurrences, cooccurring
 export traits, sitestats, sitestatnames, traitnames, commatrix
 export addtraits!, addsitestats!
 export asquantiles, asquantiles!
-export coordstype, subset
+export coordstype
 export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these
 export sitetotals, speciestotals, getspecies, getsite
 export groupspecies, groupsites

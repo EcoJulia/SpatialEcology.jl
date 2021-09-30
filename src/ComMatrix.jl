@@ -3,7 +3,7 @@ macro forward_func(ex, fs)
     T, field = ex.args[1], ex.args[2].value
 
     T = esc(T)
-    fs = isexpr(fs, :tuple) ? map(esc, fs.args) : [esc(fs)]
+    fs = Meta.isexpr(fs, :tuple) ? map(esc, fs.args) : [esc(fs)]
     :($([:($f(x::$T, args...) = (Base.@_inline_meta; $f(x.$field, args...)))
         for f in fs]...);
     nothing)
@@ -87,7 +87,7 @@ function show(io::IO, com::Assemblage)
 end
 
 function show(io::IO, sd::SiteData)
-    println(io, "Spatial data set with $(nsites(sd)) sites\n\nSite names:\n$(createsummarylines(sitenames(sd)))")
+    println(io, "Spatial data set with $(nsites(sd)) sites\n\nSite names:\n$(createsummaryline(sitenames(sd)))")
 end
 
 #TODO also create render functions for Juno
