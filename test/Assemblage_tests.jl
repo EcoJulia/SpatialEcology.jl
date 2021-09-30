@@ -16,6 +16,9 @@ using Test
     @test nspecies(amph) == 73
     @test noccurring(amph) == 73
     @test occurring(amph, 718) == [15]
+    @test occurring(amph, 718:729) == [15, 46, 53, 56]
+    @test occupied(amph, "Pleurodeles_waltl")[2] == 14
+    @test occupied(amph, ["Pleurodeles_waltl", "Salamandra_corsica"])[50] == 885
     @test occupancy(amph)[1] == 353
 
     # views
