@@ -55,7 +55,7 @@ end
 
 function nzcols(b::SubArray{T,2,P,M} where {T,P<:SparseMatrixCSC, M<:Tuple{AbstractUnitRange{Int64},AbstractUnitRange{Int64}}}
   )
-    @inbounds return collect(i+1-start(b.indices[2])
+    @inbounds return collect(i+1-first(b.indices[2])
       for i in b.indices[2]
       if b.parent.colptr[i]<b.parent.colptr[i+1] &&
         inrange(b.parent.rowval[nzrange(b.parent,i)], b.indices[1]))
@@ -72,7 +72,7 @@ end
 function nzcols(b::SubArray{T,2,P,M} where {T,P<:SparseMatrixCSC,M<:Tuple{Vector{Int64},AbstractUnitRange{Int64}}}
   )
     brows = sort(unique(b.indices[1]))
-    @inbounds return collect(i+1-start(b.indices[2])
+    @inbounds return collect(i+1-first(b.indices[2])
       for i in b.indices[2]
       if b.parent.colptr[i]<b.parent.colptr[i+1] &&
         sortedintersecting(b.parent.rowval[nzrange(b.parent,i)], brows))

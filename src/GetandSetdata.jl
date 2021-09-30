@@ -31,15 +31,15 @@ function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::S
         dif, left, right = length(intersect(newtraits[!,species], speciesnames(asm))), nspecies(asm), size(newtraits,1)
         max(dif/left, dif/right) == 0 && error("No match between species names, aborting join")
         println("$dif matching species names,\n",
-                "\t$(signif(100*dif/left,3))% of $left species in the Assemblage\n",
-                "\t$(signif(100*dif/right,3))% of $right species in the new traits data\n")
+                "\t$(round(100*dif/left, sigdigits = 3))% of $left species in the Assemblage\n",
+                "\t$(round(100*dif/right, sigdigits = 3))% of $right species in the new traits data\n")
         max(dif/left, dif/right) < tolerance && error("Aborting join, as fit was smaller than the tolerance of $tolerance . To perform the join decrease the tolerance value")
     end
 
     nm = propertynames(newtraits)
     rename!(newtraits, species => :name)
-    asm.occ.traits = join(asm.occ.traits, newtraits, kind = :left, on = :name, makeunique = makeunique)
-    names!(newtraits, nm)
+    asm.occ.traits = leftjoin(asm.occ.traits, newtraits, on = :name, makeunique = makeunique)
+    rename!(newtraits, nm)
     #assemblagejoin!(asm.occ.traits, newtraits, :name, species)
     nothing
 end
@@ -62,7 +62,7 @@ function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::S
     #assemblagejoin!(asm.site.sitestats, newsites, :sites, sites) #TODO this should instead be on the sitenames of the objects and adjusted below
     nm = propertynames(newsites)
     rename!(newsites, sites => :sites)
-    asm.site.sitestats = join(asm.site.sitestats, newsites, kind = :left, on = :sites, makeunique = makeunique)
+    asm.site.sitestats = leftjoin(asm.site.sitestats, newsites, on = :sites, makeunique = makeunique)
     rename!(newsites, nm)
     nothing
 end

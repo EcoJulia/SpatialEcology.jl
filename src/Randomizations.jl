@@ -5,8 +5,7 @@ matrixrandomizer(com::ComMatrix, rng = Xoroshiro128Plus();
 matrixrandomizer(asm::SEAssemblage, rng = Xoroshiro128Plus();
                 method::matrixrandomizations = curveball) = "Only defined for Boolean Assemblages"
 
-function matrixrandomizer(asm::S, rng = Xoroshiro128Plus();
-                        method::matrixrandomizations = curveball) where S <: SEAssemblage{Bool} where P
+function matrixrandomizer(asm::S, rng = Xoroshiro128Plus(); method::matrixrandomizations = curveball) where S <: SEAssemblage{Bool}
     as = copy(asm)
     ret = MatrixGenerator{typeof(rng), typeof(as)}(as, method, rng)
     dropzeros!(ret.m.occ.commatrix.occurrences)
@@ -16,7 +15,7 @@ end
 function matrixrandomizer(com::C, rng = Xoroshiro128Plus();
                         method::matrixrandomizations = curveball) where C <: ComMatrix{Bool}
     cm = copy(com)
-    ret = MatrixGenerator{typeof(rng), typeof(cm)}(as, method, rng)
+    ret = MatrixGenerator{typeof(rng), typeof(cm)}(cm, method, rng)
     dropzeros!(ret.m.occurrences)
     ret
 end

@@ -6,8 +6,8 @@ function isWorldmapData(dat::DataFrames.DataFrame, latlong = true)
     if eltypet(dat[:, 4]) <: Number
       if eltypet(dat[:, 5]) <: Number
         latlong || return true # risky
-        if minimum(dropna(dat[:, 4])) > -181 && maximum(dropna(dat[:, 4])) < 181
-          if minimum(dropna(dat[:, 5])) > -91 && maximum(dropna(dat[:, 5])) < 91
+        if minimum(skipmissing(dat[:, 4])) > -181 && maximum(skipmissing(dat[:, 4])) < 181
+          if minimum(skipmissing(dat[:, 5])) > -91 && maximum(skipmissing(dat[:, 5])) < 91
             return true
           end
         end
@@ -107,18 +107,18 @@ maxrange(x) = diff([extrema(x)...])[1]
 # remember here - something wrong with the indices, make sure they are based from 1!
 
 function dropbyindex!(site::Locations{GridData}, indicestokeep)
-  site.indices = site.indices[indicestokeep,:]
+  site.coords.indices = site.coords.indices[indicestokeep,:]
   site.sitestats = site.sitestats[indicestokeep,:]
-  site.grid.xmin = xrange(site.grid)[minimum(site.indices[:,1])]
-  site.grid.ymin = yrange(site.grid)[minimum(site.indices[:,2])]
-  site.grid.xcells = maxrange(site.indices[:,1]) + 1
-  site.grid.ycells = maxrange(site.indices[:,2]) + 1
-  site.indices = site.indices - minimum(site.indices) + 1
+  site.coords.grid.xmin = xrange(site.coords.grid)[minimum(site.coords.indices[:,1])]
+  site.coords.grid.ymin = yrange(site.coords.grid)[minimum(site.coords.indices[:,2])]
+  site.coords.grid.xcells = maxrange(site.coords.indices[:,1]) + 1
+  site.coords.grid.ycells = maxrange(site.coords.indices[:,2]) + 1
+  site.coords.indices = site.coords.indices - minimum(site.coords.indices) + 1
 end
 
 function dropsites!(occ::ComMatrix, site::SELocations)
   hasspecies = occupied(occ)
-  occ.commatrix = occ.commatrix[:, hasspecies]
+  occ.occurrences = occ.occurrences[:, hasspecies]
   dropbyindex!(site, hasspecies)
 end
 
