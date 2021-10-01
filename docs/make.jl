@@ -5,7 +5,7 @@ makedocs(
     authors = "Michael Krabbe Borregaard",
     pages = [
         "Home" => "index.md",
-        "Tutorial / Quick start" => "tutorial.md"
+        "Tutorial / Quick start" => "tutorial.md",
         "Manual" => Any[
             "Creating objects" => "man/constructors.md",
             "Working with SpatialEcology objects" => "man/getters.md",
