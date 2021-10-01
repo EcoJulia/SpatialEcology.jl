@@ -10,7 +10,7 @@ macro forward_func(ex, fs)
 end
 
 @forward_func SEAssemblage.occ nthings, nplaces, occupancy, richness, nrecords, thingnames
-@forward_func SEThings.commatrix nthings, nplaces, thingnames, placenames, occupancy, richness, nrecords
+@forward_func SEThings.commatrix nthings, nplaces, thingnames, placenames, occupancy, richness, nrecords, occurring, occupied
 @forward_func SEAssemblage.site placenames
 
 
