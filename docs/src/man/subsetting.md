@@ -51,7 +51,7 @@ You can also use subsetting to plot a single species:
 ```@example
 spec = view(amph, species = ["_Bufo_bufo"])
 plot(spec, title = "Common Toad", showempty = true, c = cgrad([:grey, :red], categorical = true))
-
+```
 #Todo make this work without wrapping `sp`
 
 

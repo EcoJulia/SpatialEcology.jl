@@ -14,7 +14,7 @@ makedocs(
             "Randomizations" => "man/randomization.md",
         ],
         "Example analyses" => Any[
-            "Node-based analysis of species distributions" => "examples/nodebased.jl"
+            "Node-based analysis of species distributions" => "examples/nodebased.md"
         ],
         "Library" => "lib/public.md"
     ]
