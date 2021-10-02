@@ -1,5 +1,5 @@
 """
-    asquantiles(x, n)
+    asquantiles!(x, n)
 """
 function asquantiles!(x::AbstractVector, n::Int)
     quants = nquantile(x, n)[1:end-1]
@@ -8,6 +8,9 @@ function asquantiles!(x::AbstractVector, n::Int)
     end
 end
 
+"""
+    asquantiles(x, n)
+"""
 function asquantiles(x::AbstractVector, n::Int)
     quants = nquantile(x, n)[1:end-1]
     ret = similar(x)

@@ -13,9 +13,6 @@ end
 
 getcoords(l::SELocations) = l.coords
 
-"""
-    traits(asm)
-"""
 traits(occ::SEThings) = occ.traits
 traits(asm::SEAssemblage) = traits(asm.occ)
 
@@ -112,10 +109,16 @@ end
 #     DataFrames.hcat!(df1, right)
 # end
 
+"""
+    @traits(x, expr)
+"""
 macro traits(x, expr)
     :(@with(traits($x), $expr))
 end
 
+"""
+    @sitestats(x, expr)
+"""
 macro sitestats(x, expr)
     :(@with(sitestats($x), $expr))
 end
