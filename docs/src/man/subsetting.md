@@ -12,24 +12,24 @@ Let's say for instance we want to calculate the average range size for each lati
 for the dataset of European amphibians.
 
 First, we load the data:
-```@example
+```@example subset
 using SpatialEcology, Plots, CSV, DataFrames, Statistics
 amphdata = CSV.read(joinpath(dirname(pathof(SpatialEcology)), "..", "data", "amph_Europe.csv"), DataFrame)
 amph = Assemblage(amphdata[!, 4:end],amphdata[!, 1:3], sitecolumns = false);
 ```
 
 And let's add the rangesizes of each species to the dataset
-```@example
+```@example subset
 addtraits!(amph, occupancy(amph), :rangesize)
 ```
 
 Then let's get all unique latitudes 
-```@example
+```@example subset
 latitudes = unique(coordinates[:, 2])
 ```
 
 We can use a simple to loop over all the latitudes, generate a relevant subset and calculate the mean rangesize
-```@example
+```@example subset
 latitude_range = zeros(size(latitudes))
 for (i, lat) in enumerate(latitudes)
     sites = findall(==(lat), coordinates(amph)[:,2])
@@ -42,13 +42,13 @@ scatter(latitudes, latitude_range, xlab = "Latitude", ylab = "Mean range size")
 Subsetting and sampling over a factor is common enough that there is a specialized syntax 
 for this, `groupspecies` and `groupsites`. 
 All of the above can be expressed by grouping the assemblage over the second coordinate (latitude):
-```@example
+```@example subset
 latitudinal_assemblages = groupsites(amph, coordinates(amph)[:,2], dropspecies = true)
 latitude_range = [mean(lat[:rangesize]) for lat in latitudinal_assemblages]
 ```
 
 You can also use subsetting to plot a single species:
-```@example
+```@example subset
 spec = view(amph, species = ["_Bufo_bufo"])
 plot(spec, title = "Common Toad", showempty = true, c = cgrad([:grey, :red], categorical = true))
 ```
