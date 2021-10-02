@@ -17,41 +17,89 @@ end
 #--------------------------------------------------------------------------
 # Basic summary functions
 
+"""
+    occupancy(com::AbstractComMatrix)
+"""
 occupancy(com::AbstractComMatrix) = occupancy(occurrences(com))
+
+"""
+    richness(com::AbstractComMatrix)
+"""
 richness(com::AbstractComMatrix) = richness(occurrences(com))
+
+"""
+    occurring(com::AbstractComMatrix)
+"""
 occurring(com::AbstractComMatrix) = occurring(occurrences(com))
-occupied(com::AbstractComMatrix) = occupied(occurrences(com))
 occurring(com::AbstractComMatrix, idx) = occurring(occurrences(com), asindices(idx, sitenames(com)))
+
+"""
+    occupied(com::AbstractComMatrix)
+"""
+occupied(com::AbstractComMatrix) = occupied(occurrences(com))
 occupied(com::AbstractComMatrix, idx) = occupied(occurrences(com), asindices(idx, speciesnames(com)))
 
 const nspecies = nthings
+
+"""
+    nthings(com::AbstractComMatrix)
+"""
 nthings(com::AbstractComMatrix) = size(com.occurrences, 1)
 
 const nsites = nplaces
+
+"""
+    nsites(com)
+"""
 nplaces(com::AbstractComMatrix) = size(com.occurrences, 2)
 nplaces(sd::SiteData) = size(coordinates(sd.site), 1)
 nplaces(sd::SELocations) = DataFrames.ncol(sd.sitestats)
 nplaces(gr::GridData) = size(gr.indices, 1)
 nplaces(pd::PointData) = size(pd.coords, 1)
 
+"""
+    nrecords(com)
+"""
 nrecords(com::AbstractComMatrix) = _nnz(occurrences(com))
 
 const getspecies = thingoccurrences
+
+"""
+    getspecies(com)
+"""
 thingoccurrences(com::AbstractComMatrix, idx) = thingoccurrences(occurrences(com), asindices(idx, thingnames(com)))
 
 const getsite = placeoccurrences
+
+"""
+    getsite(com)
+"""
 placeoccurrences(com::AbstractComMatrix, idx) = placeoccurrences(occurrences(com), asindices(idx, placenames(com)))
 
 const speciesnames = thingnames
+
+"""
+    speciesnames(com)
+"""
 thingnames(com::AbstractComMatrix) = com.speciesnames
 
 const sitenames = placenames
+
+"""
+    sitenames(com)
+"""
 placenames(com::AbstractComMatrix) = com.sitenames
 placenames(sd::SiteData) = sitenames(sd.site)
 placenames(sd::SELocations) = sd.sitestats[:,:sites]
 
-
+"""
+    sitetotals(com)
+"""
 sitetotals(com::AbstractComMatrix) = vec(colsum(com.occurrences))
+
+"""
+    speciestotals(com)
+"""
 speciestotals(com::AbstractComMatrix) = vec(rowsum(com.occurrences))
 
 size(com::AbstractComMatrix) = size(occurrences(com))

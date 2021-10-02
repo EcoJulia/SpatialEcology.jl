@@ -75,6 +75,9 @@ end
 
 abstract type SEAssemblage{D<:Real, T<:SEThings, P<:SELocations} <: EcoBase.AbstractAssemblage{D, T, P} end
 
+"""
+    Assemblage{D<:Real, P<:Locations}
+"""
 mutable struct Assemblage{D<:Real, P<:Locations} <: SEAssemblage{D, SpeciesData{D}, P} # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::P
     occ::SpeciesData{D}
