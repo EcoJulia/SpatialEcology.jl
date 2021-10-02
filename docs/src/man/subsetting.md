@@ -14,6 +14,7 @@ for the dataset of European amphibians.
 First, we load the data:
 ```@example subset
 using SpatialEcology, Plots, CSV, DataFrames, Statistics
+ENV["GKSwstype"]="nul"
 amphdata = CSV.read(joinpath(dirname(pathof(SpatialEcology)), "..", "data", "amph_Europe.csv"), DataFrame)
 amph = Assemblage(amphdata[!, 4:end],amphdata[!, 1:3], sitecolumns = false);
 ```

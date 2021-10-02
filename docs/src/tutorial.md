@@ -8,6 +8,7 @@ with the package).
 First, let's load the relevant libraries
 ```@example tutorial
 using SpatialEcology, Plots, CSV, DataFrames, Statistics
+ENV["GKSwstype"]="nul"
 ```
 
 We read in the species occurrence data from a DataFrame.
