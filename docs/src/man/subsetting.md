@@ -25,7 +25,7 @@ addtraits!(amph, occupancy(amph), :rangesize)
 
 Then let's get all unique latitudes 
 ```@example subset
-latitudes = unique(coordinates[:, 2])
+latitudes = unique(coordinates(amph)[:, 2])
 ```
 
 We can use a simple to loop over all the latitudes, generate a relevant subset and calculate the mean rangesize

@@ -1,3 +1,6 @@
+"""
+    coordinates(asm)
+"""
 coordinates(asm::SEAssemblage) = coordinates(asm.site)
 coordinates(sd::SiteData) = coordinates(sd.site)
 coordinates(pd::SEPoints) = pd.coords
@@ -10,22 +13,45 @@ end
 
 getcoords(l::SELocations) = l.coords
 
+"""
+    traits(asm)
+"""
 traits(occ::SEThings) = occ.traits
 traits(asm::SEAssemblage) = traits(asm.occ)
+
 places(asm::SEAssemblage) = asm.site
 things(asm::SEAssemblage) = asm.occ
 
+"""
+    sitestats(asm)
+"""
 sitestats(asm::SEAssemblage) = asm.site.sitestats
 
+"""
+    traitnames(asm)
+"""
 traitnames(asm::SEAssemblage) = names(traits(asm))
+
+"""
+    sitestatnames(asm)
+"""
 sitestatnames(asm::SEAssemblage) = names(sitestats(asm))
 
+"""
+    commatrix(asm)
+"""
 commatrix(asm::SEAssemblage) = commatrix(asm.occ)
 commatrix(occ::SEThings) = occ.commatrix
 
+"""
+    occurrences(asm)
+"""
 occurrences(asm::Union{SEAssemblage, SEThings}) = occurrences(commatrix(asm))
 occurrences(cm::AbstractComMatrix) = cm.occurrences
 
+"""
+    addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::Symbol; validate = true, tolerance = 0.5, makeunique = false)
+"""
 function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::Symbol; validate = true, tolerance = 0.5, makeunique = false)
     if validate
         dif, left, right = length(intersect(newtraits[!,species], speciesnames(asm))), nspecies(asm), size(newtraits,1)
@@ -49,6 +75,9 @@ function addtraits!(asm::Assemblage, newtraits::AbstractVector, name::Union{Stri
     asm.occ.traits[!,Symbol(name)] = newtraits
 end
 
+"""
+    addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::Symbol; validate = true, tolerance = 0.5, makeunique = false)
+"""
 function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::Symbol; validate = true, tolerance = 0.5, makeunique = false)
     if validate
         dif, left, right = length(intersect(newsites[!,sites], sitenames(asm))) , nsites(asm), size(newsites,1)
@@ -91,5 +120,8 @@ macro sitestats(x, expr)
     :(@with(sitestats($x), $expr))
 end
 
+"""
+    dispersionfield(asm, site)
+"""
 dispersionfield(asm::EcoBase.AbstractAssemblage, site) =
     occurrences(asm)' * placeoccurrences(asm, site)
