@@ -66,7 +66,7 @@ triturus = view(amph, species = contains.(speciesnames(amph), "Triturus"))
 We can then use this dataset for further analyses - here getting the latitudinal range for
 the genus in Europe:
 ```@example tutorial
-extrema(coordinates(triturus), 1)
+extrema(coordinates(triturus)[:,1])
 ```
 
 ## Aggregation and other operations
@@ -75,7 +75,7 @@ such as aggregrating the grid to a coarser grain size. Here, we lump them to a 2
 coarser grain
 ```@example tutorial
 amp2 = aggregate(amph, 2)
-default(c = :Spectral_r)
+default(color = cgrad(:Spectral, rev = true))
 plot(plot(amph), plot(amp2))
 ```
 
