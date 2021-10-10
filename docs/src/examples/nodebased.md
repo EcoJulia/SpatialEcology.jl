@@ -40,7 +40,7 @@ Let's have a look at the data
 using Plots
 ENV["GKSwstype"]="nul" # this is just for the docs to run remotely
 default(color = cgrad(:Spectral, rev = true))
-plot(tyrants, size = (600, 800))
+plot(tyrants)
 ```
 
 Next, we'll read in the phylogenetic tree
@@ -48,7 +48,7 @@ Next, we'll read in the phylogenetic tree
 using Phylo 
 tree = open(parsenewick, "../../data/tyrannid_tree.tre")
 sort!(tree) # sort the nodes on the tree in order of size - useful for plotting
-plot(tree, treetype = :fan)
+plot(tree, treetype = :fan, tipfont = (5,))
 ```
 
 ## Extract information from a single clade
@@ -87,13 +87,10 @@ can make a function to create a smaller `Assemblage` of all species descending
 from our selected node. 
 
 ```@example nodebased
-function get_clade(assemblage, tree, node)
-    specs = nodespecies(tree, node)
-    view(assemblage, species = specs)
-end
+get_clade(assemblage, tree, node) = view(assemblage, species = nodespecies(tree, node))
 
 rand_clade = get_clade(tyrants, tree, randnode)
-plot(rand_clade)
+plot(rand_clade, title = randnode)
 ```
 
 ## Comparing the richness of sister clades
@@ -113,7 +110,7 @@ function plot_node(assemblage, tree, node)
 
     plot(
         plot(assm), plot(assmch1), plot(assmch2),
-        layout = (1,3), size = (1200, 400), title = ["parent" "child 1" "child 2"]
+        layout = (1,3), size = (1000, 350), title = ["parent" "child 1" "child 2"]
     )
 end
 
@@ -134,7 +131,7 @@ object to repeatedly generate randomized communities
 ```@example nodebased
 rmg = matrixrandomizer(rand_clade)
 newcomm = rand(rmg)
-plot(newcomm)
+plot(newcomm, title = "randomized version of $randnode")
 ```
 Because row and column sums are kept constant, the richness of the randomized
 community is the same. But the richness of the two descendant clades will be
@@ -146,7 +143,7 @@ randch1 = get_clade(newcomm, tree, ch1)
 randch2 = get_clade(newcomm, tree, ch2)
 plot(
     plot(rand_clade), plot(randch1), plot(randch2),
-    layout = (1,3), size = (1200, 400)
+    layout = (1,3), size = (1000, 350), title = ["parent" "child 1" "child 2"]
 )
 ```
 This represents a random expectation for the species richness of the two
@@ -162,8 +159,10 @@ using Random: rand!
 function simulate_descendants(clade, tree, descendant; nsims = 99)
     rmg = matrixrandomizer(clade)
     ret = zeros(nsims + 1, nsites(clade))  # a matrix to hold the richness values from the simulations
+    # the empirical richness in the first row
     ret[1, :] = richness(get_clade(clade, tree, descendant))
     for i in 2:nsims + 1
+        # and simulated richness in the rest of the nsims rows
         ret[i, :] .= richness(get_clade(rand!(rmg), tree, descendant))
     end
     ret
@@ -174,6 +173,9 @@ sims = simulate_descendants(rand_clade, tree, ch2);
 
 Then we calculate the mean and standard deviation across simulations and use this
 to express the empirical richness values as standardized effect sizes.
+The resulting standardized effect size for each grid cell constitutes the `SOS`
+metric of Borregaard et al. (2014). To calculate this for our focal cell and plot
+it we can do
 ```@example nodebased
 using Statistics
 function calculate_SOS(sims)
@@ -181,15 +183,10 @@ function calculate_SOS(sims)
     me = mean.(eachcol(sims))
     (sims[1, :] .- me) ./ sd
 end
-```
 
-The resulting standardized effect size for each grid cell constitutes the `SOS`
-metric of Borregaard et al. (2014). To calculate this for our focal cell and plot
-it we can do
-```@example nodebased
 sims = simulate_descendants(rand_clade, tree, ch1)
 SOS = calculate_SOS(sims)
-plot(SOS, rand_clade, clim = (-8,8), fillcolor = :RdYlBu)
+plot(SOS, rand_clade, clim = (-8,8), fillcolor = :RdYlBu, title = "SOS for clade $randnode)
 ```
 We see a clear distinction between the two clades descending from our focal node,
 where one descendant is overrepresented in tropical moist forest and the other in
@@ -207,7 +204,6 @@ function calculate_GND(sims)
 
   n = size(sims, 1)
   r = [tiedrank(x)[1]/(n + 1) for x in eachcol(sims)]
-  
   p = 1 .- 2 .* abs.(r .- 0.5) .- 1/n
   α = mean(logit.(p))
   1-invlogit(α)
@@ -234,8 +230,8 @@ function process_node(assemblage, tree, nodename; nsims = 100)
     calculate_SOS(sims), calculate_GND(sims)
 end
 
-SOS, GND = process_node(tyrants, tree, randnode)
-plot(SOS, tyrants, clim = (-8,8), fillcolor = :RdYlBu)
+# use as
+SOS, GND = process_node(tyrants, tree, randnode);
 ```
 
 Finally, we go through every node on the true and calculate the metrics for them
@@ -257,7 +253,10 @@ SOSs, GNDs = node_based_analysis(tyrants, tree);
 
 Let's visualize the GND values on the tree
 ```@example nodebased
-plot(tree, showtips = false, marker_z = GNDs, color = cgrad(:YlOrRd, 10, categorical = true))
+plot(tree, 
+     showtips = false, marker_z = GNDs, 
+     color = cgrad(:YlOrRd, 10, categorical = true),
+     markersize = 10 .* GNDs, markerstrokewidth = 0)
 ```
 We notice that a few of the nodes stand clearly out with significant
 distributional changes

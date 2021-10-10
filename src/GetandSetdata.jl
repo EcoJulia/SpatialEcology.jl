@@ -13,6 +13,12 @@ end
 
 getcoords(l::SELocations) = l.coords
 
+"""
+    traits(x)
+
+Return the dataframe of species traits defined in x (which is usually
+an `Assemblage` object)
+"""
 traits(occ::SEThings) = occ.traits
 traits(asm::SEAssemblage) = traits(asm.occ)
 

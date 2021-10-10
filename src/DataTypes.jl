@@ -50,6 +50,12 @@ end
 Locations(coords, sitestats) = Locations{typeof(coords)}(coords, sitestats)
 
 #it's a question how many of these structs need to be mutable, as opposed to when you want to allocate a new object
+"""
+    Commatrix
+
+A type that holds a species-by-sites matrix of either presence data or
+abundances, along with the names of species and sites
+"""
 mutable struct ComMatrix{D} <: AbstractComMatrix{D}
     occurrences::SparseMatrixCSC{D}
     speciesnames::Vector{<:AbstractString}
@@ -68,7 +74,11 @@ mutable struct SpeciesData{D} <: SEThings{D}
 end
 SpeciesData(commatrix::ComMatrix{D}, traits) where D<:Real = SpeciesData{D}(commatrix, traits)
 
-# Not really sure what this type is for
+"""
+    SiteData
+
+A type to hold spatial data on a set of sites
+"""
 mutable struct SiteData{T<:Union{GridData, PointData}} <: SESpatialData{T}
     site::T
 end
