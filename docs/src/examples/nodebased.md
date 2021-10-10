@@ -34,6 +34,7 @@ tyrants = Assemblage(phylocom, coord)
 Let's have a look at the data
 ```@example nodebased
 using Plots
+ENV["GKSwstype"]="nul" # this is just for the docs to run remotely
 default(color = cgrad(:Spectral, rev = true))
 plot(tyrants, size = (600, 800))
 ```
