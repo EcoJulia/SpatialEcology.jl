@@ -1,7 +1,9 @@
 This example demonstrates how to do a node-based comparison of species
 distributions, as described in [Borregaard, M.K., Rahbek, C., Fjeldså, J., Parra, J.L., Whittaker, R.J. and Graham, C.H. (2014). Node-based analysis of species distributions. _Methods in Ecology and Evolution_ **5**: 1225-1235](http://macroecointern.dk/pdf-reprints/Borregaard_MEE_2014.pdf). 
-It demonstrates the whole process of loading the data and developing the method, 
-as a case study example.
+We will use SpatialEcology functionality and the ecojulia phylogenetics package 
+Phylo to reimplement the method from the paper, from first principles.
+We start by loading the basic data objects and end up with defining a function
+with the full functionality of the published paper.
 
 ## Load data and create objects
 First, let's load the data. We have the data in two DataFrames, one of species
@@ -13,12 +15,14 @@ It consists of three columns, a column of species names, one of abundances
 ```@example nodebased
 using CSV, DataFrames, SpatialEcology
 phylocom = CSV.read("../../data/tyrann_phylocom.tsv", DataFrame)
+first(phylocom, 4)
 ```
 
 The coordinates is a simple DataFrame with a column of sites, one of latitude 
 and one of longitude
 ```@example nodebased
 coord = CSV.read("../../data/tyrann_coords.tsv", DataFrame)
+first(coord, 4)
 ```
 
 We ensure that the column of sites are represented as `string`s in both data 
@@ -58,6 +62,7 @@ a vector
 ```@example nodebased
 nodes = nodenamefilter(!isleaf, tree)
 nodevec = collect(nodes)
+first(nodevec, 4)
 ```
 
 Let's pick a random node from the vector to demonstrate how we can get information
@@ -74,7 +79,7 @@ function takes two arguments.
 
 ```@example nodebased
 nodespecies(tree, node) = filter(x -> isleaf(tree, x), getdescendants(tree, node))
-nodespecies(tree, randnode)
+first(nodespecies(tree, randnode), 4)
 ```
 
 We can use that species list to subset an `Assemblage` object. For instance, we
@@ -164,7 +169,7 @@ function simulate_descendants(clade, tree, descendant; nsims = 99)
     ret
 end
 
-sims = simulate_descendants(rand_clade, tree, ch2)
+sims = simulate_descendants(rand_clade, tree, ch2);
 ```
 
 Then we calculate the mean and standard deviation across simulations and use this
@@ -209,6 +214,7 @@ function calculate_GND(sims)
 end
 
 GND = calculate_GND(sims)
+first(GND, 4)
 ```
 
 ## Applying the method to the entire phylogeny
@@ -246,7 +252,7 @@ function node_based_analysis(assemblage::Assemblage, tree::AbstractTree)
    SOSs, GNDs
 end
 
-SOSs, GNDs = node_based_analysis(tyrants, tree)
+SOSs, GNDs = node_based_analysis(tyrants, tree);
 ```
 
 Let's visualize the GND values on the tree

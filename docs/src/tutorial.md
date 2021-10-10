@@ -8,7 +8,7 @@ with the package).
 First, let's load the relevant libraries
 ```@example tutorial
 using SpatialEcology, Plots, CSV, DataFrames, Statistics
-ENV["GKSwstype"]="nul"
+ENV["GKSwstype"]="nul"; # this is just for the docs to run remotely
 ```
 
 We read in the species occurrence data from a DataFrame.
