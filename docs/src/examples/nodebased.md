@@ -1,3 +1,5 @@
+## Node-based analysis of species distributions
+
 This example demonstrates how to do a node-based comparison of species
 distributions, as described in [Borregaard, M.K., Rahbek, C., Fjeldså, J., Parra, J.L., Whittaker, R.J. and Graham, C.H. (2014). Node-based analysis of species distributions. _Methods in Ecology and Evolution_ **5**: 1225-1235](http://macroecointern.dk/pdf-reprints/Borregaard_MEE_2014.pdf). 
 We will use SpatialEcology functionality and the ecojulia phylogenetics package 
@@ -5,7 +7,7 @@ Phylo to reimplement the method from the paper, from first principles.
 We start by loading the basic data objects and end up with defining a function
 with the full functionality of the published paper.
 
-## Load data and create objects
+### Load data and create objects
 First, let's load the data. We have the data in two DataFrames, one of species
 occurrences in each grid cell, and one with the lat-long coordinates of each 
 grid cell. The DataFrame of occurrences is in the widely used phylocom format, 
@@ -51,7 +53,7 @@ sort!(tree) # sort the nodes on the tree in order of size - useful for plotting
 plot(tree, treetype = :fan, tipfont = (5,))
 ```
 
-## Extract information from a single clade
+### Extract information from a single clade
 The [Phylo](http://docs.ecojulia.org/Phylo/stable) package uses iterators over 
 vertices in the phylogeny for almost everything. For example, to get a vector
 of all internal (non-tip) nodes in the phylogeny, we would create an iterator
@@ -93,7 +95,7 @@ rand_clade = get_clade(tyrants, tree, randnode)
 plot(rand_clade, title = randnode)
 ```
 
-## Comparing the richness of sister clades
+### Comparing the richness of sister clades
 The question we are interested in addressing here is: At a given node where the
 lineage splits into two sister clades - are the two descendant clades distributed
 differently? This could be an indication that an evolutionary or biogeographic
@@ -121,7 +123,7 @@ descendant appearing to be overrepresented in the tropical rainforest biome,
 mainly in the Amazon. But is the difference great enough that we can say that 
 this is not just a random pattern? We can use randomization to find out.
 
-## Using randomization to assess significance of distribution differences
+### Using randomization to assess significance of distribution differences
 SpatialEcology `Assemblage`s can be randomized using the `curveball` matrix
 randomization algorithm defined in [RandomBooleanMatrices.jl](http://docs.ecojulia.org/RandomBooleanMatrices/stable). This algorithm randomizes a species-by-site
 matrix while keeping row and column sums constant, and is very fast. We can
@@ -213,7 +215,7 @@ GND = calculate_GND(sims)
 first(GND, 4)
 ```
 
-## Applying the method to the entire phylogeny
+### Putting it all together
 We can use all of the above to go through the entire phylogeny and generate SOS
 and GND values. First, let us create a function that calculates both metrics
 
@@ -234,7 +236,10 @@ end
 SOS, GND = process_node(tyrants, tree, randnode);
 ```
 
-Finally, we go through every node on the true and calculate the metrics for them
+### Final step: Applying the method to the entire tree
+Finally, we can now go through every node on the tree and calculate the metrics
+This function recreates the functionality of the main `Node_analysis` function of
+the [nodiv](https://github.com/mkborregaard/nodiv) R package
 ```@example nodebased
 using ProgressLogging
 function node_based_analysis(assemblage::Assemblage, tree::AbstractTree)
@@ -256,7 +261,9 @@ Let's visualize the GND values on the tree
 plot(tree, 
      showtips = false, marker_z = GNDs, 
      color = cgrad(:YlOrRd, 10, categorical = true),
-     markersize = 10 .* GNDs, markerstrokewidth = 0)
+     markersize = 15 .* GNDs, markerstrokewidth = 0,
+     size = (600, 1000), clim = (0,1)
+     )
 ```
 We notice that a few of the nodes stand clearly out with significant
 distributional changes
