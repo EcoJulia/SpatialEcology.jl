@@ -52,7 +52,7 @@ plot(tree, treetype = :fan)
 ```
 
 ## Extract information from a single clade
-The [Phylo](http://docs.ecojulia.org/Phylo/latest) package uses iterators over 
+The [Phylo](http://docs.ecojulia.org/Phylo/stable) package uses iterators over 
 vertices in the phylogeny for almost everything. For example, to get a vector
 of all internal (non-tip) nodes in the phylogeny, we would create an iterator
 over the names of all nodes in the tree, filtered by the function `isleaf`, which
@@ -126,7 +126,7 @@ this is not just a random pattern? We can use randomization to find out.
 
 ## Using randomization to assess significance of distribution differences
 SpatialEcology `Assemblage`s can be randomized using the `curveball` matrix
-randomization algorithm defined in [RandomBooleanMatrices.jl](http://docs.ecojulia.org/RandomBooleanMatrices/latest). This algorithm randomizes a species-by-site
+randomization algorithm defined in [RandomBooleanMatrices.jl](http://docs.ecojulia.org/RandomBooleanMatrices/stable). This algorithm randomizes a species-by-site
 matrix while keeping row and column sums constant, and is very fast. We can
 instantiate a `matrixrandomizer` object from our assemblage, and then use this
 object to repeatedly generate randomized communities
