@@ -1,7 +1,6 @@
 
 # Functions for sparse array view sums - from https://discourse.julialang.org/t/slow-arithmetic-on-views-of-sparse-matrices/3644
 
-rowsum(x) = sum(x,dims=2)
 rowsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC} = (x.parent * sparse(x.indices[2],ones(Int,length(x.indices[2])), ones(Int,length(x.indices[2])), size(x.parent,2),1))[x.indices[1]]
 function rowsum(x::SparseMatrixCSC{Bool})
     active = zeros(Int, x.m)
@@ -11,7 +10,6 @@ function rowsum(x::SparseMatrixCSC{Bool})
     active
 end
 
-colsum(x) = sum(x,dims=1)
 colsum(x::SparseMatrixCSC{Bool}) = diff(view(x.colptr, 1:x.n+1))
 colsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC} = (sparse(ones(Int,length(x.indices[1])), x.indices[1], ones(Int,length(x.indices[1])),1,size(x.parent,1))*x.parent)[x.indices[2]]
 

@@ -83,11 +83,11 @@ There are currently a few extra less generic operations defined on Assemblages, 
 may at some point be moved to a different module. For example, you can generate the 
 "dispersion field" of a given site using the `dispersionfield` function. A dispersion
 field of a site is a map of the total richness of all species occurring in a given site 
-[Graves & Rahbek 2005 PNAS]("http://macroecointern.dk/pdf-reprints/Graves_and_Rahbek_PNAS_2005.pdf").
+[Graves & Rahbek 2005 PNAS](http://macroecointern.dk/pdf-reprints/Graves_and_Rahbek_PNAS_2005.pdf).
 This illustrates the compositional similarity of the site to it's surrounding sites. Here
 we plot the dispersion field for site number 50. 
 ```@example tutorial
 plot(dispersionfield(amph, 50), amph, c = :rainbow)
 ```
-This functionality of the SpatialEcology package was used for the analyses in [Borregaard, Graves & Rahbek, 2020]("http://macroecointern.dk/pdf-reprints/Borregaard_2020_Nature.pdf").
+This functionality of the SpatialEcology package was used for the analyses in [Borregaard, Graves & Rahbek, 2020](http://macroecointern.dk/pdf-reprints/Borregaard_2020_Nature.pdf).
 
