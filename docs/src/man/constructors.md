@@ -1,4 +1,4 @@
-# Constructing SpatialEcology objects
+# Creating SpatialEcology objects
 
 ```@contents
 Pages = ["constructors.md"]

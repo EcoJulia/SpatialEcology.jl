@@ -1,4 +1,4 @@
-# Randomization
+# Randomizations
 
 ```@contents
 Pages = ["randomization.md"]

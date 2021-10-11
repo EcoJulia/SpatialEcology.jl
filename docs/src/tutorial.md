@@ -1,32 +1,45 @@
 # Getting started:
 
 The aim of SpatialEcology is to make it easy to input species occurrence data, along with species traits and site attributes, 
-and do most analyses intuitively and simply. For this example we'll use a dataset of the distributions of all amphibians
-in Europe, based on a (previous) rasterization of IUCN's amphibian shapefile data onto a 0.5x0.5 lat-long grid (provided 
-with the package).
+and do most analyses intuitively and simply. 
+
+For this example we'll use a dataset of the distributions of all amphibians
+in Europe, based on a (previous) rasterization of IUCN's amphibian shapefile
+data onto a 0.5x0.5 lat-long grid (provided with the package).
 
 First, let's load the relevant libraries
 ```@example tutorial
 using SpatialEcology, Plots, CSV, DataFrames, Statistics
-ENV["GKSwstype"]="nul"; # this is just for the docs to run remotely
+ENV["GKSwstype"]="nul"; # hide
 ```
 
-We read in the species occurrence data from a DataFrame.
-The object constructors take a wide range of input data types, a typical being a presence-absence matrix 
-as a DataFrame along with the spatial coordinates of sites as a 3-column DataFrame.
-In the example data, the site coordinates are simply the first three columns
+Species occurrence data for spatial ecological analysis exists in a variety of
+different formats. A common format is to have the data in one or several CSV files.
+In this case we have a single CSV file where each row is a grid cell.
+The first three columns are the name and lat/long coordinates of the grid cell,
+whereas the remaining columns encode the species occurrences - each column
+is a species, and a `1` indicates that a species occurs in a given grid cell.
+
 ```@example tutorial
 amphdata = CSV.read(joinpath(dirname(pathof(SpatialEcology)), "..", "data", "amph_Europe.csv"), DataFrame);
 amphdata[1:3,1:6]
 ```
 
-We split the first three columns off the DataFrame and create an `Assemblage` object
-The `sitecolumns` keyword tells SpatialEcology that the input DataFrame has sites as rows (and species as columns)
+We split the DataFrame into two: the coordinates (the first three columns) and 
+the presence-absence matrix (the remaining colums). We can then use two objects
+to create an `Assemblage` object. There are many constructor methods for 
+`Assemblage`, making it easy to create the object no matter how your input data
+are organized.
+
+Presence-absence matrices can have the sites either as columns or as rows. 
+The `sitecolumns` keyword tells SpatialEcology that the input DataFrame has 
+sites as rows (and species as columns)
 ```@example tutorial
 amph = Assemblage(amphdata[!, 4:end],amphdata[!, 1:3], sitecolumns = false)
 ```
 
-Plotting recipes are defined for `Assemblage` objects - here we can simply plot the entire object to get a richness map
+Plotting recipes are defined for `Assemblage` objects - if we just 
+plot the object to get a richness map
 ```@example tutorial
 plot(amph)
 ```

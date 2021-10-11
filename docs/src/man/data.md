@@ -1,4 +1,4 @@
-# Extracting and setting data
+# Getting and setting data
 
 ```@contents
 Pages = ["data.md"]

@@ -7,7 +7,7 @@ makedocs(
         "Home" => "index.md",
         "Tutorial / Quick start" => "tutorial.md",
         "Manual" => Any[
-            "Creating objects" => "man/constructors.md",
+            "Creating SpatialEcology objects" => "man/constructors.md",
             "Working with SpatialEcology objects" => "man/getters.md",
             "Getting and setting data" => "man/data.md",
             "Subsetting" => "man/subsetting.md",

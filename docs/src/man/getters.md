@@ -1,4 +1,4 @@
-# Working with objects
+# Working with SpatialEcology objects
 
 ```@contents
 Pages = ["getters.md"]

@@ -2,29 +2,43 @@
 
 This example demonstrates how to do a node-based comparison of species
 distributions, as described in [Borregaard, M.K., Rahbek, C., Fjeldså, J., Parra, J.L., Whittaker, R.J. and Graham, C.H. (2014). Node-based analysis of species distributions. _Methods in Ecology and Evolution_ **5**: 1225-1235](http://macroecointern.dk/pdf-reprints/Borregaard_MEE_2014.pdf). 
-We will use SpatialEcology functionality and the ecojulia phylogenetics package 
-Phylo to reimplement the method from the paper, from first principles.
+
+We will reimplement the method from the paper from first principles, using
+SpatialEcology functionality and the ecojulia phylogenetics package Phylo.
 We start by loading the basic data objects and end up with defining a function
 with the full functionality of the published paper.
 
+We will work with the distributions and phylogenetic relationships for all
+species of the family `Tyrannidae` in the Americas. The species occurrences
+are defined on a regular grid with a cellsize of 1 lat/long degree. This is
+one of the datasets used in the Borregaard _et al._ (2014) paper.
+
 ### Load data and create objects
-First, let's load the data. We have the data in two DataFrames, one of species
+First, let's load the data. 
+
+Species occurrence data for spatial ecological analysis exists in a variety of
+different formats. A common format is to have the data in one or several CSV files.
+
+In this case, we have the data in two CSV tables, one of species
 occurrences in each grid cell, and one with the lat-long coordinates of each 
-grid cell. The DataFrame of occurrences is in the widely used phylocom format, 
+grid cell. 
+
+The CSV table of occurrences is in the widely used phylocom format, 
 which is a long-form format for associating the occurrence of species in sites. 
 It consists of three columns, a column of species names, one of abundances 
-(here 1, as it's a presence-absence data set) and a column of sites. 
+(here all have the value 1, as it's a presence-absence data set) and a column 
+of sites. 
 ```@example nodebased
 using CSV, DataFrames, SpatialEcology
 phylocom = CSV.read("../../data/tyrann_phylocom.tsv", DataFrame)
-first(phylocom, 4)
+first(phylocom, 4) # hide
 ```
 
 The coordinates is a simple DataFrame with a column of sites, one of latitude 
 and one of longitude
 ```@example nodebased
 coord = CSV.read("../../data/tyrann_coords.tsv", DataFrame)
-first(coord, 4)
+first(coord, 4) # hide
 ```
 
 We ensure that the column of sites are represented as `string`s in both data 
@@ -40,7 +54,7 @@ tyrants = Assemblage(phylocom, coord)
 Let's have a look at the data
 ```@example nodebased
 using Plots
-ENV["GKSwstype"]="nul" # this is just for the docs to run remotely
+ENV["GKSwstype"]="nul" # hide
 default(color = cgrad(:Spectral, rev = true))
 plot(tyrants)
 ```
@@ -59,16 +73,16 @@ vertices in the phylogeny for almost everything. For example, to get a vector
 of all internal (non-tip) nodes in the phylogeny, we would create an iterator
 over the names of all nodes in the tree, filtered by the function `isleaf`, which
 checks whether a node has any descendants, and then `collect` the iterator to
-a vector
+a vector.
 
 ```@example nodebased
 nodes = nodenamefilter(!isleaf, tree)
 nodevec = collect(nodes)
-first(nodevec, 4)
+first(nodevec, 4) # hide
 ```
 
 Let's pick a random node from the vector to demonstrate how we can get information
-on that node
+on that node.
 
 ```@example nodebased
 randnode = nodevec[131]
@@ -81,7 +95,8 @@ function takes two arguments.
 
 ```@example nodebased
 nodespecies(tree, node) = filter(x -> isleaf(tree, x), getdescendants(tree, node))
-first(nodespecies(tree, randnode), 4)
+nodespecies(tree, randnode)
+first(nodespecies(tree, randnode), 4) # hide
 ```
 
 We can use that species list to subset an `Assemblage` object. For instance, we
@@ -100,7 +115,9 @@ The question we are interested in addressing here is: At a given node where the
 lineage splits into two sister clades - are the two descendant clades distributed
 differently? This could be an indication that an evolutionary or biogeographic
 event happened at that time, of consequence for the current distribution of 
-the species. So let's get the two descendant clades, and plot their distribution
+the species. 
+
+So let's get the two descendant clades, and plot their distribution
 in comparison to the parent clade
 
 ```@example nodebased
@@ -120,12 +137,16 @@ plot_node(tyrants, tree, randnode)
 ```
 It is clear that the two clades have distinct distributions, with the first
 descendant appearing to be overrepresented in the tropical rainforest biome,
-mainly in the Amazon. But is the difference great enough that we can say that 
+mainly in the Amazon. 
+
+But is the difference great enough that we can say that 
 this is not just a random pattern? We can use randomization to find out.
 
 ### Using randomization to assess significance of distribution differences
 SpatialEcology `Assemblage`s can be randomized using the `curveball` matrix
-randomization algorithm defined in [RandomBooleanMatrices.jl](http://docs.ecojulia.org/RandomBooleanMatrices/stable). This algorithm randomizes a species-by-site
+randomization algorithm defined in [RandomBooleanMatrices.jl](http://docs.ecojulia.org/RandomBooleanMatrices/stable). 
+
+This algorithm randomizes a species-by-site
 matrix while keeping row and column sums constant, and is very fast. We can
 instantiate a `matrixrandomizer` object from our assemblage, and then use this
 object to repeatedly generate randomized communities
@@ -137,7 +158,7 @@ plot(newcomm, title = "randomized version of $randnode")
 ```
 Because row and column sums are kept constant, the richness of the randomized
 community is the same. But the richness of the two descendant clades will be
-different - let's look at our focal node
+different - let's look at our focal node:
 
 ```@example nodebased
 ch1, ch2 = getchildren(tree, randnode)[1:2]
@@ -149,12 +170,15 @@ plot(
 )
 ```
 This represents a random expectation for the species richness of the two
-descendant clades should be. We can repeat this process 100 times and store
+descendant clades should be. 
+
+We can repeat this process 100 times and store
 the species richness of one of the clades in order to get a sampling
 distribution. The mean and standard deviation of this distribution can
 be used to assess how unexpected our empirically observed distribution is.
+
 We will focus just on one of the descendants, child clade `ch2`. The pattern for
-the other descendant is mirrored.
+the other descendant is essentially a mirror image.
 
 ```@example nodebased
 using Random: rand!
@@ -170,14 +194,15 @@ function simulate_descendants(clade, tree, descendant; nsims = 99)
     ret
 end
 
-sims = simulate_descendants(rand_clade, tree, ch2);
+sims = simulate_descendants(rand_clade, tree, ch2)
 ```
 
 Then we calculate the mean and standard deviation across simulations and use this
 to express the empirical richness values as standardized effect sizes.
 The resulting standardized effect size for each grid cell constitutes the `SOS`
-metric of Borregaard et al. (2014). To calculate this for our focal cell and plot
-it we can do
+metric of Borregaard et al. (2014). 
+
+To calculate this for our focal cell and plot it we can do:
 ```@example nodebased
 using Statistics
 function calculate_SOS(sims)
@@ -212,12 +237,14 @@ function calculate_GND(sims)
 end
 
 GND = calculate_GND(sims)
-first(GND, 4)
+first(GND, 4) # hide
 ```
 
 ### Putting it all together
 We can use all of the above to go through the entire phylogeny and generate SOS
-and GND values. First, let us create a function that calculates both metrics
+and GND values. 
+
+First, let us create a function that calculates both metrics
 
 ```@example nodebased
 function process_node(assemblage, tree, nodename; nsims = 100)
@@ -233,11 +260,12 @@ function process_node(assemblage, tree, nodename; nsims = 100)
 end
 
 # use as
-SOS, GND = process_node(tyrants, tree, randnode);
+SOS, GND = process_node(tyrants, tree, randnode)
 ```
 
 ### Final step: Applying the method to the entire tree
-Finally, we can now go through every node on the tree and calculate the metrics
+Finally, we can now go through every node on the tree and calculate the metrics.
+
 This function recreates the functionality of the main `Node_analysis` function of
 the [nodiv](https://github.com/mkborregaard/nodiv) R package
 ```@example nodebased
@@ -265,5 +293,7 @@ plot(tree,
      size = (600, 1000), clim = (0,1)
      )
 ```
+
 We notice that a few of the nodes stand clearly out with significant
-distributional changes
+distributional changes. We can then proceed to map the SOS values for these
+nodes and interpret the distributional history.
