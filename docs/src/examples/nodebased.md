@@ -271,12 +271,11 @@ the [nodiv](https://github.com/mkborregaard/nodiv) R package
 ```@example nodebased
 using ProgressLogging
 function node_based_analysis(assemblage::Assemblage, tree::AbstractTree)
-   nodevec = traversal(tree, preorder) # collect(nodenamefilter(!isleaf, tree))
+   nodevec = [getnodename(tree, x) for x in traversal(tree, preorder) if !isleaf(tree, x)] #shuffle!(collect(nodenamefilter(!isleaf, tree)))
    SOSs = Matrix{Float64}(undef, nsites(tyrants), length(nodevec))
    GNDs = Vector{Float64}(undef, length(nodevec))
    @progress for (i, node) in enumerate(nodevec)
-        println(i)
-       SOSs[:,i], GNDs[i] = process_node(tyrants, tree, getnodename(tree, node))
+       SOSs[:,i], GNDs[i] = process_node(tyrants, tree, node)
    end
    SOSs, GNDs
 end
