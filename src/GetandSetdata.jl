@@ -67,7 +67,10 @@ function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::S
 
     nm = propertynames(newtraits)
     rename!(newtraits, species => :name)
+    asm.occ.traits.__run_number = 1:nrow(asm.occ.traits)
     asm.occ.traits = leftjoin(asm.occ.traits, newtraits, on = :name, makeunique = makeunique)
+    sort!(asm.occ.traits, :__run_number)
+    select!(asm.occ.traits, Not(:__run_number))
     rename!(newtraits, nm)
     #assemblagejoin!(asm.occ.traits, newtraits, :name, species)
     nothing
@@ -94,7 +97,10 @@ function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::S
     #assemblagejoin!(asm.site.sitestats, newsites, :sites, sites) #TODO this should instead be on the sitenames of the objects and adjusted below
     nm = propertynames(newsites)
     rename!(newsites, sites => :sites)
+    asm.site.sitestats.__run_number = 1:nrow(asm.site.sitestats)
     asm.site.sitestats = leftjoin(asm.site.sitestats, newsites, on = :sites, makeunique = makeunique)
+    sort!(asm.site.sitestats, :__run_number)
+    select!(asm.site.sitestats, Not(:__run_number))
     rename!(newsites, nm)
     nothing
 end
