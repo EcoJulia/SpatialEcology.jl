@@ -25,9 +25,6 @@ sitenames
 speciesnames
 coordinates
 occurring
-noccurring
 occupied
-noccupied
 occurrences
-cooccurring
 ```
