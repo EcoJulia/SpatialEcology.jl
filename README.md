@@ -5,7 +5,7 @@
 
 ![version](https://img.shields.io/github/v/tag/EcoJulia/SpatialEcology.jl?sort=semver&style=flat-square)
 [![CI](https://github.com/EcoJulia/SpatialEcology.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/EcoJulia/SpatialEcology.jl/actions/workflows/CI.yml)
-![Doc](https://img.shields.io/github/workflow/status/EcoJulia/SpatialEcology.jl/Documentation?label=Doc&style=flat-square)
+![Doc](https://img.shields.io/github/actions/workflow/status/EcoJulia/SpatialEcology.jl/Documentation.yml?branch=main)
 [![codecov](https://codecov.io/gh/EcoJulia/SpatialEcology.jl/graph/badge.svg?token=DeSFZuHa99)](https://codecov.io/gh/EcoJulia/SpatialEcology.jl)
 
 ## Primary author: Michael Krabbe Borregaard (@mkborregaard)
