@@ -4,7 +4,7 @@ keywords = ["macroecology", "ecology", "biology", "geography"]
 license = "MIT"
 desc = "Julia framework for spatial ecology"
 authors = ["mkborregaard <mkborregaard@snm.ku.dk"]
-version = "0.9.16"
+version = "0.9.17"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
@@ -21,7 +21,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 DataFrames = "1.0, 1.1, 1.2"
-DataFramesMeta = "0.5, 0.6, 0.7, 0.8, 0.9, 0.10, 0.11, 0.12, 0.13, 0.14"
+DataFramesMeta = "0.5, 0.6, 0.7, 0.8, 0.9, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15"
 Distances = "0.8, 0.9, 0.10"
 EcoBase = "0.1"
 Random = "1"
