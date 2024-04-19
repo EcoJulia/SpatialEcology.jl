@@ -3,7 +3,7 @@ name: CompatHelper
 on:
   push:
     branches:
-      - master
+      - main
   schedule:
     - cron: '00 00 * * *'
 
@@ -19,7 +19,7 @@ jobs:
         os:
           - ubuntu-latest
     steps:
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.julia-version }}
           arch: ${{ matrix.arch }}
@@ -38,3 +38,4 @@ jobs:
         shell: julia --color=yes {0}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMPATHELPER_PRIV: ${{ secrets.DOCUMENTER_KEY }}
