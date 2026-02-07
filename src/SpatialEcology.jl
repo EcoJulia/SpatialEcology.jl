@@ -2,7 +2,6 @@ __precompile__(true)
 module SpatialEcology
 
 using DataFrames
-import DataFrames: aggregate
 import DataFramesMeta: @with
 using SparseArrays
 using Statistics
