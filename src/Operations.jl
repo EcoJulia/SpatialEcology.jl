@@ -86,5 +86,5 @@ _grid_from_factor(gd::SEGrid, factor; xmin = nothing, ymin = nothing) = _grid_fr
 _grid_from_factor(gd::GridTopology, factor; xmin = nothing, ymin = nothing) = GridTopology(_range_from_factor(extrema(gd.xs)..., first(factor); inmin = xmin), _range_from_factor(extrema(gd.ys)..., last(factor); inmin = ymin))
 
 _default_fun(::Type{Bool}) = Base.any
-_default_fun(::Type{Integer}) = Base.sum
+_default_fun(::Type{<:Integer}) = Base.sum
 _default_fun(::Any) = error("Default aggregation functions are only defined for Assemblage{Bool} (presence-absence) and Assemblage{Int}")

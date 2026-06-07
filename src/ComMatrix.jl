@@ -4,7 +4,7 @@ macro forward_func(ex, fs)
 
     T = esc(T)
     fs = Meta.isexpr(fs, :tuple) ? map(esc, fs.args) : [esc(fs)]
-    :($([:($f(x::$T, args...) = (Base.@_inline_meta; $f(x.$field, args...)))
+    :($([:(@inline $f(x::$T, args...) = $f(x.$field, args...))
         for f in fs]...);
     nothing)
 end
@@ -53,7 +53,7 @@ const nsites = nplaces
 """
 nplaces(com::AbstractComMatrix) = size(com.occurrences, 2)
 nplaces(sd::SiteData) = size(coordinates(sd.site), 1)
-nplaces(sd::SELocations) = DataFrames.ncol(sd.sitestats)
+nplaces(sd::SELocations) = DataFrames.nrow(sd.sitestats)
 nplaces(gr::GridData) = size(gr.indices, 1)
 nplaces(pd::PointData) = size(pd.coords, 1)
 

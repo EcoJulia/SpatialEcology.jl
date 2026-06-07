@@ -71,7 +71,7 @@ end
 
 function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
     if DataFrames.ncol(occ) == 3 && eltypest(occ)[3] <: AbstractString
-        println("Data format identified as Phylocom")
+        @info "Data format identified as Phylocom"
         sites = unique(occ[!,1])
         species = unique(occ[!,3])
         js = indexin(occ[!,1], sites)
@@ -91,15 +91,15 @@ function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
 
     try
         occ = dataFrametoSparseMatrix(occ, Bool)
-        println("Matrix data assumed to be presence-absence")
+        @info "Matrix data assumed to be presence-absence"
     catch
         try
             occ = dataFrametoSparseMatrix(occ, Int) #TODO These lines mean that this code is not completely type stable.
-            println("Matrix data assumed to be abundances, minimum $(minimum(occ)), maximum $(maximum(occ))")
+            @info "Matrix data assumed to be abundances, minimum $(minimum(occ)), maximum $(maximum(occ))"
         catch
             occ = dataFrametoSparseMatrix(occ, Float64)
-            println("Matrix data assumed to be relative abundances, minimum $(minimum(occ)), maximum $(maximum(occ))")
-            (minimum(occ) < 0 || maximum(occ) > 1) && @info("Values don't fall in the 0,1 range")
+            @info "Matrix data assumed to be relative abundances, minimum $(minimum(occ)), maximum $(maximum(occ))"
+            (minimum(occ) < 0 || maximum(occ) > 1) && @info "Values don't fall in the 0,1 range"
         end
     end
 

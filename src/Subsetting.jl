@@ -51,7 +51,8 @@ end
 
 view(pd::SEPoints, sites) = SubPointData(view(pd.coords, sites, :))
 view(gd::SEGrid, sites) = SubGridData(view(gd.indices, sites, :), gd.grid)
-view(lo::SELocations, sites) = SubLocations{SubGridData}(view(lo.coords, sites), view(lo.sitestats, sites, :))
+view(lo::SELocations{<:GridData}, sites) = SubLocations{SubGridData}(view(lo.coords, sites), view(lo.sitestats, sites, :))
+view(lo::SELocations{<:PointData}, sites) = SubLocations{SubPointData}(view(lo.coords, sites), view(lo.sitestats, sites, :))
 view(sp::SESpatialData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
 
  function view(asm::SEAssemblage{D}; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false) where D
@@ -77,7 +78,7 @@ Assemblage(assm::SubAssemblage) = copy(assm)
 
 copy(asm::SEAssemblage) = Assemblage(copy(asm.site), copy(asm.occ))
 copy(sp::SESpatialData) = SiteData(copy(sp.site))
-copy(pd::SEPoints) = PointData(copy(pd.coords), copy(pd.sitestats))
+copy(pd::SEPoints) = PointData(copy(pd.coords))
 copy(pd::AbstractComMatrix) = ComMatrix(copy(pd.occurrences), copy(pd.speciesnames), copy(pd.sitenames))
 copy(occ::SEThings) = SpeciesData(copy(occ.commatrix), my_dataframe_copy(occ.traits))
 copy(lo::SELocations) = Locations(copy(lo.coords), my_dataframe_copy(lo.sitestats))

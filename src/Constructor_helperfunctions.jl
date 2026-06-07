@@ -20,7 +20,7 @@ end
 
 function parsesingleDataFrame(occ::DataFrames.DataFrame)
     if isWorldmapData(occ)
-      println("Data format identified as Worldmap export file")
+      @info "Data format identified as Worldmap export file"
       coords = occ[!,4:5]
       coords[!,:sites] = createsitenames(coords)
       occ = DataFrame(site = coords[!,:sites], abu = ones(Int, DataFrames.nrow(occ)), species = occ[!,1])
@@ -56,7 +56,7 @@ function dataFrametoSparseMatrix(dat::DataFrames.DataFrame, ::Type{T}) where T<:
     is, js = Vector{Int}(), Vector{Int}()
 
     @inbounds for j in 1:DataFrames.ncol(dat)
-        col = dat[:,j]
+        col = dat[!,j]
         for i in 1:DataFrames.nrow(dat)
             if testbool(col[i])
                 push!(is, i)
@@ -72,7 +72,7 @@ function dataFrametoSparseMatrix(dat::DataFrames.DataFrame, ::Type{T}) where T<:
     is, js, vals = Vector{Int}(), Vector{Int}(), Vector{T}()
 
     @inbounds for j in 1:DataFrames.ncol(dat)
-        col = dat[:,j]
+        col = dat[!,j]
         for i in 1:DataFrames.nrow(dat)
             if !ismissing(col[i]) && col[i] != 0
                 push!(is, i)
@@ -104,16 +104,15 @@ end
 # these functions will be removed eventually
 maxrange(x) = diff([extrema(x)...])[1]
 
-# remember here - something wrong with the indices, make sure they are based from 1!
-
 function dropbyindex!(site::Locations{GridData}, indicestokeep)
   site.coords.indices = site.coords.indices[indicestokeep,:]
   site.sitestats = site.sitestats[indicestokeep,:]
-  site.coords.grid.xmin = xrange(site.coords.grid)[minimum(site.coords.indices[:,1])]
-  site.coords.grid.ymin = yrange(site.coords.grid)[minimum(site.coords.indices[:,2])]
-  site.coords.grid.xcells = maxrange(site.coords.indices[:,1]) + 1
-  site.coords.grid.ycells = maxrange(site.coords.indices[:,2]) + 1
-  site.coords.indices = site.coords.indices - minimum(site.coords.indices) + 1
+  newgrid = subsetgrid(site.coords.indices, site.coords.grid)
+  x_shift = Int.((xmin(newgrid) - xmin(site.coords.grid)) / xcellsize(site.coords.grid))
+  y_shift = Int.((ymin(newgrid) - ymin(site.coords.grid)) / ycellsize(site.coords.grid))
+  site.coords.indices[:,1] .-= x_shift
+  site.coords.indices[:,2] .-= y_shift
+  site.coords.grid = newgrid
 end
 
 function dropsites!(occ::ComMatrix, site::SELocations)
