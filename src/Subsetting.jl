@@ -51,8 +51,8 @@ end
 
 view(pd::SEPoints, sites) = SubPointData(view(pd.coords, sites, :))
 view(gd::SEGrid, sites) = SubGridData(view(gd.indices, sites, :), gd.grid)
-view(lo::SELocations{<:GridData}, sites) = SubLocations{SubGridData}(view(lo.coords, sites), view(lo.sitestats, sites, :))
-view(lo::SELocations{<:PointData}, sites) = SubLocations{SubPointData}(view(lo.coords, sites), view(lo.sitestats, sites, :))
+view(lo::SELocations{<:SEGrid}, sites) = SubLocations{SubGridData}(view(lo.coords, sites), view(lo.sitestats, sites, :))
+view(lo::SELocations{<:SEPoints}, sites) = SubLocations{SubPointData}(view(lo.coords, sites), view(lo.sitestats, sites, :))
 view(sp::SESpatialData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
 
  function view(asm::SEAssemblage{D}; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false) where D
