@@ -33,7 +33,7 @@ of sites:
 ```@example nodebased
 using CSV, DataFrames, SpatialEcology
 phylocom = CSV.read("../../data/tyrann_phylocom.tsv", DataFrame)
-first(phylocom, 4) # hide
+first(phylocom, 4)
 ```
 
 The coordinates is a simple DataFrame with a column of sites, one of latitude
@@ -41,7 +41,7 @@ and one of longitude:
 
 ```@example nodebased
 coord = CSV.read("../../data/tyrann_coords.tsv", DataFrame)
-first(coord, 4) # hide
+first(coord, 4)
 ```
 
 We ensure that the column of sites are represented as `string`s in both data
@@ -84,7 +84,7 @@ a vector.
 ```@example nodebased
 nodes = nodenamefilter(!isleaf, tree)
 nodevec = collect(nodes)
-first(nodevec, 4) # hide
+first(nodevec, 4)
 ```
 
 Let's pick a random node from the vector to demonstrate how we can get information
@@ -101,8 +101,7 @@ function takes two arguments.
 
 ```@example nodebased
 nodespecies(tree, node) = filter(x -> isleaf(tree, x), getdescendants(tree, node))
-nodespecies(tree, randnode)
-first(nodespecies(tree, randnode), 4) # hide
+first(nodespecies(tree, randnode), 4)
 ```
 
 We can use that species list to subset an `Assemblage` object. For instance, we
@@ -251,7 +250,7 @@ function calculate_GND(sims)
 end
 
 GND = calculate_GND(sims)
-first(GND, 4) # hide
+first(GND, 4)
 ```
 
 ### Putting it all together
