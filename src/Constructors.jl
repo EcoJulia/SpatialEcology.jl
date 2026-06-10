@@ -76,7 +76,7 @@ function ComMatrix(occ::DataFrames.DataFrame; sitecolumns = true)
         species = unique(occ[!,3])
         js = indexin(occ[!,1], sites)
         is = indexin(occ[!,3], species)
-        occ = maximum(occ[!,2]) == 1 ? sparse(is, js, true) : sparse(is, js, occ[2])
+        occ = maximum(occ[!,2]) == 1 ? sparse(is, js, true) : sparse(is, js, occ[!,2])
         return ComMatrix(occ, string.(collect(species)), string.(collect(sites)))
     end
 
