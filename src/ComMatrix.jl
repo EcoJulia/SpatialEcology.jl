@@ -56,6 +56,7 @@ nplaces(sd::SiteData) = size(coordinates(sd.site), 1)
 nplaces(sd::SELocations) = DataFrames.nrow(sd.sitestats)
 nplaces(gr::GridData) = size(gr.indices, 1)
 nplaces(pd::PointData) = size(pd.coords, 1)
+nplaces(rd::RasterData) = length(rd.cellinds)  # SubRasterData handled in Gridfunctions.jl
 
 """
     nrecords(com)

@@ -19,14 +19,26 @@ mutable struct SubGridData <: SEGrid
     grid::GridTopology
 end
 
+# Site-subset view of a RasterData. `mask` is the (shared) parent domain;
+# `cellinds` is a SubArray over the selected sites — mirrors SubGridData, where
+# `grid` is shared and `indices` is the SubArray. See RasterData for rationale.
+mutable struct SubRasterData <: SEGrid
+    mask::Raster{Bool}
+    cellinds::SubArray{CartesianIndex{2},1}
+end
+
 mutable struct SubPointData <: SEPoints
     coords::SubArray{Float64,2}
 end
 
-mutable struct SubLocations{T<:Union{SubGridData, SubPointData}} <: SELocations{T}
+mutable struct SubLocations{T<:Union{SubGridData, SubPointData, SubRasterData}} <: SELocations{T}
     coords::T
     sitestats::DataFrames.SubDataFrame
 end
+
+# Convenience alias: methods that read `mask`/`cellinds` are written once for
+# both the full and the view type.
+const AnyRasterData = Union{RasterData, SubRasterData}
 
 mutable struct SubAssemblage{D <: Real, P <: SubLocations} <: SEAssemblage{D, SubSpeciesData{D}, P} # A type to keep subtypes together, ensuring that they are all aligned at all times
     site::P
@@ -51,8 +63,17 @@ end
 
 view(pd::SEPoints, sites) = SubPointData(view(pd.coords, sites, :))
 view(gd::SEGrid, sites) = SubGridData(view(gd.indices, sites, :), gd.grid)
-view(lo::SELocations{<:SEGrid}, sites) = SubLocations{SubGridData}(view(lo.coords, sites), view(lo.sitestats, sites, :))
-view(lo::SELocations{<:SEPoints}, sites) = SubLocations{SubPointData}(view(lo.coords, sites), view(lo.sitestats, sites, :))
+# More specific than the SEGrid method above, so RasterData/SubRasterData take
+# this path: the mask (domain) is shared, only the cellinds selection is viewed.
+view(rd::AnyRasterData, sites) = SubRasterData(rd.mask, view(rd.cellinds, sites))
+# Generic over the coords type — the location-subset interface. Each coords type
+# implements `view(coords, sites)` above; this wraps the result, computing the
+# Sub* element type dynamically so GridData, PointData and RasterData (and their
+# Sub* variants, for nested views) all dispatch correctly.
+function view(lo::SELocations, sites)
+    subcoords = view(lo.coords, sites)
+    SubLocations{typeof(subcoords)}(subcoords, view(lo.sitestats, sites, :))
+end
 view(sp::SESpatialData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
 
  function view(asm::SEAssemblage{D}; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false) where D
@@ -92,6 +113,11 @@ function copy(gd::SEGrid)
     indices[:,2] .-= y_shift
     GridData(indices, grid)
 end
+
+# Materialize a (sub)raster location into a standalone RasterData. The domain
+# mask is retained in full — a site-subset is still drawn on the same map — and
+# `cellinds` (the sites, in their selected order) is collected into a Vector.
+copy(rd::AnyRasterData) = RasterData(copy(rd.mask), collect(rd.cellinds))
 
 # because I cannot define a new copy method for DataFrames
 function my_dataframe_copy(sdf::AbstractDataFrame)

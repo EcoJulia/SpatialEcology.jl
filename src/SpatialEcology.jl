@@ -16,6 +16,7 @@ import EcoBase: asindices, nthings, nplaces, occupancy, richness, nrecords, plac
         indices, coordinates, xcells, ycells, cells, xmin, xmax, ymin, ymax,
         xrange, yrange, xcellsize, ycellsize, cellsize, getcoords
 
+using Rasters
 import RecipesBase
 import Base: copy, getindex, setindex!, size, show, summary, view
 import StatsBase: nquantile
@@ -23,6 +24,7 @@ import Distances: pairwise, PreMetric
 
 export SiteData, ComMatrix, Assemblage  #types and their constructors
 export AbstractComMatrix
+export RasterData, to_raster, to_rasterseries, richness_raster
 export nspecies, nsites, occupancy, richness, nrecords, sitenames, speciesnames, coordinates
 export occurring, noccurring, occupied, noccupied, occurrences, cooccurring
 export traits, sitestats, sitestatnames, traitnames, commatrix
@@ -47,6 +49,7 @@ include("ComMatrix.jl")
 include("Subsetting.jl")
 include("GetandSetdata.jl")
 include("Gridfunctions.jl")
+include("RasterIntegration.jl")
 include("Grouping.jl")
 include("Operations.jl")
 include("Randomizations.jl")

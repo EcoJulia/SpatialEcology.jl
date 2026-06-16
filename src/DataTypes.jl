@@ -38,7 +38,22 @@ mutable struct GridData <: SEGrid
     grid::GridTopology
 end
 
-mutable struct Locations{T<:Union{GridData, PointData}} <: SELocations{T}
+# RasterData: a SEGrid backed by a Rasters.jl Bool mask raster.
+#
+# `mask` is the rectangular domain (dims, CRS, extent) — the raster analogue of
+# GridData's `grid::GridTopology`. `cellinds` is the per-site index vector — one
+# CartesianIndex per site, the analogue of GridData's `indices` matrix. For a
+# full RasterData, `cellinds == findall(mask)`; for a site-subset view
+# (`SubRasterData`) it is a SubArray over a selection of those cells. This is
+# what lets views select an arbitrary, possibly reordered subset of sites — a
+# Bool mask alone cannot represent that.
+mutable struct RasterData <: SEGrid
+    mask::Raster{Bool}
+    cellinds::Vector{CartesianIndex{2}}
+end
+RasterData(mask::Raster{Bool}) = RasterData(mask, findall(mask))
+
+mutable struct Locations{T<:Union{GridData, PointData, RasterData}} <: SELocations{T}
     coords::T
     sitestats::DataFrames.DataFrame
     function Locations{T}(coords, sitestats = DataFrames.DataFrame(sites = string.(1:nsites(coords)))) where T
