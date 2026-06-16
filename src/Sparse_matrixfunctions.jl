@@ -1,4 +1,11 @@
 
+# Generic column/row sums. These were historically provided by EcoBase, which no
+# longer exports them; the Bool and SubArray specializations below override these
+# fast paths. Shape (1×N / N×1) is kept to match the old EcoBase behaviour — call
+# sites wrap these in `vec` (see sitetotals/speciestotals).
+colsum(x::AbstractMatrix) = sum(x, dims = 1)
+rowsum(x::AbstractMatrix) = sum(x, dims = 2)
+
 # Functions for sparse array view sums - from https://discourse.julialang.org/t/slow-arithmetic-on-views-of-sparse-matrices/3644
 
 function rowsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC}

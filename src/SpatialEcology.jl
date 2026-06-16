@@ -14,8 +14,7 @@ import EcoBase: asindices, nthings, nplaces, occupancy, richness, nrecords, plac
         occurring, noccurring, occupied, noccupied, occurrences,
         placeoccurrences, thingoccurrences, cooccurring, places, things,
         indices, coordinates, xcells, ycells, cells, xmin, xmax, ymin, ymax,
-        xrange, yrange, xcellsize, ycellsize, cellsize, getcoords,
-        rowsum, colsum, nnz, nzrows, nzcols
+        xrange, yrange, xcellsize, ycellsize, cellsize, getcoords
 
 import RecipesBase
 import Base: copy, getindex, setindex!, size, show, summary, view
