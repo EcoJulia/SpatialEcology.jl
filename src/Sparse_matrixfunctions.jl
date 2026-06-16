@@ -141,12 +141,15 @@ _nnz(x::AbstractMatrix) = nnz(x)
 function _nnz(b::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC}
     pi = parentindices(b)
     rv = rowvals(b.parent)
+    # Mark the selected rows once (O(1) membership), instead of testing
+    # `rowval[r] in pi[1]` (linear in the number of selected rows) per
+    # stored entry — the latter is quadratic for scattered-index views.
+    rowsel = falses(size(b.parent, 1))
+    @inbounds rowsel[pi[1]] .= true
     ret = 0
     @inbounds for c in pi[2]
         for r in nzrange(b.parent, c)
-            if rv[r] in pi[1]
-                ret += 1
-            end
+            ret += rowsel[rv[r]]
         end
     end
     return ret
