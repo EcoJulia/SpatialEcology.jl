@@ -22,8 +22,9 @@ end
 # Site-subset view of a RasterData. `mask` is the (shared) parent domain;
 # `cellinds` is a SubArray over the selected sites — mirrors SubGridData, where
 # `grid` is shared and `indices` is the SubArray. See RasterData for rationale.
-mutable struct SubRasterData <: SEGrid
-    mask::Raster{Bool}
+# `mask` is parameterized over `M` for the same reason as RasterData.
+mutable struct SubRasterData{M} <: SEGrid
+    mask::M
     cellinds::SubArray{CartesianIndex{2},1}
 end
 

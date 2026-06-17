@@ -47,11 +47,20 @@ end
 # (`SubRasterData`) it is a SubArray over a selection of those cells. This is
 # what lets views select an arbitrary, possibly reordered subset of sites — a
 # Bool mask alone cannot represent that.
-mutable struct RasterData <: SEGrid
-    mask::Raster{Bool}
+#
+# INVARIANT: `mask` is always stored in canonical `(X, Y)` dimension order, so a
+# cell's `CartesianIndex` reads as `(x_index, y_index)`. The constructors in the
+# Rasters extension enforce this by `permutedims`-ing inputs before building a
+# RasterData; downstream code (`coordinates`, `xcells`, …) relies on it.
+#
+# The `mask` field is left untyped-over-`M` rather than hardcoding `Raster{Bool}`
+# so the core package defines this type without Rasters loaded; the bridging
+# constructors and methods live in `ext/RastersExt.jl` (loaded with Rasters).
+mutable struct RasterData{M} <: SEGrid
+    mask::M
     cellinds::Vector{CartesianIndex{2}}
 end
-RasterData(mask::Raster{Bool}) = RasterData(mask, findall(mask))
+RasterData(mask) = RasterData(mask, findall(mask))
 
 mutable struct Locations{T<:Union{GridData, PointData, RasterData}} <: SELocations{T}
     coords::T

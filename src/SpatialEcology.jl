@@ -16,7 +16,6 @@ import EcoBase: asindices, nthings, nplaces, occupancy, richness, nrecords, plac
         indices, coordinates, xcells, ycells, cells, xmin, xmax, ymin, ymax,
         xrange, yrange, xcellsize, ycellsize, cellsize, getcoords
 
-using Rasters
 import RecipesBase
 import Base: copy, getindex, setindex!, size, show, summary, view
 import StatsBase: nquantile
@@ -49,10 +48,18 @@ include("ComMatrix.jl")
 include("Subsetting.jl")
 include("GetandSetdata.jl")
 include("Gridfunctions.jl")
-include("RasterIntegration.jl")
 include("Grouping.jl")
 include("Operations.jl")
 include("Randomizations.jl")
 include("PlotRecipes.jl")
+
+# Raster integration lives in `ext/RastersExt.jl`, loaded when the user does
+# `using Rasters`. These are the generic functions that extension populates;
+# declared here so they are part of the public API and can be exported even
+# when Rasters is not loaded. Calling one without Rasters loaded gives the
+# standard "no method matching" error pointing at the missing argument types.
+function to_raster end
+function to_rasterseries end
+function richness_raster end
 
 end # module

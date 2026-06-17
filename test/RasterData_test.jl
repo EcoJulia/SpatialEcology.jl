@@ -79,4 +79,58 @@ using SpatialEcology: RasterData, SubRasterData
         @test c.site.coords isa RasterData
         @test coordinates(c) == coordinates(v3)
     end
+
+    @testset "dimension order (Y, X) is normalized" begin
+        # Distinct X and Y ranges so a positional X/Y mix-up is detectable (and
+        # would go out of bounds, since the grid is not square).
+        xx = X(1.0:4.0); yy = Y(101.0:105.0)
+        layers_xy = map(1:3) do s
+            Raster([(i * s + j) % 3 == 0 for i in 1:4, j in 1:5], (xx, yy); name = Symbol(sp_names[s]))
+        end
+        mask_xy = Raster([(i + j) % 7 != 0 for i in 1:4, j in 1:5], (xx, yy))
+
+        # the same data, transposed to (Y, X) order
+        asm_yx = Assemblage(RasterSeries(permutedims.(layers_xy, Ref((Y, X))), (; name = sp_names)),
+                            permutedims(mask_xy, (Y, X)))
+
+        co = coordinates(asm_yx)
+        @test all(in(1.0:4.0),     co[:, 1])    # X column holds X values, not Y
+        @test all(in(101.0:105.0), co[:, 2])    # Y column holds Y values
+        @test nsites(asm_yx) == nsite
+
+        # identical set of sites to the (X, Y) build, regardless of input order
+        asm_xy = Assemblage(RasterSeries(layers_xy, (; name = sp_names)), mask_xy)
+        @test sortslices(co, dims = 1) == sortslices(coordinates(asm_xy), dims = 1)
+    end
+
+    @testset "RasterStack constructor" begin
+        st = RasterStack((sp_a = ranges[1], sp_b = ranges[2], sp_c = ranges[3]))
+        asm_st = Assemblage(st, mask)
+        @test nspecies(asm_st) == 3
+        @test speciesnames(asm_st) == sp_names
+        @test occurrences(asm_st) == occurrences(asm)
+    end
+
+    @testset "default mask = full domain when no cells are missing" begin
+        fullmask = Raster(trues(4, 5), (x, y))
+        @test nsites(Assemblage(series)) == nsites(Assemblage(series, fullmask))
+    end
+
+    @testset "dims/extent mismatch is rejected" begin
+        wrong = Raster([true for i in 1:3, j in 1:5], (X(1.0:3.0), Y(1.0:5.0)))
+        @test_throws DimensionMismatch Assemblage(series, wrong)
+    end
+
+    @testset "aggregate" begin
+        # qualified because Rasters also exports `aggregate` (name clash)
+        agg = SpatialEcology.aggregate(asm, 2)
+        @test agg isa Assemblage
+        @test agg.site.coords isa RasterData
+        @test nspecies(agg) == nspecies(asm)
+        @test speciesnames(agg) == speciesnames(asm)
+        @test nsites(agg) < nsites(asm)
+        @test all(<=(nspecies(agg)), richness(agg))          # 'any' semantics
+        # every occupied coarse cell must cover an occupied fine cell
+        @test sum(richness(agg)) <= sum(richness(asm))
+    end
 end
