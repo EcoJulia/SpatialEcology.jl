@@ -12,6 +12,7 @@ makedocs(
             "Getting and setting data" => "man/data.md",
             "Subsetting" => "man/subsetting.md",
             "Randomizations" => "man/randomization.md",
+            "Raster data (Rasters.jl)" => "man/rasterdata.md",
         ],
         "Example analyses" => Any[
             "Node-based analysis of species distributions" => "examples/nodebased.md"
