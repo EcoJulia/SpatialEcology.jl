@@ -1,4 +1,11 @@
 
+# Generic column/row sums. These were historically provided by EcoBase, which no
+# longer exports them; the Bool and SubArray specializations below override these
+# fast paths. Shape (1×N / N×1) is kept to match the old EcoBase behaviour — call
+# sites wrap these in `vec` (see sitetotals/speciestotals).
+colsum(x::AbstractMatrix) = sum(x, dims = 1)
+rowsum(x::AbstractMatrix) = sum(x, dims = 2)
+
 # Functions for sparse array view sums - from https://discourse.julialang.org/t/slow-arithmetic-on-views-of-sparse-matrices/3644
 
 function rowsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC}
@@ -134,12 +141,15 @@ _nnz(x::AbstractMatrix) = nnz(x)
 function _nnz(b::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC}
     pi = parentindices(b)
     rv = rowvals(b.parent)
+    # Mark the selected rows once (O(1) membership), instead of testing
+    # `rowval[r] in pi[1]` (linear in the number of selected rows) per
+    # stored entry — the latter is quadratic for scattered-index views.
+    rowsel = falses(size(b.parent, 1))
+    @inbounds rowsel[pi[1]] .= true
     ret = 0
     @inbounds for c in pi[2]
         for r in nzrange(b.parent, c)
-            if rv[r] in pi[1]
-                ret += 1
-            end
+            ret += rowsel[rv[r]]
         end
     end
     return ret

@@ -84,10 +84,10 @@ extrema(coordinates(triturus)[:,1])
 
 ## Aggregation and other operations
 For gridded Assemblages, you can also do some simple geographic operations on the object,
-such as aggregrating the grid to a coarser grain size. Here, we lump them to a 2 times
-coarser grain
+such as coarsening the grid to a coarser grain size with `coarsen`. Here, we lump them to a
+2 times coarser grain
 ```@example tutorial
-amp2 = aggregate(amph, 2)
+amp2 = coarsen(amph, 2)
 default(color = cgrad(:Spectral, rev = true))
 plot(plot(amph), plot(amp2))
 ```

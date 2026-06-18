@@ -11,6 +11,14 @@ function coordinates(gd::SEGrid)
     hcat(index1, index2)
 end
 
+function coordinates(rd::AnyRasterData)
+    # Returns n_sites × 2 [x y], one row per site in `cellinds` (in site order).
+    # xrange/yrange dispatch defined in Gridfunctions.jl for the raster types.
+    xs = EcoBase.xrange(rd)
+    ys = EcoBase.yrange(rd)
+    hcat([xs[ci[1]] for ci in rd.cellinds], [ys[ci[2]] for ci in rd.cellinds])
+end
+
 getcoords(l::SELocations) = l.coords
 
 """

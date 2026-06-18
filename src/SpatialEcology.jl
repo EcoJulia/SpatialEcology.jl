@@ -14,8 +14,7 @@ import EcoBase: asindices, nthings, nplaces, occupancy, richness, nrecords, plac
         occurring, noccurring, occupied, noccupied, occurrences,
         placeoccurrences, thingoccurrences, cooccurring, places, things,
         indices, coordinates, xcells, ycells, cells, xmin, xmax, ymin, ymax,
-        xrange, yrange, xcellsize, ycellsize, cellsize, getcoords,
-        rowsum, colsum, nnz, nzrows, nzcols
+        xrange, yrange, xcellsize, ycellsize, cellsize, getcoords
 
 import RecipesBase
 import Base: copy, getindex, setindex!, size, show, summary, view
@@ -24,6 +23,7 @@ import Distances: pairwise, PreMetric
 
 export SiteData, ComMatrix, Assemblage  #types and their constructors
 export AbstractComMatrix
+export RasterData, to_raster, to_rasterseries, richness_raster
 export nspecies, nsites, occupancy, richness, nrecords, sitenames, speciesnames, coordinates
 export occurring, noccurring, occupied, noccupied, occurrences, cooccurring
 export traits, sitestats, sitestatnames, traitnames, commatrix
@@ -33,7 +33,7 @@ export coordstype
 export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these
 export sitetotals, speciestotals, getspecies, getsite
 export groupspecies, groupsites
-export aggregate
+export coarsen
 export @with, @traits, @sitestats
 export matrixrandomizer, matrixrandomizations
 export dispersionfield
@@ -52,5 +52,14 @@ include("Grouping.jl")
 include("Operations.jl")
 include("Randomizations.jl")
 include("PlotRecipes.jl")
+
+# Raster integration lives in `ext/RastersExt.jl`, loaded when the user does
+# `using Rasters`. These are the generic functions that extension populates;
+# declared here so they are part of the public API and can be exported even
+# when Rasters is not loaded. Calling one without Rasters loaded gives the
+# standard "no method matching" error pointing at the missing argument types.
+function to_raster end
+function to_rasterseries end
+function richness_raster end
 
 end # module

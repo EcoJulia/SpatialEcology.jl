@@ -1,3 +1,9 @@
+# version 0.10.0
+- **breaking:** the grid-coarsening function `aggregate` is renamed to `coarsen`, and `aggregate` is no longer exported. This avoids a name clash with `Rasters.aggregate` (which SpatialEcology does not own). Replace `aggregate(assemblage, …)` with `coarsen(assemblage, …)`. With Rasters loaded, `aggregate(assemblage, …)` keeps working, because the extension teaches `Rasters.aggregate` to accept assemblages.
+- add a [Rasters.jl](https://github.com/rafaqz/Rasters.jl) integration: build an `Assemblage` from a `RasterStack` or `RasterSeries` of per-species `Bool` rasters (plus an optional domain mask), convert results back with `to_raster`, `to_rasterseries` and `richness_raster`, and `coarsen` raster-backed assemblages
+- Rasters is a weak dependency loaded through a package extension, so it is only pulled in when you `using Rasters` yourself — it adds no cost to non-raster workflows
+- minimum Julia version is now 1.9 (package extensions)
+
 # version 0.4.1
 - removed `full` again
 - greatly expanded test suite

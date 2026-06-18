@@ -14,6 +14,10 @@ boundingbox(g::GridTopology) = Bbox(xmin(g), xmax(g), ymin(g), ymax(g))
 @forward_func SubLocations{SubGridData}.coords xmin, ymin, xcellsize, ycellsize, xcells, ycells, boundingbox, indices
 @forward_func SEAssemblage.site xmin, ymin, xcellsize, ycellsize, xcells, ycells, boundingbox, indices
 
+# The RasterData grid interface (xrange/yrange/xmin/.../boundingbox, the
+# Locations-level forwards, and the show methods) needs Rasters and lives in
+# `ext/RastersExt.jl`. Only this Rasters-free method stays in core:
+nplaces(rd::SubRasterData) = length(rd.cellinds)
 
 show(io::IO, b::Bbox) = println(io, "xmin:\t$(b.xmin)\nxmax:\t$(b.xmax)\nymin:\t$(b.ymin)\nymax:\t$(b.ymax)")
 show(io::IO, g::GridData) = (println(io, "Spatial Grid\n", gridline(g.grid)); println(io, size(g.indices,1), " sites");)

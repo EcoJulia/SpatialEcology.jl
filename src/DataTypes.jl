@@ -38,7 +38,31 @@ mutable struct GridData <: SEGrid
     grid::GridTopology
 end
 
-mutable struct Locations{T<:Union{GridData, PointData}} <: SELocations{T}
+# RasterData: a SEGrid backed by a Rasters.jl Bool mask raster.
+#
+# `mask` is the rectangular domain (dims, CRS, extent) — the raster analogue of
+# GridData's `grid::GridTopology`. `cellinds` is the per-site index vector — one
+# CartesianIndex per site, the analogue of GridData's `indices` matrix. For a
+# full RasterData, `cellinds == findall(mask)`; for a site-subset view
+# (`SubRasterData`) it is a SubArray over a selection of those cells. This is
+# what lets views select an arbitrary, possibly reordered subset of sites — a
+# Bool mask alone cannot represent that.
+#
+# INVARIANT: `mask` is always stored in canonical `(X, Y)` dimension order, so a
+# cell's `CartesianIndex` reads as `(x_index, y_index)`. The constructors in the
+# Rasters extension enforce this by `permutedims`-ing inputs before building a
+# RasterData; downstream code (`coordinates`, `xcells`, …) relies on it.
+#
+# The `mask` field is left untyped-over-`M` rather than hardcoding `Raster{Bool}`
+# so the core package defines this type without Rasters loaded; the bridging
+# constructors and methods live in `ext/RastersExt.jl` (loaded with Rasters).
+mutable struct RasterData{M} <: SEGrid
+    mask::M
+    cellinds::Vector{CartesianIndex{2}}
+end
+RasterData(mask) = RasterData(mask, findall(mask))
+
+mutable struct Locations{T<:Union{GridData, PointData, RasterData}} <: SELocations{T}
     coords::T
     sitestats::DataFrames.DataFrame
     function Locations{T}(coords, sitestats = DataFrames.DataFrame(sites = string.(1:nsites(coords)))) where T
