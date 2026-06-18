@@ -82,16 +82,20 @@ to_raster(Float64.(richness(asm)), asm)
 These work on views too — a site subset is drawn on the same map, with
 unselected cells left missing.
 
-## Aggregation
+## Coarsening the grid
 
-`aggregate` coarsens a raster-backed assemblage by an integer factor (or an
-`(x, y)` tuple), using `Rasters.aggregate` underneath. The default `fun =
-maximum` gives presence-absence "*any* fine cell occupied" semantics.
-
-Because Rasters also exports `aggregate`, call it qualified as
-`SpatialEcology.aggregate` when both packages are in scope:
+`coarsen` lumps a raster-backed assemblage to a coarser grain by an integer
+factor (or an `(x, y)` tuple), using `Rasters.aggregate` underneath. The default
+`fun = maximum` gives presence-absence "*any* fine cell occupied" semantics.
 
 ```@example raster
-coarse = SpatialEcology.aggregate(asm, 2)
+coarse = coarsen(asm, 2)
 nsites(asm), nsites(coarse)
 ```
+
+`coarsen` is the same verb used for ordinary gridded assemblages, so it always
+works whether or not Rasters is loaded. As a convenience, with Rasters loaded
+the extension also teaches `Rasters.aggregate` to accept assemblages, so the
+familiar Rasters verb works too — `aggregate(asm, 2)` is equivalent to the call
+above. (SpatialEcology does not export `aggregate` itself, so there is no name
+clash with Rasters.)

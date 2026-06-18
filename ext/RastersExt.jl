@@ -161,20 +161,20 @@ end
 SE.richness_raster(asm::SEAssemblage) = SE.to_raster(vec(sum(occurrences(asm), dims = 1)), asm)
 
 # ----------------------------------------------------------------------------
-# aggregate (coarsen the grid) — uses Rasters.aggregate
+# coarsen (the raster-backed grid) — uses Rasters.aggregate under the hood
 # ----------------------------------------------------------------------------
 
 """
-    aggregate(asm::Assemblage{Bool, …RasterData…}, factor; fun = maximum)
+    coarsen(asm::Assemblage{Bool, …RasterData…}, factor; fun = maximum)
 
 Coarsen a raster-backed assemblage by `factor` (an `Integer`, or a
 `(x, y)` tuple). Each species is occupied in a coarse cell when `fun` over the
 covered fine cells is true — the default `maximum` means *any* fine cell, the
-presence-absence analogue of the grid `aggregate`. The coarse domain keeps any
+presence-absence analogue of the grid `coarsen`. The coarse domain keeps any
 fine cell that was in the original domain. Species traits are carried over.
 """
-function SE.aggregate(asm::Assemblage{Bool, <:Locations{<:RasterData}},
-                      factor::Union{Integer, Tuple{Integer, Integer}}; fun = maximum)
+function SE.coarsen(asm::Assemblage{Bool, <:Locations{<:RasterData}},
+                    factor::Union{Integer, Tuple{Integer, Integer}}; fun = maximum)
     rd        = getcoords(places(asm))
     series    = SE.to_rasterseries(asm)
     agglayers = [Rasters.aggregate(fun, r, factor) for r in series]
@@ -182,5 +182,13 @@ function SE.aggregate(asm::Assemblage{Bool, <:Locations{<:RasterData}},
     aggseries = RasterSeries(agglayers, (; name = collect(speciesnames(asm))))
     SE.Assemblage(aggseries, aggmask; traits = traits(asm))
 end
+
+# Make Rasters' own `aggregate` verb work on SpatialEcology assemblages, routing
+# to `coarsen`. Defining methods on Rasters.aggregate for *our* types is not
+# piracy. The upshot: with Rasters loaded, `aggregate(asm, 2)` works unqualified
+# (there is no name clash, since SpatialEcology no longer exports `aggregate`),
+# in addition to the always-available `coarsen(asm, 2)`.
+Rasters.aggregate(fun, asm::SEAssemblage, factor) = SE.coarsen(asm, factor; fun = fun)
+Rasters.aggregate(asm::SEAssemblage, factor; fun = maximum) = SE.coarsen(asm, factor; fun = fun)
 
 end # module

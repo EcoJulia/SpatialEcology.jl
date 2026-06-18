@@ -1,28 +1,28 @@
 #------------------
-# aggregate
+# coarsen
 
 """
-    aggregate(object, grid [, fun])
+    coarsen(object, grid [, fun])
 
-Aggregate `object` (either an `Assemblage` or `Locations` type) to `grid`.
+Coarsen `object` (either an `Assemblage` or `Locations` type) to `grid`.
 If `object` is an `Assemblage{PointData}` this will grid all points and return an
 `Assemblage{GridData}`. `grid` can be a `GridTopology` or a single `Integer`
-signifying the aggregation factor for already gridded data, the cellsize for
+signifying the coarsening factor for already gridded data, the cellsize for
 point data. `fun` is an optional function specifying how to lump occurrences. If
 not specified the default function is `any` for Boolean Assemblages and `sum` for
 Integer ones.
 """
-aggregate(lo::SELocations, factor) = Locations{GridData}(aggregate(lo.coords, factor))
-aggregate(gr::GridTopology, factor) = _grid_from_factor(gr, factor)
-aggregate(gr::SEGrid, factor::Integer) = (g = _grid_from_factor(gr.grid, factor); aggregate(gr, g))
-aggregate(gr::SEGrid, newgrid::GridTopology) = (ind = _apply_grid(gr, newgrid); GridData(sortslices(unique(ind, dims = 1), dims = 1), newgrid))
+coarsen(lo::SELocations, factor) = Locations{GridData}(coarsen(lo.coords, factor))
+coarsen(gr::GridTopology, factor) = _grid_from_factor(gr, factor)
+coarsen(gr::SEGrid, factor::Integer) = (g = _grid_from_factor(gr.grid, factor); coarsen(gr, g))
+coarsen(gr::SEGrid, newgrid::GridTopology) = (ind = _apply_grid(gr, newgrid); GridData(sortslices(unique(ind, dims = 1), dims = 1), newgrid))
 
-function aggregate(asm::SEAssemblage{D, T, P}, factor::Union{Integer, Tuple{Integer, Integer}}, fun = _default_fun(D); xmin = nothing, ymin = nothing) where D where T where P <: SELocations
+function coarsen(asm::SEAssemblage{D, T, P}, factor::Union{Integer, Tuple{Integer, Integer}}, fun = _default_fun(D); xmin = nothing, ymin = nothing) where D where T where P <: SELocations
     gt = _grid_from_factor(asm.site.coords, factor; xmin = xmin, ymin = ymin)
-    aggregate(asm, gt, fun)
+    coarsen(asm, gt, fun)
 end
 
-function aggregate(asm::SEAssemblage{D}, gt::GridTopology, fun = _default_fun(D)) where D
+function coarsen(asm::SEAssemblage{D}, gt::GridTopology, fun = _default_fun(D)) where D
     # create the new grid
     tmpgrid = _apply_grid(asm.site.coords, gt)
     tmpsites = sortslices(unique(tmpgrid, dims = 1), dims = 1)
@@ -60,7 +60,7 @@ function aggregate(asm::SEAssemblage{D}, gt::GridTopology, fun = _default_fun(D)
 end
 
 #-----------
-# `aggregate` helper functions
+# `coarsen` helper functions
 
 _lowerleft(gr) = (xmin(gr), ymin(gr)) .- (0.5 .* cellsize(gr))
 

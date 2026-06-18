@@ -72,7 +72,7 @@ Pages = ["subsetting.md"]
 ```@docs
 groupspecies
 groupsites
-aggregate
+coarsen
 ```
 
 ### Utilities

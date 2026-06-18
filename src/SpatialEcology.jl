@@ -33,7 +33,7 @@ export coordstype
 export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these
 export sitetotals, speciestotals, getspecies, getsite
 export groupspecies, groupsites
-export aggregate
+export coarsen
 export @with, @traits, @sitestats
 export matrixrandomizer, matrixrandomizations
 export dispersionfield

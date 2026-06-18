@@ -121,9 +121,8 @@ using SpatialEcology: RasterData, SubRasterData
         @test_throws DimensionMismatch Assemblage(series, wrong)
     end
 
-    @testset "aggregate" begin
-        # qualified because Rasters also exports `aggregate` (name clash)
-        agg = SpatialEcology.aggregate(asm, 2)
+    @testset "coarsen" begin
+        agg = coarsen(asm, 2)
         @test agg isa Assemblage
         @test agg.site.coords isa RasterData
         @test nspecies(agg) == nspecies(asm)
@@ -132,5 +131,11 @@ using SpatialEcology: RasterData, SubRasterData
         @test all(<=(nspecies(agg)), richness(agg))          # 'any' semantics
         # every occupied coarse cell must cover an occupied fine cell
         @test sum(richness(agg)) <= sum(richness(asm))
+
+        # Rasters' own `aggregate` verb is extended onto assemblages, so it works
+        # unqualified here (SpatialEcology no longer exports `aggregate`) and
+        # agrees with `coarsen`.
+        @test occurrences(aggregate(asm, 2)) == occurrences(agg)
+        @test occurrences(aggregate(maximum, asm, 2)) == occurrences(agg)
     end
 end
