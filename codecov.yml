@@ -9,8 +9,3 @@ coverage:
     patch:
       default:
         informational: true
-
-# Phylotypes.jl is not part of the loaded module (it depends on a `Phylo`
-# package that is not a dependency) and would otherwise be reported as 0%.
-ignore:
-  - "src/Phylotypes.jl"
