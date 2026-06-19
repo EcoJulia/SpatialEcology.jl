@@ -138,4 +138,9 @@ using SpatialEcology: RasterData, SubRasterData
         @test occurrences(aggregate(asm, 2)) == occurrences(agg)
         @test occurrences(aggregate(maximum, asm, 2)) == occurrences(agg)
     end
+
+    @testset "show" begin
+        @test occursin("RasterData", sprint(show, asm.site.coords))
+        @test occursin("SubRasterData view", sprint(show, view(asm, sites = 1:5).site.coords))
+    end
 end
