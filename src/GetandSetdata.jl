@@ -127,14 +127,14 @@ end
     @traits(x, expr)
 """
 macro traits(x, expr)
-    :(@with(traits($x), $expr))
+    esc(:(@with(traits($x), $expr)))
 end
 
 """
     @sitestats(x, expr)
 """
 macro sitestats(x, expr)
-    :(@with(sitestats($x), $expr))
+    esc(:(@with(sitestats($x), $expr)))
 end
 
 """

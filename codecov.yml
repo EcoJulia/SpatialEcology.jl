@@ -1,0 +1,11 @@
+comment: false
+
+coverage:
+  status:
+    project:
+      default:
+        # don't fail the patch/project check on small coverage fluctuations
+        threshold: 1%
+    patch:
+      default:
+        informational: true
