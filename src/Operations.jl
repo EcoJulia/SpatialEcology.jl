@@ -45,7 +45,7 @@ function coarsen(asm::SEAssemblage{D}, gt::GridTopology, fun = _default_fun(D)) 
         if fun === Base.any
             retmat[nzrows(view(occurrences(asm), :, inds)), newcell] .= true
         elseif fun === Base.sum
-            retmat[:, newcell] .= vec(colsum(view(occurrences(asm), :, inds)))
+            retmat[:, newcell] .= vec(rowsum(view(occurrences(asm), :, inds)))
         else
             retmat[:, newcell] .= vec(mapslices(fun, occurrences(asm)[:, inds], dims = 2))
         end

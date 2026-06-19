@@ -26,8 +26,8 @@ function Random.rand!(r::MatrixGenerator{R, A}) where {R} where {A <: Assemblage
     r.m
 end
 
-Random.rand(r::MatrixGenerator{<:ComMatrix}) = copy(Random.rand!(r))
-function Random.rand!(r::MatrixGenerator{C}) where {C <: ComMatrix}
+Random.rand(r::MatrixGenerator{R, <:ComMatrix}) where R = copy(Random.rand!(r))
+function Random.rand!(r::MatrixGenerator{R, C}) where {R, C <: ComMatrix}
     RandomBooleanMatrices._curveball!(r.m.occurrences)
     r.m
 end
