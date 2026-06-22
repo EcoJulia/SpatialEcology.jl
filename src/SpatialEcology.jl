@@ -21,7 +21,7 @@ import Base: copy, getindex, setindex!, size, show, summary, view
 import StatsBase: nquantile
 import Distances: pairwise, PreMetric
 
-export SiteData, ComMatrix, Assemblage  #types and their constructors
+export ComMatrix, Assemblage  #types and their constructors
 export AbstractComMatrix
 export RasterData, to_raster, to_rasterseries, richness_raster
 export nspecies, nsites, occupancy, richness, nrecords, sitenames, speciesnames, coordinates

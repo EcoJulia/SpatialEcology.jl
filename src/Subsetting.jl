@@ -46,11 +46,6 @@ mutable struct SubAssemblage{D <: Real, P <: SubLocations} <: SEAssemblage{D, Su
     occ::SubSpeciesData{D}
 end
 
-# TODO delete
-mutable struct SubSiteData{S<:SubLocations} <: SESpatialData{S}
-    site::S
-end
-
 # TODO not sure this is necessary anymore - perhaps remove, or update with a string (for names)
 
 # creating views
@@ -75,7 +70,6 @@ function view(lo::SELocations, sites)
     subcoords = view(lo.coords, sites)
     SubLocations{typeof(subcoords)}(subcoords, view(lo.sitestats, sites, :))
 end
-view(sp::SESpatialData, sites = 1:nsites(sp)) = SubSiteData(view(sp.site, sites))
 
  function view(asm::SEAssemblage{D}; species = 1:nspecies(asm), sites = 1:nsites(asm), dropsites = false, dropspecies = false, dropempty = false) where D
     sit = asindices(sites, sitenames(asm))
@@ -99,7 +93,6 @@ end
 Assemblage(assm::SubAssemblage) = copy(assm)
 
 copy(asm::SEAssemblage) = Assemblage(copy(asm.site), copy(asm.occ))
-copy(sp::SESpatialData) = SiteData(copy(sp.site))
 copy(pd::SEPoints) = PointData(copy(pd.coords))
 copy(pd::AbstractComMatrix) = ComMatrix(copy(pd.occurrences), copy(pd.speciesnames), copy(pd.sitenames))
 copy(occ::SEThings) = SpeciesData(copy(occ.commatrix), my_dataframe_copy(occ.traits))

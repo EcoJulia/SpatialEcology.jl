@@ -2,7 +2,6 @@
     coordinates(asm)
 """
 coordinates(asm::SEAssemblage) = coordinates(asm.site)
-coordinates(sd::SiteData) = coordinates(sd.site)
 coordinates(pd::SEPoints) = pd.coords
 coordinates(l::SELocations) = coordinates(getcoords(l))
 function coordinates(gd::SEGrid)
