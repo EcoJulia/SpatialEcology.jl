@@ -17,5 +17,4 @@ Pages = ["constructors.md"]
 ```@docs
 Assemblage
 ComMatrix
-SiteData
 ```

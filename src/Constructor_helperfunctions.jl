@@ -97,7 +97,7 @@ function dropspecies!(occ::SpeciesData)
 end
 
 function dropbyindex!(site::Locations{PointData}, indicestokeep)
-  site.coords = site.coords[indicestokeep,:]
+  site.coords = PointData(site.coords.coords[indicestokeep,:])
   site.sitestats = site.sitestats[indicestokeep,:]
 end
 
@@ -120,6 +120,8 @@ function dropsites!(occ::ComMatrix, site::SELocations)
   occ.occurrences = occ.occurrences[:, hasspecies]
   dropbyindex!(site, hasspecies)
 end
+
+dropsites!(occ::SpeciesData, site::SELocations) = dropsites!(occ.commatrix, site)
 
 function createsitenames(coords::AbstractMatrix)
   size(coords, 2) == 2 || error("Only defined for matrices with two columns")

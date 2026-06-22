@@ -40,7 +40,8 @@ function Assemblage(occ::ComMatrix, coords::AbstractMatrix;
         occ, coords, sitestat = match_commat_coords(occ, coords, sitestat)
     end
 
-    Assemblage(createLocations(coords, cdtype, sitestat), SpeciesData(occ, traits))
+    Assemblage(createLocations(coords, cdtype, sitestat), SpeciesData(occ, traits);
+               dropemptyspecies = dropemptyspecies, dropemptysites = dropemptysites)
   end
 
 function Assemblage(site::P, occ::SpeciesData{D};

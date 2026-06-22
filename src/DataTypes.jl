@@ -4,7 +4,6 @@
 # Insertion point for defining my own functions. They are mainly abstract
 # over the full type and it's view, so another possibility would be to
 # implement with unions
-abstract type SESpatialData{T<:EcoBase.AbstractLocationData} <: EcoBase.AbstractPlaces{T} end
 abstract type SELocations{T<:EcoBase.AbstractLocationData} <: EcoBase.AbstractPlaces{T} end
 abstract type SEThings{D <: Real} <: EcoBase.AbstractThings end
 abstract type SEGrid <: EcoBase.AbstractGrid end
@@ -97,15 +96,6 @@ mutable struct SpeciesData{D} <: SEThings{D}
     end
 end
 SpeciesData(commatrix::ComMatrix{D}, traits) where D<:Real = SpeciesData{D}(commatrix, traits)
-
-"""
-    SiteData
-
-A type to hold spatial data on a set of sites
-"""
-mutable struct SiteData{T<:Union{GridData, PointData}} <: SESpatialData{T}
-    site::T
-end
 
 abstract type SEAssemblage{D<:Real, T<:SEThings, P<:SELocations} <: EcoBase.AbstractAssemblage{D, T, P} end
 

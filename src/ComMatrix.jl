@@ -52,7 +52,6 @@ const nsites = nplaces
     nsites(com)
 """
 nplaces(com::AbstractComMatrix) = size(com.occurrences, 2)
-nplaces(sd::SiteData) = size(coordinates(sd.site), 1)
 nplaces(sd::SELocations) = DataFrames.nrow(sd.sitestats)
 nplaces(gr::GridData) = size(gr.indices, 1)
 nplaces(pd::PointData) = size(pd.coords, 1)
@@ -90,7 +89,6 @@ const sitenames = placenames
     sitenames(com)
 """
 placenames(com::AbstractComMatrix) = com.sitenames
-placenames(sd::SiteData) = sitenames(sd.site)
 placenames(sd::SELocations) = sd.sitestats[:,:sites]
 
 """
@@ -137,19 +135,13 @@ function show(io::IO, com::Assemblage)
     println(io, "Assemblage with $(nspecies(com)) species in $(nsites(com)) sites\n\nSpecies names:\n$(sp)\n\nSite names:\n$(si)")
 end
 
-function show(io::IO, sd::SiteData)
-    println(io, "Spatial data set with $(nsites(sd)) sites\n\nSite names:\n$(createsummaryline(sitenames(sd)))")
-end
-
 #TODO also create render functions for Juno
 
 getindex(com::AbstractComMatrix, inds...) = ComMatrix(getindex(com.occurrences, inds...))
 
 setindex!(com::AbstractComMatrix, X, inds...) = setindex!(com.occurrences, X, inds...)
 
-function getindex(site::S, inds) where S<:SELocations
-  S(coordinates(site)[inds,:], site.sitestats[inds,:])
-end
+getindex(site::SELocations, inds) = copy(view(site, inds))
 
 function getindex(com::SEAssemblage, ind::Symbol)
     if ind in propertynames(com.site.sitestats)
