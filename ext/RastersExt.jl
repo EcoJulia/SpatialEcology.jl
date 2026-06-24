@@ -133,13 +133,18 @@ end
 
 # A per-site vector scattered back onto the (full) domain. Works for full
 # assemblages and site-subset views alike — non-selected cells get missingval.
-SE.to_raster(values::AbstractVector, asm::SEAssemblage) = SE.to_raster(values, getcoords(places(asm)))
+SE.to_raster(values::AbstractVector, asm::SEAssemblage; kwargs...) = SE.to_raster(values, getcoords(places(asm)); kwargs...)
 
-function SE.to_raster(values::AbstractVector, rd::AnyRasterData)
+# `missingval` is the value off-domain (non-site) cells take in the output
+# raster. It defaults to `NaN` for floats and `zero` otherwise (the historical
+# behaviour); pass e.g. `missingval = NaN` to scatter an integer count vector
+# onto a float raster whose off-domain cells render as missing/transparent.
+function SE.to_raster(values::AbstractVector, rd::AnyRasterData;
+                      missingval = eltype(values) <: AbstractFloat ? eltype(values)(NaN) : zero(eltype(values)))
     length(values) == length(rd.cellinds) ||
         throw(DimensionMismatch("got $(length(values)) values for $(length(rd.cellinds)) sites"))
-    T   = eltype(values)
-    mv  = T <: AbstractFloat ? T(NaN) : zero(T)
+    T   = promote_type(eltype(values), typeof(missingval))
+    mv  = convert(T, missingval)
     out = Raster(fill(mv, dims(rd.mask)); missingval = mv)
     out[rd.cellinds] .= values
     out

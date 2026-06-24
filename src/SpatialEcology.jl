@@ -23,7 +23,7 @@ import Distances: pairwise, PreMetric
 
 export ComMatrix, Assemblage  #types and their constructors
 export AbstractComMatrix
-export RasterData, to_raster, to_rasterseries, richness_raster
+export RasterData, to_raster, to_rasterseries, richness_raster, domain, cellindices
 export nspecies, nsites, occupancy, richness, nrecords, sitenames, speciesnames, coordinates
 export occurring, noccurring, occupied, noccupied, occurrences, cooccurring
 export traits, sitestats, sitestatnames, traitnames, commatrix

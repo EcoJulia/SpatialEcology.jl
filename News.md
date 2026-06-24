@@ -1,3 +1,7 @@
+# version 0.10.1
+- add public accessors `domain` and `cellindices` for raster-backed assemblages (and their `Locations` / `RasterData`): `domain` returns the `Bool` domain raster, `cellindices` the per-site `CartesianIndex`es into it. These replace reaching into `getcoords(places(asm)).mask` / `.cellinds`.
+- `to_raster` gains a `missingval` keyword controlling the value off-domain cells take in the output raster (default unchanged: `NaN` for floats, `zero` otherwise). Pass `missingval = NaN` to scatter an integer vector onto a float raster whose off-domain cells render as missing.
+
 # version 0.10.0
 - **breaking:** the grid-coarsening function `aggregate` is renamed to `coarsen`, and `aggregate` is no longer exported. This avoids a name clash with `Rasters.aggregate` (which SpatialEcology does not own). Replace `aggregate(assemblage, …)` with `coarsen(assemblage, …)`. With Rasters loaded, `aggregate(assemblage, …)` keeps working, because the extension teaches `Rasters.aggregate` to accept assemblages.
 - add a [Rasters.jl](https://github.com/rafaqz/Rasters.jl) integration: build an `Assemblage` from a `RasterStack` or `RasterSeries` of per-species `Bool` rasters (plus an optional domain mask), convert results back with `to_raster`, `to_rasterseries` and `richness_raster`, and `coarsen` raster-backed assemblages

@@ -21,6 +21,30 @@ end
 getcoords(l::SELocations) = l.coords
 
 """
+    domain(x)
+
+The `Bool` domain raster that a raster-backed `Assemblage` (or its `Locations` /
+`RasterData`) is defined on — the raster analogue of a grid's `GridTopology`.
+Only defined for raster-backed objects. For a site-subset view the full parent
+domain is returned (a subset is still drawn on the same map).
+"""
+domain(asm::SEAssemblage) = domain(getcoords(places(asm)))
+domain(l::SELocations) = domain(getcoords(l))
+domain(rd::AnyRasterData) = rd.mask
+
+"""
+    cellindices(x)
+
+The vector of `CartesianIndex`es into the [`domain`](@ref) raster, one per site
+in site order, for a raster-backed `Assemblage` (or its `Locations` /
+`RasterData`). This is what lets a view select an arbitrary, possibly reordered
+subset of sites. Only defined for raster-backed objects.
+"""
+cellindices(asm::SEAssemblage) = cellindices(getcoords(places(asm)))
+cellindices(l::SELocations) = cellindices(getcoords(l))
+cellindices(rd::AnyRasterData) = rd.cellinds
+
+"""
     traits(x)
 
 Return the dataframe of species traits defined in x (which is usually
