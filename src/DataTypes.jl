@@ -80,10 +80,14 @@ A type that holds a species-by-sites matrix of either presence data or
 abundances, along with the names of species and sites
 """
 mutable struct ComMatrix{D} <: AbstractComMatrix{D}
-    occurrences::SparseMatrixCSC{D}
+    occurrences::SparseMatrixCSC{D}      # n_species × n_sites  — fast for site-based queries
+    occurrences_t::SparseMatrixCSC{D}    # n_sites × n_species  — fast for species-based queries
     speciesnames::Vector{<:AbstractString}
     sitenames::Vector{<:AbstractString}
-    ComMatrix{D}(occ::SparseMatrixCSC{D}, spn::Vector{<:AbstractString}, sin::Vector{<:AbstractString}) where {D} = new(dropzeros!(occ), spn, sin)
+    function ComMatrix{D}(occ::SparseMatrixCSC{D}, spn::Vector{<:AbstractString}, sin::Vector{<:AbstractString}) where {D}
+        dropzeros!(occ)
+        new(occ, sparse(occ'), spn, sin)
+    end
 end
 
 # likewise, do I need a speciesnames here? Should traits have a :series field (like now) or all matching be done on the speciesnames?
