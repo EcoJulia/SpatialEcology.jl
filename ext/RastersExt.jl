@@ -153,11 +153,10 @@ end
 function SE.to_rasterseries(asm::SEAssemblage)
     rd = getcoords(places(asm))
     rd isa AnyRasterData || error("to_rasterseries requires a raster-backed assemblage")
-    occ = occurrences(asm)
-    sp  = speciesnames(asm)
+    sp = speciesnames(asm)
     rasters = map(1:nspecies(asm)) do i
         r = Raster(falses(size(rd.mask)), dims(rd.mask); missingval = false, name = Symbol(sp[i]))
-        r[rd.cellinds] .= Vector(occ[i, :])
+        r[rd.cellinds[occupied(asm, i)]] .= true
         r
     end
     RasterSeries(rasters, (; name = collect(sp)))
