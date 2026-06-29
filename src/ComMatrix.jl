@@ -39,6 +39,20 @@ occurring(com::AbstractComMatrix, idx) = occurring(occurrences(com), asindices(i
 occupied(com::AbstractComMatrix) = occupied(occurrences(com))
 occupied(com::AbstractComMatrix, idx) = occupied(occurrences(com), asindices(idx, speciesnames(com)))
 
+# Fast per-species site lookup via the cached transpose.
+#
+# The occurrence matrix is n_species × n_sites CSC — column access (site queries)
+# is O(nnz_per_site), but row access (species queries) requires scanning all
+# columns: O(nnz_total). `occurrences_t` (n_sites × n_species CSC) flips this:
+# per-species site lookup is now a CSC column read, O(nnz_per_species).
+#
+# Only `ComMatrix` has `occurrences_t`; `SubComMatrix` keeps the slow fallback.
+occupied(com::ComMatrix, idx::Integer) =
+    rowvals(com.occurrences_t)[nzrange(com.occurrences_t, idx)]
+occupied(com::ComMatrix, idx::AbstractVector{<:Integer}) =
+    nzrows(view(com.occurrences_t, :, idx))
+occupied(com::ComMatrix, idx) = occupied(com, asindices(idx, speciesnames(com)))
+
 const nspecies = nthings
 
 """
@@ -68,6 +82,13 @@ const getspecies = thingoccurrences
     getspecies(com)
 """
 thingoccurrences(com::AbstractComMatrix, idx) = thingoccurrences(occurrences(com), asindices(idx, thingnames(com)))
+
+# Fast single-species occurrences: column of occ_t is the species' row of occ,
+# accessed in O(nnz_per_species) via the CSC column pointer rather than O(nnz_total)
+# for a CSC row scan.
+thingoccurrences(com::ComMatrix, idx::Integer) = view(com.occurrences_t, :, idx)
+thingoccurrences(com::ComMatrix, idx) =
+    thingoccurrences(com, asindices(idx, thingnames(com)))
 
 const getsite = placeoccurrences
 
@@ -100,6 +121,16 @@ sitetotals(com::AbstractComMatrix) = vec(colsum(com.occurrences))
     speciestotals(com)
 """
 speciestotals(com::AbstractComMatrix) = vec(rowsum(com.occurrences))
+
+# Fast range-size count without allocating the sites vector: O(1) per species.
+noccupied(com::ComMatrix, idx::Integer) = length(nzrange(com.occurrences_t, idx))
+noccupied(com::ComMatrix, idx) = noccupied(com, asindices(idx, speciesnames(com)))
+
+# For Bool assemblages, per-species counts are the colptr differences of occ_t
+# (O(n_species) read), not a rowval scan of occ (O(nnz_total)).
+occupancy(com::ComMatrix{Bool}) =
+    Vector{Int}(diff(SparseArrays.getcolptr(com.occurrences_t)))
+speciestotals(com::ComMatrix{Bool}) = occupancy(com)
 
 size(com::AbstractComMatrix) = size(occurrences(com))
 size(com::AbstractComMatrix, dims...) = size(occurrences(com), dims...)

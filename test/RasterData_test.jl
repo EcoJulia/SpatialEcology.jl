@@ -40,6 +40,33 @@ using SpatialEcology: RasterData, SubRasterData
         @test sum(sum(r[mask]) for r in rs) == sum(occurrences(asm))
     end
 
+    @testset "domain / cellindices accessors" begin
+        @test domain(asm) == Bool.(mask)
+        @test domain(asm) === domain(asm.site) === domain(asm.site.coords)
+        @test cellindices(asm) == findall(Bool.(mask))
+        @test length(cellindices(asm)) == nsites(asm)
+        # a value placed at site k lands in the k-th cell index
+        vals = randn(rng, nsites(asm))
+        r = to_raster(vals, asm)
+        @test all(r[cellindices(asm)[k]] == vals[k] for k in 1:nsites(asm))
+        # a view exposes its (reordered) sites but keeps the full parent domain
+        v = view(asm, sites = [5, 3, 1])
+        @test domain(v) == domain(asm)
+        @test cellindices(v) == cellindices(asm)[[5, 3, 1]]
+    end
+
+    @testset "to_raster missingval keyword" begin
+        counts = collect(1:nsites(asm))                  # an integer per-site vector
+        default = to_raster(counts, asm)                 # historical behaviour
+        @test eltype(default) == Int
+        @test all(==(0), default[.!Bool.(mask)])         # off-domain cells are zero
+        # NaN background promotes the output to float (off-domain renders missing)
+        floated = to_raster(counts, asm; missingval = NaN)
+        @test eltype(floated) <: AbstractFloat
+        @test all(isnan, floated[.!Bool.(mask)])
+        @test floated[cellindices(asm)] == Float64.(counts)
+    end
+
     @testset "site view" begin
         v = view(asm, sites = 1:5)
         @test v.site.coords isa SubRasterData

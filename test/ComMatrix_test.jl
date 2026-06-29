@@ -99,4 +99,35 @@ using Test
     @test round.(dist, digits=1) == [0.0 0.3; 0.3 0.0]
   # getindex and setindex are to do
 
+    @testset "fast occupied / noccupied / thingoccurrences via occurrences_t" begin
+        # occupied(com, integer) — fast path uses occ_t column, must agree with slow fallback
+        for i in 1:nspecies(cmb)
+            fast = occupied(cmb, i)
+            slow = findall(!iszero, Matrix(cmb.occurrences)[i, :])
+            @test sort(fast) == slow
+        end
+
+        # occupied(com, name) — routes through asindices then the fast integer path
+        @test sort(occupied(cmb, "species3")) == sort(occupied(cmb, 3))
+
+        # occupied(com, Vector{Int}) — multi-species union (uses nzrows on occ_t view)
+        union2 = occupied(cmb, [1, 2])
+        @test all(j -> any(!iszero, cmb.occurrences[[1,2], j]), union2)
+
+        # noccupied fast path — just a length(nzrange), no sites allocation
+        for i in 1:nspecies(cmb)
+            @test noccupied(cmb, i) == length(occupied(cmb, i))
+        end
+        @test noccupied(cmb, "species1") == noccupied(cmb, 1)
+
+        # getspecies fast path — column view of occ_t, same values as row of occ
+        for i in 1:nspecies(cmb)
+            @test collect(getspecies(cmb, i)) == collect(cmb.occurrences[i, :])
+        end
+
+        # occupancy(ComMatrix{Bool}) uses fast colptr diff — must match old rowsum path
+        @test occupancy(cmb) == [6, 6, 8, 7, 5, 8, 7, 8, 6, 7, 7, 8]
+        @test speciestotals(cmb) == occupancy(cmb)
+    end
+
 end
