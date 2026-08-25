@@ -5,8 +5,19 @@ ycellsize(g::GridTopology) = step(g.ys)
 xcells(g::GridTopology) = length(g.xs)
 ycells(g::GridTopology) = length(g.ys)
 indices(g::SEGrid) = g.indices
-indices(g::SEGrid, idx) = g.indices[:, idx]
+indices(g::SEGrid, idx::Integer) = g.indices[:, idx]
 boundingbox(g::GridTopology) = Bbox(xmin(g), xmax(g), ymin(g), ymax(g))
+
+# xrange/yrange delegate to the grid itself rather than being rebuilt from
+# xmin/xcellsize/xmax by EcoBase's untyped fallback. That fallback assumes a
+# constant step, which is right for GridData but not for a RasterData over an
+# irregular lookup. Written out rather than @forward_func'd: that macro
+# generates `f(x::T, args...)`, which would be ambiguous against EcoBase's
+# `xrange(::AbstractGridded, ::AbstractCellAnchor)`.
+xrange(l::SELocations) = xrange(getcoords(l))
+yrange(l::SELocations) = yrange(getcoords(l))
+xrange(asm::SEAssemblage) = xrange(getcoords(places(asm)))
+yrange(asm::SEAssemblage) = yrange(getcoords(places(asm)))
 
 @forward_func GridData.grid xmin, ymin, xcellsize, ycellsize, xcells, ycells, boundingbox
 @forward_func Locations{GridData}.coords xmin, ymin, xcellsize, ycellsize, xcells, ycells, boundingbox, indices
