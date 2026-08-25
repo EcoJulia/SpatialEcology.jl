@@ -1,3 +1,8 @@
+# version 0.11.0
+- support [EcoBase 0.2](https://github.com/EcoJulia/EcoBase.jl/pull/25), which inserts `AbstractGridded` and `AbstractAreas` between `AbstractGrid` and `AbstractLocationData`, and adds cell-anchor and coordinate-order arguments to `indices` and `coordinates`. The extra levels are inherited transparently — `SEGrid` still reaches `AbstractGrid` — so nothing about the public API changes.
+- `indices(g::SEGrid, idx)` now types its selector as `idx::Integer`. Left untyped it was mutually ambiguous with EcoBase's `indices(::AbstractGridded, ::AbstractCoordinateOrder)`, so asking a grid for a coordinate order threw instead of answering. `indices(grid, 1)` is unaffected.
+- `xrange`/`yrange` on `Locations` and `Assemblage` now delegate to the underlying grid rather than relying on EcoBase's untyped fallback, which rebuilds the range as `xmin:xcellsize:xmax`. That reconstruction is correct for `GridData` but assumes a constant step, which does not hold for a `RasterData` over an irregular lookup.
+
 # version 0.10.1
 - add public accessors `domain` and `cellindices` for raster-backed assemblages (and their `Locations` / `RasterData`): `domain` returns the `Bool` domain raster, `cellindices` the per-site `CartesianIndex`es into it. These replace reaching into `getcoords(places(asm)).mask` / `.cellinds`.
 - `to_raster` gains a `missingval` keyword controlling the value off-domain cells take in the output raster (default unchanged: `NaN` for floats, `zero` otherwise). Pass `missingval = NaN` to scatter an integer vector onto a float raster whose off-domain cells render as missing.
