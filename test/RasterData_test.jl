@@ -3,7 +3,7 @@ using SpatialEcology
 using Rasters
 using DataFrames
 using Random
-using SpatialEcology: RasterData, SubRasterData
+using SpatialEcology: RasterData, SubRasterData, indices  # indices is not exported
 
 @testset "RasterData" begin
     rng = MersenneTwister(1)
@@ -53,6 +53,25 @@ using SpatialEcology: RasterData, SubRasterData
         v = view(asm, sites = [5, 3, 1])
         @test domain(v) == domain(asm)
         @test cellindices(v) == cellindices(asm)[[5, 3, 1]]
+    end
+
+    # indices() reads `cellinds`, not the `indices` field a GridData has, so a
+    # RasterData needs its own method - without one every call here throws a
+    # FieldError, including everything EcoBase derives from it.
+    @testset "indices" begin
+        @test size(indices(asm)) == (nsites(asm), 2)
+        @test indices(asm, 1) == indices(asm)[:, 1]
+        @test indices(asm, 2) == indices(asm)[:, 2]
+        @test all(1 .<= indices(asm)[:, 1] .<= xcells(asm))
+        @test all(1 .<= indices(asm)[:, 2] .<= ycells(asm))
+        # the contract that ties them to coordinates(): index the ranges by
+        # them and the coordinates come back, in the same site order
+        @test xrange(asm)[indices(asm)[:, 1]] == coordinates(asm)[:, 1]
+        @test yrange(asm)[indices(asm)[:, 2]] == coordinates(asm)[:, 2]
+        # a reordered view carries its own site order through
+        v = view(asm, sites = [5, 3, 1])
+        @test indices(v) == indices(asm)[[5, 3, 1], :]
+        @test xrange(v)[indices(v)[:, 1]] == coordinates(v)[:, 1]
     end
 
     @testset "to_raster missingval keyword" begin
