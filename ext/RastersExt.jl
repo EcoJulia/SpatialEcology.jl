@@ -18,6 +18,9 @@ using SpatialEcology: RasterData, SubRasterData, AnyRasterData, ComMatrix, Speci
     getcoords, places, occurrences, speciesnames, nspecies, nplaces, traits
 
 const SE = SpatialEcology
+# Lookup traits (sampling/order/intervalbounds) are not exported by Rasters, and
+# `order` would clash with DataFrames, so reach them through the module.
+const LU = Rasters.DimensionalData.Lookups
 
 # ----------------------------------------------------------------------------
 # helpers
@@ -50,6 +53,74 @@ SE.ycellsize(rd::AnyRasterData) = abs(step(lookup(rd.mask, Y())))
 SE.xcells(rd::AnyRasterData)    = size(rd.mask, 1)   # dim 1 is X by the invariant
 SE.ycells(rd::AnyRasterData)    = size(rd.mask, 2)
 SE.boundingbox(rd::AnyRasterData) = Bbox(SE.xmin(rd), SE.xmax(rd), SE.ymin(rd), SE.ymax(rd))
+
+# Cell boundaries read off the raster's own lookup: n + 1 of them, in the
+# lookup's own direction, so a ReverseOrdered Y - how a north-up raster is
+# normally stored - yields descending edges and everything EcoBase derives
+# from them descends with it.
+#
+# Without these, EcoBase falls back to `xedges(::AbstractRegularGrid)`, which rebuilds
+# the edges as `xmin:xcellsize:...`. That is always ascending and needs a
+# constant step, so it disagreed with this grid's own `xrange`/`yrange` on both
+# counts. Pairing that ascending range with row indices read from a descending
+# lookup is what drew north-up rasters upside down.
+function _lookupedges(l)
+    v = parent(l)
+    n = length(v)
+    if LU.sampling(l) isa LU.Intervals
+        # Real cell bounds. Each pair is (low, high) in value order whatever
+        # the lookup's direction, so take whichever end the lookup meets first.
+        b = LU.intervalbounds(l)
+        lead = LU.order(l) isa LU.ReverseOrdered ? last : first
+        trail = LU.order(l) isa LU.ReverseOrdered ? first : last
+        return vcat([lead(x) for x in b], trail(b[end]))
+    end
+    # Points sampling, which is what a plain `X(1.0:4.0)` gives and what
+    # `xrange`/`yrange` above report: each value sits inside its cell, so cut
+    # halfway to each neighbour and extend the two outer half-cells by the
+    # spacing beside them.
+    n == 1 && return [v[1], v[1]]
+    mids = [(v[i] + v[i + 1]) / 2 for i in 1:(n - 1)]
+    return vcat(v[1] - (v[2] - v[1]) / 2, mids,
+                v[end] + (v[end] - v[end - 1]) / 2)
+end
+
+EcoBase.xedges(rd::AnyRasterData) = _lookupedges(lookup(rd.mask, X()))
+EcoBase.yedges(rd::AnyRasterData) = _lookupedges(lookup(rd.mask, Y()))
+
+# Where in its cell a reported coordinate sits, read off the lookup's sampling
+# rather than assumed. Rasters read off disk are commonly Intervals(Start()),
+# whose coordinates are the cell's lower corner; EcoBase defaults to
+# CellCentre(), so leaving this undeclared put every such coordinate half a
+# cell out of place.
+#
+# DimensionalData's three loci are exact and direction-independent: the index
+# value sits at the minimum, the midpoint and the maximum of its own interval
+# for Start, Center and End respectively, whichever way the lookup runs.
+# Points sampling has no locus, and _lookupedges above puts each value at the
+# centre of the cell it builds, so it is CellCentre().
+function _lookupanchor(l)
+    LU.sampling(l) isa LU.Intervals || return EcoBase.CellCentre()
+    loc = LU.locus(l)
+    loc isa LU.Start && return EcoBase.CellCorner()
+    loc isa LU.Center && return EcoBase.CellCentre()
+    # An End locus puts the coordinate at the cell's upper edge. EcoBase has
+    # CellCentre and CellCorner, the latter being the *lower* corner, so there
+    # is nothing honest to return; say so rather than be half a cell wrong.
+    return error("this raster's $(nameof(typeof(loc))) locus puts each " *
+                 "coordinate at its cell's upper edge, which EcoBase's " *
+                 "AbstractCellAnchor cannot express — shift the raster to " *
+                 "Start or Center sampling first")
+end
+
+function EcoBase.cellanchor(rd::AnyRasterData)
+    ax = _lookupanchor(lookup(rd.mask, X()))
+    ay = _lookupanchor(lookup(rd.mask, Y()))
+    ax === ay || error("this raster's X and Y lookups disagree about where " *
+                       "in the cell their coordinates sit ($ax vs $ay), and " *
+                       "EcoBase declares one anchor for the whole grid")
+    return ax
+end
 
 # Location-level forwards (these replace the `@forward_func` lines for the
 # raster types that previously sat in Gridfunctions.jl).

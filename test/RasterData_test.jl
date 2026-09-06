@@ -3,7 +3,13 @@ using SpatialEcology
 using Rasters
 using DataFrames
 using Random
-using SpatialEcology: RasterData, SubRasterData
+using RecipesBase
+using EcoBase
+# lookup traits used to build corner- and end-anchored rasters below;
+# Rasters does not export these
+using Rasters.DimensionalData.Lookups: Sampled, Intervals, Regular,
+                                       ForwardOrdered, Start, Center, End
+using SpatialEcology: RasterData, SubRasterData, indices, getcoords, places  # not exported
 
 @testset "RasterData" begin
     rng = MersenneTwister(1)
@@ -53,6 +59,113 @@ using SpatialEcology: RasterData, SubRasterData
         v = view(asm, sites = [5, 3, 1])
         @test domain(v) == domain(asm)
         @test cellindices(v) == cellindices(asm)[[5, 3, 1]]
+    end
+
+    # indices() reads `cellinds`, not the `indices` field a GridData has, so a
+    # RasterData needs its own method - without one every call here throws a
+    # FieldError, including everything EcoBase derives from it.
+    @testset "indices" begin
+        @test size(indices(asm)) == (nsites(asm), 2)
+        @test indices(asm, 1) == indices(asm)[:, 1]
+        @test indices(asm, 2) == indices(asm)[:, 2]
+        @test all(1 .<= indices(asm)[:, 1] .<= xcells(asm))
+        @test all(1 .<= indices(asm)[:, 2] .<= ycells(asm))
+        # the contract that ties them to coordinates(): index the ranges by
+        # them and the coordinates come back, in the same site order
+        @test xrange(asm)[indices(asm)[:, 1]] == coordinates(asm)[:, 1]
+        @test yrange(asm)[indices(asm)[:, 2]] == coordinates(asm)[:, 2]
+        # a reordered view carries its own site order through
+        v = view(asm, sites = [5, 3, 1])
+        @test indices(v) == indices(asm)[[5, 3, 1], :]
+        @test xrange(v)[indices(v)[:, 1]] == coordinates(v)[:, 1]
+    end
+
+    # A north-up raster - Y ReverseOrdered, as anything read off disk with
+    # Rasters normally is - must not be drawn upside down. The grid recipe
+    # takes its y axis from yrange(grd, CellCentre()) but places cells by row
+    # index, so the two have to run in the same direction; they only do
+    # because xedges/yedges are read off the lookup in the lookup's own order
+    # (see ext/RastersExt.jl). Derived edges ascend whatever the lookup does,
+    # and pairing those with descending row indices flipped the map.
+    @testset "north-up (descending Y) rasters are not drawn flipped" begin
+        xd, yd = X(1.0:3.0), Y(3.0:-1.0:1.0)
+        dom = Raster(trues(3, 3), (xd, yd))
+        # one species, present only along y = 3.0 - the lookup's *first* row,
+        # and the top of the map, so a flip is unmissable
+        top = Raster([j == 1 for i in 1:3, j in 1:3], (xd, yd); name = :top)
+        a = Assemblage(RasterSeries([top], (; name = ["top"])), dom)
+
+        r = Float64.(richness(a))
+        @test unique(coordinates(a)[:, 2][findall(==(1.0), r)]) == [3.0]
+
+        # driven through apply_recipe so no plotting backend is needed, as in
+        # PlotRecipes_test.jl
+        _, ys, img = RecipesBase.apply_recipe(Dict{Symbol, Any}(), r,
+                                              getcoords(places(a)))[1].args
+        drawnrows = findall(row -> any(==(1.0), row),
+                            collect(eachrow(replace(img, NaN => 0.0))))
+        @test unique(collect(ys)[drawnrows]) == [3.0]
+    end
+
+    # The edges each grid reports, and the cell centres EcoBase derives from
+    # them, follow the lookup rather than being rebuilt from a start and a
+    # step - so they work for a descending axis and for a varying one.
+    @testset "xedges/yedges follow the lookup" begin
+        centres(e) = (e[1:(end - 1)] .+ e[2:end]) ./ 2
+        for (label, xd, yd) in
+            (("ascending", X(1.0:3.0), Y(1.0:3.0)),
+             ("descending", X(1.0:3.0), Y(3.0:-1.0:1.0)),
+             ("irregular", X([0.0, 1.0, 3.0]), Y([0.0, 2.0, 5.0])))
+            rd = getcoords(places(Assemblage(
+                RasterSeries([Raster([j == 1 for i in 1:3, j in 1:3], (xd, yd);
+                                     name = :t)], (; name = ["t"])),
+                Raster(trues(3, 3), (xd, yd)))))
+            @test length(EcoBase.yedges(rd)) == ycells(rd) + 1
+            @test length(EcoBase.xedges(rd)) == xcells(rd) + 1
+            # the edges run the same way the grid's own range does
+            @test issorted(EcoBase.yedges(rd)) == issorted(yrange(rd))
+            # on a regular point lookup the centres are the coordinates back
+            label == "irregular" ||
+                @test centres(EcoBase.yedges(rd)) ≈ collect(yrange(rd))
+        end
+    end
+
+    # Where a cell's coordinate sits is read off the lookup, not assumed.
+    # Rasters read off disk are commonly Intervals(Start()), whose coordinates
+    # are the cell's lower corner; reporting those as centres put every one of
+    # them half a cell out.
+    @testset "cellanchor follows the lookup's locus" begin
+        function gridof(xd, yd)
+            lay = Raster([true for i in 1:3, j in 1:3], (xd, yd); name = :t)
+            return getcoords(places(Assemblage(
+                RasterSeries([lay], (; name = ["t"])),
+                Raster(trues(3, 3), (xd, yd)))))
+        end
+        interval(D, loc) = D(Sampled(1.0:3.0; sampling = Intervals(loc),
+                                     span = Regular(1.0),
+                                     order = ForwardOrdered()))
+
+        # the common case: a plain range is Points sampling, and its values sit
+        # at the centre of the cells xedges/yedges build around them
+        plain = gridof(X(1.0:3.0), Y(1.0:3.0))
+        @test EcoBase.cellanchor(plain) === EcoBase.CellCentre()
+        @test EcoBase.coordinates(plain, EcoBase.XThenY(),
+                                  EcoBase.CellCentre())[1, :] == [1.0, 1.0]
+
+        # Intervals(Start()): the coordinate is the lower corner, so asking for
+        # centres must move it half a cell, and asking for corners must not
+        corner = gridof(interval(X, Start()), interval(Y, Start()))
+        @test EcoBase.cellanchor(corner) === EcoBase.CellCorner()
+        @test coordinates(corner)[1, :] == [1.0, 1.0]
+        @test EcoBase.coordinates(corner, EcoBase.XThenY(),
+                                  EcoBase.CellCorner())[1, :] == [1.0, 1.0]
+        @test EcoBase.coordinates(corner, EcoBase.XThenY(),
+                                  EcoBase.CellCentre())[1, :] == [1.5, 1.5]
+
+        # An End locus is the cell's upper edge, which EcoBase cannot name, so
+        # it refuses rather than being half a cell wrong.
+        ending = gridof(X(1.0:3.0), interval(Y, End()))
+        @test_throws ErrorException EcoBase.cellanchor(ending)
     end
 
     @testset "to_raster missingval keyword" begin
