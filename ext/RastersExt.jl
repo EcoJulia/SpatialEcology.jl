@@ -59,7 +59,7 @@ SE.boundingbox(rd::AnyRasterData) = Bbox(SE.xmin(rd), SE.xmax(rd), SE.ymin(rd), 
 # normally stored - yields descending edges and everything EcoBase derives
 # from them descends with it.
 #
-# Without these, EcoBase falls back to `xedges(::AbstractGrid)`, which rebuilds
+# Without these, EcoBase falls back to `xedges(::AbstractRegularGrid)`, which rebuilds
 # the edges as `xmin:xcellsize:...`. That is always ascending and needs a
 # constant step, so it disagreed with this grid's own `xrange`/`yrange` on both
 # counts. Pairing that ascending range with row indices read from a descending

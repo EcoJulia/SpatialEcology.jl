@@ -6,7 +6,7 @@
 # implement with unions
 abstract type SELocations{T<:EcoBase.AbstractLocationData} <: EcoBase.AbstractPlaces{T} end
 abstract type SEThings{D <: Real} <: EcoBase.AbstractThings end
-abstract type SEGrid <: EcoBase.AbstractGrid end
+abstract type SEGrid <: EcoBase.AbstractRegularGrid end
 abstract type SEPoints <: EcoBase.AbstractPoints end
 
 abstract type AbstractComMatrix{D<:Real} end
@@ -15,7 +15,7 @@ abstract type AbstractComMatrix{D<:Real} end
 # I could implement sitestats as a Dict with several DataFrames to make space for big data sets, but I prefer to not do this now. Example below.
 
 # I could do a lot more with immutable types if I had a clearer view/copy implementation
-mutable struct GridTopology <: EcoBase.AbstractGrid
+mutable struct GridTopology <: EcoBase.AbstractRegularGrid
     xs::StepRangeLen{Float64}
     ys::StepRangeLen{Float64}
 end
