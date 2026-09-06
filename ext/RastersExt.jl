@@ -88,6 +88,40 @@ end
 EcoBase.xedges(rd::AnyRasterData) = _lookupedges(lookup(rd.mask, X()))
 EcoBase.yedges(rd::AnyRasterData) = _lookupedges(lookup(rd.mask, Y()))
 
+# Where in its cell a reported coordinate sits, read off the lookup's sampling
+# rather than assumed. Rasters read off disk are commonly Intervals(Start()),
+# whose coordinates are the cell's lower corner; EcoBase defaults to
+# CellCentre(), so leaving this undeclared put every such coordinate half a
+# cell out of place.
+#
+# DimensionalData's three loci are exact and direction-independent: the index
+# value sits at the minimum, the midpoint and the maximum of its own interval
+# for Start, Center and End respectively, whichever way the lookup runs.
+# Points sampling has no locus, and _lookupedges above puts each value at the
+# centre of the cell it builds, so it is CellCentre().
+function _lookupanchor(l)
+    LU.sampling(l) isa LU.Intervals || return EcoBase.CellCentre()
+    loc = LU.locus(l)
+    loc isa LU.Start && return EcoBase.CellCorner()
+    loc isa LU.Center && return EcoBase.CellCentre()
+    # An End locus puts the coordinate at the cell's upper edge. EcoBase has
+    # CellCentre and CellCorner, the latter being the *lower* corner, so there
+    # is nothing honest to return; say so rather than be half a cell wrong.
+    return error("this raster's $(nameof(typeof(loc))) locus puts each " *
+                 "coordinate at its cell's upper edge, which EcoBase's " *
+                 "AbstractCellAnchor cannot express — shift the raster to " *
+                 "Start or Center sampling first")
+end
+
+function EcoBase.cellanchor(rd::AnyRasterData)
+    ax = _lookupanchor(lookup(rd.mask, X()))
+    ay = _lookupanchor(lookup(rd.mask, Y()))
+    ax === ay || error("this raster's X and Y lookups disagree about where " *
+                       "in the cell their coordinates sit ($ax vs $ay), and " *
+                       "EcoBase declares one anchor for the whole grid")
+    return ax
+end
+
 # Location-level forwards (these replace the `@forward_func` lines for the
 # raster types that previously sat in Gridfunctions.jl).
 for f in (:xmin, :xmax, :ymin, :ymax, :xcellsize, :ycellsize, :xcells, :ycells, :boundingbox)

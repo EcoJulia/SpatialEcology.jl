@@ -5,6 +5,10 @@ using DataFrames
 using Random
 using RecipesBase
 using EcoBase
+# lookup traits used to build corner- and end-anchored rasters below;
+# Rasters does not export these
+using Rasters.DimensionalData.Lookups: Sampled, Intervals, Regular,
+                                       ForwardOrdered, Start, Center, End
 using SpatialEcology: RasterData, SubRasterData, indices, getcoords, places  # not exported
 
 @testset "RasterData" begin
@@ -124,6 +128,44 @@ using SpatialEcology: RasterData, SubRasterData, indices, getcoords, places  # n
             label == "irregular" ||
                 @test centres(EcoBase.yedges(rd)) ≈ collect(yrange(rd))
         end
+    end
+
+    # Where a cell's coordinate sits is read off the lookup, not assumed.
+    # Rasters read off disk are commonly Intervals(Start()), whose coordinates
+    # are the cell's lower corner; reporting those as centres put every one of
+    # them half a cell out.
+    @testset "cellanchor follows the lookup's locus" begin
+        function gridof(xd, yd)
+            lay = Raster([true for i in 1:3, j in 1:3], (xd, yd); name = :t)
+            return getcoords(places(Assemblage(
+                RasterSeries([lay], (; name = ["t"])),
+                Raster(trues(3, 3), (xd, yd)))))
+        end
+        interval(D, loc) = D(Sampled(1.0:3.0; sampling = Intervals(loc),
+                                     span = Regular(1.0),
+                                     order = ForwardOrdered()))
+
+        # the common case: a plain range is Points sampling, and its values sit
+        # at the centre of the cells xedges/yedges build around them
+        plain = gridof(X(1.0:3.0), Y(1.0:3.0))
+        @test EcoBase.cellanchor(plain) === EcoBase.CellCentre()
+        @test EcoBase.coordinates(plain, EcoBase.XThenY(),
+                                  EcoBase.CellCentre())[1, :] == [1.0, 1.0]
+
+        # Intervals(Start()): the coordinate is the lower corner, so asking for
+        # centres must move it half a cell, and asking for corners must not
+        corner = gridof(interval(X, Start()), interval(Y, Start()))
+        @test EcoBase.cellanchor(corner) === EcoBase.CellCorner()
+        @test coordinates(corner)[1, :] == [1.0, 1.0]
+        @test EcoBase.coordinates(corner, EcoBase.XThenY(),
+                                  EcoBase.CellCorner())[1, :] == [1.0, 1.0]
+        @test EcoBase.coordinates(corner, EcoBase.XThenY(),
+                                  EcoBase.CellCentre())[1, :] == [1.5, 1.5]
+
+        # An End locus is the cell's upper edge, which EcoBase cannot name, so
+        # it refuses rather than being half a cell wrong.
+        ending = gridof(X(1.0:3.0), interval(Y, End()))
+        @test_throws ErrorException EcoBase.cellanchor(ending)
     end
 
     @testset "to_raster missingval keyword" begin
