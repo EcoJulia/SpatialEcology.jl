@@ -4,6 +4,7 @@ using Rasters
 using DataFrames
 using Random
 using RecipesBase
+using EcoBase
 using SpatialEcology: RasterData, SubRasterData, indices, getcoords, places  # not exported
 
 @testset "RasterData" begin
@@ -75,18 +76,13 @@ using SpatialEcology: RasterData, SubRasterData, indices, getcoords, places  # n
         @test xrange(v)[indices(v)[:, 1]] == coordinates(v)[:, 1]
     end
 
-    # A north-up raster - Y ReverseOrdered, as GeoTIFFs normally are - is
-    # currently drawn upside down. EcoBase's grid recipe pairs
-    # yrange(grd, CellCentre()), which it derives ascending from ymin and
-    # ycellsize, with row indices read from the raster's own descending lookup,
-    # so the lookup's first row is drawn at the bottom of the y axis. Until
-    # indices() gained a RasterData method this path threw instead, so the
-    # wrong picture was unreachable; it is reachable now.
-    #
-    # @test_broken, not @test: indices() and coordinates() are both right - the
-    # assertion above this one pins them - and what is missing is any way for a
-    # grid to tell EcoBase that its y axis descends (EcoJulia/EcoBase.jl#25).
-    # When that lands this reports "Unexpectedly passed" and becomes a @test.
+    # A north-up raster - Y ReverseOrdered, as anything read off disk with
+    # Rasters normally is - must not be drawn upside down. The grid recipe
+    # takes its y axis from yrange(grd, CellCentre()) but places cells by row
+    # index, so the two have to run in the same direction; they only do
+    # because xedges/yedges are read off the lookup in the lookup's own order
+    # (see ext/RastersExt.jl). Derived edges ascend whatever the lookup does,
+    # and pairing those with descending row indices flipped the map.
     @testset "north-up (descending Y) rasters are not drawn flipped" begin
         xd, yd = X(1.0:3.0), Y(3.0:-1.0:1.0)
         dom = Raster(trues(3, 3), (xd, yd))
@@ -104,7 +100,30 @@ using SpatialEcology: RasterData, SubRasterData, indices, getcoords, places  # n
                                               getcoords(places(a)))[1].args
         drawnrows = findall(row -> any(==(1.0), row),
                             collect(eachrow(replace(img, NaN => 0.0))))
-        @test_broken unique(collect(ys)[drawnrows]) == [3.0]
+        @test unique(collect(ys)[drawnrows]) == [3.0]
+    end
+
+    # The edges each grid reports, and the cell centres EcoBase derives from
+    # them, follow the lookup rather than being rebuilt from a start and a
+    # step - so they work for a descending axis and for a varying one.
+    @testset "xedges/yedges follow the lookup" begin
+        centres(e) = (e[1:(end - 1)] .+ e[2:end]) ./ 2
+        for (label, xd, yd) in
+            (("ascending", X(1.0:3.0), Y(1.0:3.0)),
+             ("descending", X(1.0:3.0), Y(3.0:-1.0:1.0)),
+             ("irregular", X([0.0, 1.0, 3.0]), Y([0.0, 2.0, 5.0])))
+            rd = getcoords(places(Assemblage(
+                RasterSeries([Raster([j == 1 for i in 1:3, j in 1:3], (xd, yd);
+                                     name = :t)], (; name = ["t"])),
+                Raster(trues(3, 3), (xd, yd)))))
+            @test length(EcoBase.yedges(rd)) == ycells(rd) + 1
+            @test length(EcoBase.xedges(rd)) == xcells(rd) + 1
+            # the edges run the same way the grid's own range does
+            @test issorted(EcoBase.yedges(rd)) == issorted(yrange(rd))
+            # on a regular point lookup the centres are the coordinates back
+            label == "irregular" ||
+                @test centres(EcoBase.yedges(rd)) ≈ collect(yrange(rd))
+        end
     end
 
     @testset "to_raster missingval keyword" begin
