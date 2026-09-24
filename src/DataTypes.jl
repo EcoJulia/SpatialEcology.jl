@@ -82,11 +82,13 @@ abundances, along with the names of species and sites
 mutable struct ComMatrix{D} <: AbstractComMatrix{D}
     occurrences::SparseMatrixCSC{D}      # n_species × n_sites  — fast for site-based queries
     occurrences_t::SparseMatrixCSC{D}    # n_sites × n_species  — fast for species-based queries
-    speciesnames::Vector{<:AbstractString}
-    sitenames::Vector{<:AbstractString}
-    function ComMatrix{D}(occ::SparseMatrixCSC{D}, spn::Vector{<:AbstractString}, sin::Vector{<:AbstractString}) where {D}
+    speciesnames::Vector{String}
+    sitenames::Vector{String}
+    # Names are stored as String whatever AbstractString they arrive as (CSV.jl
+    # reads DataStrings), as EcoBase's thingnames/placenames promise
+    function ComMatrix{D}(occ::SparseMatrixCSC{D}, spn::AbstractVector{<:AbstractString}, sin::AbstractVector{<:AbstractString}) where {D}
         dropzeros!(occ)
-        new(occ, sparse(occ'), spn, sin)
+        new(occ, sparse(occ'), String.(spn), String.(sin))
     end
 end
 
