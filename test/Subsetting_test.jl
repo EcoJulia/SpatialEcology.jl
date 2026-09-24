@@ -1,3 +1,5 @@
+using CSV
+using DataFrames
 using SpatialEcology
 using SparseArrays
 using Random
@@ -57,4 +59,38 @@ import SpatialEcology: places, things   # imported from EcoBase, not re-exported
         SE.asquantiles!(x, 4)
         @test sort(unique(x)) == [1.0, 2.0, 3.0, 4.0]   # four quantile bins
     end
+
+    # Names given as some AbstractString other than String (as CSV.jl reads
+    # them) are stored as String, and selectors of any string type find them.
+    # The inner constructor is used because the outer ones pass names through
+    # `string`, which already turns SubStrings into Strings.
+    @testset "views by name with non-String names" begin
+        subnames(n) = [SubString("x$i", 2) for i in 1:n]
+        a = Assemblage(ComMatrix{Bool}(sparse(mat), subnames(6), subnames(nsite)), gc)
+        @test speciesnames(a) isa Vector{String}
+        @test sitenames(a) isa Vector{String}
+
+        @test speciesnames(view(a, species = subnames(2))) == ["1", "2"]
+        v = view(a, species = ["2", "1"])
+        @test speciesnames(v) == ["2", "1"]
+        @test occurrences(v) == occurrences(asm)[[2, 1], :]
+        v = view(a, sites = ["3", "1"])
+        @test sitenames(v) == ["3", "1"]
+        @test occurrences(v) == occurrences(asm)[:, [3, 1]]
+        @test occupied(a, "2") == occupied(asm, "2")
+        @test occurring(a, "3") == occurring(asm, "3")
+    end
+end
+
+@testset "views by name on a CSV-read assemblage" begin
+    occ = CSV.read(IOBuffer("site,abundance,species\ns1,1,sp_a\ns2,1,sp_a\ns2,1,sp_b\n"), DataFrame)
+    coords = DataFrame(site = ["s1", "s2"], x = [0.0, 1.0], y = [0.0, 0.0])
+    asm = Assemblage(occ, coords)
+    @test speciesnames(asm) isa Vector{String}
+    @test sitenames(asm) isa Vector{String}
+    @test speciesnames(view(asm, species = ["sp_a"])) == ["sp_a"]
+    # selecting with the CSV column itself, whose elements are not Strings
+    @test speciesnames(view(asm, species = occ.species[3:3])) == ["sp_b"]
+    @test sitenames(view(asm, sites = ["s2"])) == ["s2"]
+    @test nspecies(view(asm, sites = ["s1"], dropspecies = true)) == 1
 end
