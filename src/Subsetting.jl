@@ -101,10 +101,7 @@ copy(lo::SELocations) = Locations(copy(lo.coords), my_dataframe_copy(lo.sitestat
 function copy(gd::SEGrid)
     indices = copy(gd.indices)
     grid = subsetgrid(indices, gd.grid)
-    x_shift = Int.((xmin(grid) - xmin(gd.grid)) / xcellsize(gd.grid))
-    y_shift = Int.((ymin(grid) - ymin(gd.grid)) / ycellsize(gd.grid))
-    indices[:,1] .-= x_shift
-    indices[:,2] .-= y_shift
+    shiftindices!(indices)
     GridData(indices, grid)
 end
 
@@ -122,6 +119,16 @@ function my_dataframe_copy(sdf::AbstractDataFrame)
     ret
 end
 # Helper functions
+
+# `subsetgrid` starts the new grid at the lowest occupied cell along each axis, so
+# the indices move down by exactly that many cells. Taking the shift from the
+# indices, not from the float difference of the grids' origins, keeps it an exact
+# integer for any cell size.
+function shiftindices!(indices)
+   indices[:,1] .-= minimum(indices[:,1]) - 1
+   indices[:,2] .-= minimum(indices[:,2]) - 1
+   indices
+end
 
 function subsetgrid(indices, grid)
    xmin = xrange(grid)[minimum(indices[:,1])]
