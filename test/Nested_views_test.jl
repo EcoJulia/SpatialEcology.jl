@@ -72,7 +72,6 @@ using Random: rand!
     @test richness(randomized)  == richness(sub1)
 
     # --- view of a randomized Assemblage (the rand!(rmg) pattern from the docs) ---
-    rand!(rmg)
-    sub_of_rand = view(rmg.m, species = sp_top4)
+    sub_of_rand = view(rand!(rmg), species = sp_top4)
     @test nspecies(sub_of_rand) == 4
 end

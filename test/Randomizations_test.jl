@@ -43,6 +43,48 @@ using Test
         end
     end
 
+    @testset "draws follow the generator's rng" begin
+        cm = ComMatrix(sprand(StableRNG(1), Bool, 15, 10, 0.4))
+        draw(seed) = rand(matrixrandomizer(cm, StableRNG(seed))).occurrences
+        @test draw(7) == draw(7)
+        @test draw(7) != draw(8)
+
+        gc = reduce(vcat, [Float64[x y] for x in 0.0:5.0 for y in 0.0:5.0])
+        nsite = size(gc, 1)
+        mat = Matrix(sprand(StableRNG(2), Bool, 8, nsite, 0.4))
+        asm = Assemblage(mat, gc, string.(1:nsite), string.(1:8))
+        adraw(seed) = rand(matrixrandomizer(asm, StableRNG(seed))).occ.commatrix.occurrences
+        @test adraw(7) == adraw(7)
+        @test adraw(7) != adraw(8)
+
+        # the global RNG is left alone
+        Random.seed!(1)
+        expected = rand()
+        Random.seed!(1)
+        draw(7)
+        adraw(7)
+        @test rand() == expected
+    end
+
+    @testset "species-wise queries see each draw" begin
+        # the transposed occurrence matrix must be replaced along with the matrix
+        cm = ComMatrix(sprand(StableRNG(3), Bool, 15, 10, 0.4))
+        gen = matrixrandomizer(cm, StableRNG(5))
+        for _ in 1:3
+            r = rand!(gen)
+            @test r.occurrences_t == permutedims(r.occurrences)
+            @test SpatialEcology.thingoccurrences(r, 1) == r.occurrences[1, :]
+        end
+        @test rand!(gen) === rand!(gen)     # rand! reuses the generator's community
+    end
+
+    @testset "method = $method" for method in instances(matrixrandomizations)
+        cm = ComMatrix(sprand(StableRNG(6), Bool, 8, 6, 0.4))
+        r = rand(matrixrandomizer(cm, StableRNG(9); method))
+        @test speciestotals(r) == speciestotals(cm)
+        @test sitetotals(r)    == sitetotals(cm)
+    end
+
     @testset "non-Boolean falls back to a message" begin
         cmi = ComMatrix(round.(Int, sprand(rng, 6, 6, 0.6) .* 9 .+ 1))
         @test matrixrandomizer(cmi) isa AbstractString
