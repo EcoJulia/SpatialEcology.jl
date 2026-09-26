@@ -7,7 +7,7 @@ using SparseArrays
 using Statistics
 using RandomBooleanMatrices
 import RandomNumbers.Xorshifts: Xoroshiro128Plus
-import RandomBooleanMatrices: matrixrandomizer, MatrixGenerator
+import RandomBooleanMatrices: matrixrandomizer
 
 import EcoBase
 import EcoBase: asindices, nthings, nplaces, occupancy, richness, nrecords, placenames, thingnames,
