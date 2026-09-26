@@ -85,6 +85,21 @@ using Test
         @test sitetotals(r)    == sitetotals(cm)
     end
 
+    @testset "a thinly spread community still mixes" begin
+        # 6 species in 60 of 3000 sites: the draws must move presences around
+        # rather than spend the curveball trades on pairs of empty sites
+        occ = spzeros(Bool, 6, 3000)
+        for (k, j) in enumerate(randperm(StableRNG(12), 3000)[1:60])
+            occ[mod1(k, 6), j] = true
+            occ[mod1(k + 2, 6), j] = true
+        end
+        cm = ComMatrix(occ)
+        gen = matrixrandomizer(cm, StableRNG(13))
+        draws = [rand(gen).occurrences for _ in 1:20]
+        @test all(d -> sum(d, dims = 1) == sum(occ, dims = 1), draws)
+        @test minimum(i -> count(draws[i] .& .!draws[i + 1]), 1:19) >= 10
+    end
+
     @testset "non-Boolean falls back to a message" begin
         cmi = ComMatrix(round.(Int, sprand(rng, 6, 6, 0.6) .* 9 .+ 1))
         @test matrixrandomizer(cmi) isa AbstractString

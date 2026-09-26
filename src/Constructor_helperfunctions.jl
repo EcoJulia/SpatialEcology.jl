@@ -108,10 +108,7 @@ function dropbyindex!(site::Locations{GridData}, indicestokeep)
   site.coords.indices = site.coords.indices[indicestokeep,:]
   site.sitestats = site.sitestats[indicestokeep,:]
   newgrid = subsetgrid(site.coords.indices, site.coords.grid)
-  x_shift = Int.((xmin(newgrid) - xmin(site.coords.grid)) / xcellsize(site.coords.grid))
-  y_shift = Int.((ymin(newgrid) - ymin(site.coords.grid)) / ycellsize(site.coords.grid))
-  site.coords.indices[:,1] .-= x_shift
-  site.coords.indices[:,2] .-= y_shift
+  shiftindices!(site.coords.indices)
   site.coords.grid = newgrid
 end
 
@@ -164,6 +161,6 @@ end
 
 function getindices(coords::AbstractMatrix{<:Union{AbstractFloat, Missing}}, grid::GridTopology, tolerance = 2*sqrt(eps()))
   index1 = 1 .+ floor.(Int,(coords[:,1] .- xmin(grid) .+ 0.5xcellsize(grid)) ./ xcellsize(grid) .+ tolerance)
-  index2 = 1 .+ floor.(Int,(coords[:,2] .- ymin(grid) .+ 0.5xcellsize(grid)) ./ ycellsize(grid) .+ tolerance)
+  index2 = 1 .+ floor.(Int,(coords[:,2] .- ymin(grid) .+ 0.5ycellsize(grid)) ./ ycellsize(grid) .+ tolerance)
   hcat(index1, index2)
 end
