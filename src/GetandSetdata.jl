@@ -83,8 +83,26 @@ commatrix(occ::SEThings) = occ.commatrix
 occurrences(asm::Union{SEAssemblage, SEThings}) = occurrences(commatrix(asm))
 occurrences(cm::AbstractComMatrix) = cm.occurrences
 
+# Left-joins `new` onto `old` by `key`, keeping the row order of `old`. Columns of `old`
+# that `new` also has are replaced by the new ones, unless `makeunique` asks for suffixed
+# copies instead. Returns a new DataFrame and leaves `old` untouched, so a join that
+# throws changes nothing.
+function replacingjoin(old::DataFrames.DataFrame, new::DataFrames.DataFrame, key::Symbol, what::String; makeunique = false)
+    replaced = makeunique ? String[] : setdiff(intersect(names(old), names(new)), [string(key)])
+    isempty(replaced) || @info "Replacing existing $what column$(length(replaced) == 1 ? "" : "s") $(join(replaced, ", ")) (pass `makeunique = true` to keep both)"
+    left = select(old, Not(replaced), copycols = false)
+    left.__run_number = 1:nrow(left)
+    joined = leftjoin(left, new, on = key, makeunique = makeunique)
+    sort!(joined, :__run_number)
+    select!(joined, Not(:__run_number))
+end
+
 """
     addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::Symbol; validate = true, tolerance = 0.5, makeunique = false)
+
+Left-join `newtraits` onto the traits of `asm`, matching its `species` column to the species names.
+Trait columns that `asm` already has are replaced by the new ones, so the call can be repeated;
+pass `makeunique = true` to keep both, with the new columns suffixed.
 """
 function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::Symbol; validate = true, tolerance = 0.5, makeunique = false)
     if validate
@@ -97,10 +115,7 @@ function addtraits!(asm::Assemblage, newtraits::DataFrames.DataFrame, species::S
     end
 
     jointraits = rename(newtraits, species => :name)
-    asm.occ.traits.__run_number = 1:nrow(asm.occ.traits)
-    asm.occ.traits = leftjoin(asm.occ.traits, jointraits, on = :name, makeunique = makeunique)
-    sort!(asm.occ.traits, :__run_number)
-    select!(asm.occ.traits, Not(:__run_number))
+    asm.occ.traits = replacingjoin(asm.occ.traits, jointraits, :name, "trait", makeunique = makeunique)
     nothing
 end
 
@@ -111,6 +126,10 @@ end
 
 """
     addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::Symbol; validate = true, tolerance = 0.5, makeunique = false)
+
+Left-join `newsites` onto the site statistics of `asm`, matching its `sites` column to the site names.
+Columns that `asm` already has are replaced by the new ones, so the call can be repeated;
+pass `makeunique = true` to keep both, with the new columns suffixed.
 """
 function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::Symbol; validate = true, tolerance = 0.5, makeunique = false)
     if validate
@@ -123,10 +142,7 @@ function addsitestats!(asm::Assemblage, newsites::DataFrames.DataFrame, sites::S
     end
 
     joinsites = rename(newsites, sites => :sites)
-    asm.site.sitestats.__run_number = 1:nrow(asm.site.sitestats)
-    asm.site.sitestats = leftjoin(asm.site.sitestats, joinsites, on = :sites, makeunique = makeunique)
-    sort!(asm.site.sitestats, :__run_number)
-    select!(asm.site.sitestats, Not(:__run_number))
+    asm.site.sitestats = replacingjoin(asm.site.sitestats, joinsites, :sites, "site statistic", makeunique = makeunique)
     nothing
 end
 

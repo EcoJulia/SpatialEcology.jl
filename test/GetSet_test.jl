@@ -62,6 +62,53 @@ end
         @test_throws ErrorException addtraits!(asm, DataFrame(name = ["none"], mass = [0.0]), :name)
     end
 
+    @testset "re-running addtraits! / addsitestats! with a DataFrame" begin
+        asm = makeasm(rng)
+        newtraits = DataFrame(species = reverse(speciesnames(asm)), pc1 = 1.0:nspecies(asm), pc2 = 2.0:nspecies(asm)+1)
+        addtraits!(asm, newtraits, :species)
+        once = copy(traits(asm))
+        @test_logs (:info, r"pc1, pc2") addtraits!(asm, newtraits, :species)
+        @test isequal(traits(asm), once)
+
+        # new values replace the old ones, in place and without suffixed copies
+        newer = transform(newtraits, :pc1 => (x -> 10 .* x) => :pc1)
+        addtraits!(asm, newer, :species)
+        @test traitnames(asm) == names(once)
+        @test traits(asm).pc1 == 10 .* once.pc1
+        @test traits(asm).pc2 == once.pc2
+        @test traits(asm).name == speciesnames(asm)
+
+        # makeunique = true still keeps both
+        addtraits!(asm, newtraits, :species, makeunique = true)
+        @test "pc1_1" in traitnames(asm)
+        @test traits(asm).pc1_1 == once.pc1
+
+        newsites = DataFrame(plot = sitenames(asm), elev = 1.0:nsites(asm))
+        addsitestats!(asm, newsites, :plot)
+        onceS = copy(sitestats(asm))
+        @test_logs (:info, r"elev") addsitestats!(asm, newsites, :plot)
+        @test isequal(sitestats(asm), onceS)
+        addsitestats!(asm, transform(newsites, :elev => (x -> -x) => :elev), :plot)
+        @test sitestatnames(asm) == names(onceS)
+        @test sitestats(asm).elev == -onceS.elev
+    end
+
+    @testset "a failing addtraits! / addsitestats! join leaves the tables unchanged" begin
+        asm = makeasm(rng)
+        addtraits!(asm, DataFrame(name = speciesnames(asm), mass = 1.0:nspecies(asm)), :name)
+        addsitestats!(asm, DataFrame(sites = sitenames(asm), elev = 1.0:nsites(asm)), :sites)
+        beforeT, beforeS = copy(traits(asm)), copy(sitestats(asm))
+
+        # a missing join key passes validation but makes `leftjoin` throw
+        badtraits = DataFrame(name = [speciesnames(asm); missing], mass = 1.0:nspecies(asm)+1)
+        @test_throws ArgumentError addtraits!(asm, badtraits, :name)
+        @test isequal(traits(asm), beforeT)
+
+        badsites = DataFrame(sites = [sitenames(asm); missing], elev = 1.0:nsites(asm)+1)
+        @test_throws ArgumentError addsitestats!(asm, badsites, :sites)
+        @test isequal(sitestats(asm), beforeS)
+    end
+
     @testset "@traits and @sitestats" begin
         asm = makeasm(rng)
         addtraits!(asm, collect(1:nspecies(asm)), :score)
