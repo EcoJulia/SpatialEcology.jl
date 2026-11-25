@@ -69,7 +69,7 @@ can be a position, a range or vector of positions, `:`, a Bool mask, or species 
 com = commatrix(amph)
 com[1, 3]                       # the value for the first species in the third site
 com["_Bufo_bufo", :]            # a ComMatrix with that one species in all sites
-com[1:10, [true, false, true]]  # the first ten species in the first and third sites
+com[1:10, [1, 3]]               # the first ten species in the first and third sites
 ```
 A single value is returned as is; any other selection is a new `ComMatrix` that keeps the names of
 its species and sites, so `com[1:3, 1]` is a 3×1 `ComMatrix` (use `getspecies` and `getsite` for
