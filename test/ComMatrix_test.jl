@@ -62,7 +62,7 @@ using Test
     @test getspecies(cmi, 2) == [10, 61, 48, 6, 11, 69, 11, 36, 14, 91, 28, 93, 58]
     gcm = getspecies(cmf, 6)
     @test gcm[3] == 0.9426149574692801
-    @test gcm isa SubArray
+    @test gcm isa SparseVector     # a copy, not a view into the stored transpose
 
     @test speciesnames(cmi)[8] == "sp8"
     @test speciesnames(cmf)[3] == "species3"
@@ -97,7 +97,129 @@ using Test
 
     dist = pairwise(BrayCurtis(), view(cmi, sites=1:2))
     @test round.(dist, digits=1) == [0.0 0.3; 0.3 0.0]
-  # getindex and setindex are to do
+
+    @testset "indexing" begin
+        SE = SpatialEcology
+        # internally consistent: the stored transpose matches, no stored zeros,
+        # and one name per row and per column
+        consistent(c::ComMatrix) =
+            SE.transposed(occurrences(c)) == permutedims(SE._csc(occurrences(c))) &&
+            nnz(occurrences(c)) == count(!iszero, Matrix(occurrences(c))) &&
+            length(speciesnames(c)) == nspecies(c) && length(sitenames(c)) == nsites(c)
+        rowsites(c, i) = findall(!iszero, Matrix(occurrences(c))[i, :])
+        rowcounts(c) = vec(count(!iszero, Matrix(occurrences(c)), dims = 2))
+
+        m = Bool[1 0 1; 0 1 1; 1 1 0]
+        com = ComMatrix(m, ["a", "b", "c"], ["s1", "s2", "s3"])
+        icom = ComMatrix([2 0 5; 0 1 0; 3 0 0], ["a", "b", "c"], ["s1", "s2", "s3"])
+
+        @testset "getindex" begin
+            @test com[1, 3] === true
+            @test com[2, 1] === false
+            @test icom[1, 3] === 5
+            @test com["a", "s3"] == com[1, 3]
+            @test com[:c, :s1] == com[3, 1]
+
+            col = com[1:2, 1]                   # a single site stays a dimension
+            @test col isa ComMatrix && size(col) == (2, 1)
+            @test speciesnames(col) == ["a", "b"] && sitenames(col) == ["s1"]
+            row = com[1, :]
+            @test size(row) == (1, 3)
+            @test speciesnames(row) == ["a"] && sitenames(row) == ["s1", "s2", "s3"]
+
+            sub = com[[3, 1], 2:3]
+            @test speciesnames(sub) == ["c", "a"] && sitenames(sub) == ["s2", "s3"]
+            @test Matrix(occurrences(sub)) == m[[3, 1], 2:3]
+            @test occurrences(com[["c", "a"], ["s2", "s3"]]) == occurrences(sub)
+            @test speciesnames(com[end, :]) == ["c"]
+            @test speciesnames(com[[true, false, true], :]) == ["a", "c"]
+            whole = com[:, :]
+            @test Matrix(occurrences(whole)) == m
+            @test speciesnames(whole) == speciesnames(com) && sitenames(whole) == sitenames(com)
+            @test all(consistent, (col, row, sub, whole))
+
+            @test_throws ArgumentError com["zzz", :]
+            @test_throws ArgumentError com[["a", "zzz"], :]
+            @test_throws BoundsError com[[true, false], :]
+
+            sub[1, 1] = false                   # the result is a copy
+            @test com[3, 2] == true
+
+            v = view(com, species = [3, 1], sites = 2:3)
+            @test v[1, 1] == com[3, 2]
+            vsub = v[:, 2]
+            @test speciesnames(vsub) == ["c", "a"] && sitenames(vsub) == ["s3"]
+            @test Matrix(occurrences(vsub)) == m[[3, 1], 3:3]
+            @test consistent(vsub)
+            @test speciesnames(v["a", :]) == ["a"]
+        end
+
+        @testset "setindex!" begin
+            b = copy(com)
+            b[1, 2] = true                      # inserts a new entry
+            @test occupied(b, 1) == rowsites(b, 1) == [1, 2, 3]
+            @test noccupied(b, 1) == 3
+            @test collect(getspecies(b, 1)) == Matrix(occurrences(b))[1, :]
+            @test occupancy(b) == rowcounts(b)
+            @test consistent(b)
+
+            n = nrecords(b)
+            b[1, 1] = false                     # a zero is removed, not stored
+            @test nrecords(b) == n - 1
+            @test occupied(b, 1) == rowsites(b, 1) == [2, 3]
+            @test occupancy(b) == rowcounts(b)
+            @test consistent(b)
+
+            b["b", "s1"] = true
+            @test occupied(b, "b") == [1, 2, 3]
+            b[1:2, 1:2] = falses(2, 2)
+            @test Matrix(occurrences(b))[1:2, 1:2] == falses(2, 2)
+            @test occupancy(b) == rowcounts(b) && consistent(b)
+
+            occurrences(b) .= false             # broadcasting assignment
+            @test nrecords(b) == 0 && occupancy(b) == [0, 0, 0] && consistent(b)
+            fill!(occurrences(b), true)
+            @test occupancy(b) == [3, 3, 3] && consistent(b)
+
+            ib = copy(icom)
+            ib[1, 1] = 0
+            @test occupied(ib, 1) == [3] && consistent(ib)
+            ib[2, 3] = 7
+            @test occupied(ib, 2) == [2, 3] && speciestotals(ib) == [5, 8, 3]
+            @test consistent(ib)
+        end
+
+        @testset "getspecies is a copy" begin
+            b = copy(com)
+            g = getspecies(b, 1)
+            g[2] = true                         # does not write into b
+            @test b[1, 2] == false && consistent(b)
+            b[1, 2] = true
+            @test getspecies(b, 1)[2] == true
+        end
+
+        @testset "writing through views" begin
+            b = copy(com)
+            v = view(b)
+            v[2, 1] = true                      # reaches the parent's storage
+            @test b[2, 1] == true
+            @test occupied(b, 2) == rowsites(b, 2) == [1, 2, 3] && consistent(b)
+
+            w = @view b[2:3, :]
+            @test w isa SpatialEcology.SubComMatrix
+            @test speciesnames(w) == ["b", "c"] && sitenames(w) == ["s1", "s2", "s3"]
+            w2 = view(w, 2, :)                  # a view of a view: species c
+            @test size(w2) == (1, 3) && speciesnames(w2) == ["c"]
+            w2[1, 3] = true
+            @test b[3, 3] == true && occupied(b, 3) == [1, 2, 3] && consistent(b)
+            w2[1, 1] = false
+            @test occupied(b, 3) == [2, 3] && occupancy(b) == rowcounts(b) && consistent(b)
+            @test (@view b["a", "s2"]) isa SpatialEcology.SubComMatrix
+            @test_throws ArgumentError (@view b["zzz", :])
+        end
+
+        @test isempty(Test.detect_ambiguities(SpatialEcology; recursive = true))
+    end
 
     @testset "fast occupied / noccupied / thingoccurrences via occurrences_t" begin
         # occupied(com, integer) — fast path uses occ_t column, must agree with slow fallback

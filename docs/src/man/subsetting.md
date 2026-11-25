@@ -59,7 +59,25 @@ plot(spec, title = "Common Toad", showempty = true, c = cgrad([:grey, :red], cat
 
 
 
-Note that `getindex` (`[]`) will create a view by default - to create a new `Assemblage` object you can use `copy`.
+Note that `view` does not copy the data. To create a new, independent `Assemblage` from a view, use `copy`.
+
+## Indexing a ComMatrix
+
+A `ComMatrix` can be indexed like a matrix with species as rows and sites as columns. Each index
+can be a position, a range or vector of positions, `:`, a Bool mask, or species and site names:
+```julia
+com = commatrix(amph)
+com[1, 3]                       # the value for the first species in the third site
+com["_Bufo_bufo", :]            # a ComMatrix with that one species in all sites
+com[1:10, [true, false, true]]  # the first ten species in the first and third sites
+```
+A single value is returned as is; any other selection is a new `ComMatrix` that keeps the names of
+its species and sites, so `com[1:3, 1]` is a 3×1 `ComMatrix` (use `getspecies` and `getsite` for
+plain vectors). An unknown name is an error. `@view com[1:10, :]` gives a `SubComMatrix` that
+shares the data instead of copying it.
+
+You can also write into a `ComMatrix`, e.g. `com[1, 3] = true`, directly or through a view.
+Writing a zero removes the record.
 
 
 ## Index

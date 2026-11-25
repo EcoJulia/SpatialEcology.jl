@@ -8,12 +8,12 @@ rowsum(x::AbstractMatrix) = sum(x, dims = 2)
 
 # Functions for sparse array view sums - from https://discourse.julialang.org/t/slow-arithmetic-on-views-of-sparse-matrices/3644
 
-function rowsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC}
+function rowsum(x::SubArray{T,2,P}) where {T,P<:AbstractSparseCSC}
     pi = parentindices(x)
     (x.parent * sparse(pi[2], ones(Int, length(pi[2])), ones(Int, length(pi[2])), size(x.parent, 2), 1))[pi[1]]
 end
 
-function rowsum(x::SparseMatrixCSC{Bool})
+function rowsum(x::AbstractSparseCSC{Bool})
     active = zeros(Int, size(x, 1))
     rv = rowvals(x)
     @inbounds for i in 1:nnz(x)
@@ -22,16 +22,16 @@ function rowsum(x::SparseMatrixCSC{Bool})
     active
 end
 
-colsum(x::SparseMatrixCSC{Bool}) = diff(SparseArrays.getcolptr(x))
+colsum(x::AbstractSparseCSC{Bool}) = diff(SparseArrays.getcolptr(x))
 
-function colsum(x::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC}
+function colsum(x::SubArray{T,2,P}) where {T,P<:AbstractSparseCSC}
     pi = parentindices(x)
     (sparse(ones(Int, length(pi[1])), pi[1], ones(Int, length(pi[1])), 1, size(x.parent, 1)) * x.parent)[pi[2]]
 end
 
 # Functions for finding nonzero rows and columns from Dan Getz, http://stackoverflow.com/questions/43968445/identify-which-rows-or-columns-have-values-in-sparse-matrix
 
-function nzrows(a::SparseMatrixCSC)
+function nzrows(a::AbstractSparseCSC)
     active = falses(size(a, 1))
     rv = rowvals(a)
     @inbounds for i in 1:nnz(a)
@@ -40,7 +40,7 @@ function nzrows(a::SparseMatrixCSC)
     findall(active)
 end
 
-function nzcols(a::SparseMatrixCSC)
+function nzcols(a::AbstractSparseCSC)
     cp = SparseArrays.getcolptr(a)
     findall(i -> cp[i] < cp[i+1], 1:size(a, 2))
 end
@@ -58,7 +58,7 @@ function sortedintersecting(v1, v2)
     return false
 end
 
-function nzcols(b::SubArray{T,2,P,Tuple{Vector{Int64},Vector{Int64}}} where {T,P<:SparseMatrixCSC}
+function nzcols(b::SubArray{T,2,P,Tuple{Vector{Int64},Vector{Int64}}} where {T,P<:AbstractSparseCSC}
   )
     pi = parentindices(b)
     brows = sort(unique(pi[1]))
@@ -68,7 +68,7 @@ function nzcols(b::SubArray{T,2,P,Tuple{Vector{Int64},Vector{Int64}}} where {T,P
         sortedintersecting(rowvals(b.parent)[nzrange(b.parent,i)], brows)]
 end
 
-function nzcols(b::SubArray{T,2,P,M} where {T,P<:SparseMatrixCSC, M<:Tuple{AbstractUnitRange{Int64},AbstractUnitRange{Int64}}}
+function nzcols(b::SubArray{T,2,P,M} where {T,P<:AbstractSparseCSC, M<:Tuple{AbstractUnitRange{Int64},AbstractUnitRange{Int64}}}
   )
     pi = parentindices(b)
     @inbounds return collect(i+1-first(pi[2])
@@ -77,7 +77,7 @@ function nzcols(b::SubArray{T,2,P,M} where {T,P<:SparseMatrixCSC, M<:Tuple{Abstr
         inrange(rowvals(b.parent)[nzrange(b.parent,i)], pi[1]))
 end
 
-function nzcols(b::SubArray{T,2,P,M} where {T,P<:SparseMatrixCSC, M<:Tuple{AbstractUnitRange{Int64},Vector{Int64}}}
+function nzcols(b::SubArray{T,2,P,M} where {T,P<:AbstractSparseCSC, M<:Tuple{AbstractUnitRange{Int64},Vector{Int64}}}
   )
     pi = parentindices(b)
     @inbounds return [k
@@ -86,7 +86,7 @@ function nzcols(b::SubArray{T,2,P,M} where {T,P<:SparseMatrixCSC, M<:Tuple{Abstr
         inrange(rowvals(b.parent)[nzrange(b.parent,i)], pi[1])]
 end
 
-function nzcols(b::SubArray{T,2,P,M} where {T,P<:SparseMatrixCSC,M<:Tuple{Vector{Int64},AbstractUnitRange{Int64}}}
+function nzcols(b::SubArray{T,2,P,M} where {T,P<:AbstractSparseCSC,M<:Tuple{Vector{Int64},AbstractUnitRange{Int64}}}
   )
     pi = parentindices(b)
     brows = sort(unique(pi[1]))
@@ -110,7 +110,7 @@ function findin2(inds,v,w)
     return res
 end
 
-function nzrows(b::SubArray{T,2,P,Tuple{Vector{Int64}, U}} where {T,P<:SparseMatrixCSC, U<:Union{M, Vector{Int}}} where {M <: AbstractUnitRange{Int64}}
+function nzrows(b::SubArray{T,2,P,Tuple{Vector{Int64}, U}} where {T,P<:AbstractSparseCSC, U<:Union{M, Vector{Int}}} where {M <: AbstractUnitRange{Int64}}
   )
     pi = parentindices(b)
     active = falses(length(pi[1]))
@@ -122,7 +122,7 @@ function nzrows(b::SubArray{T,2,P,Tuple{Vector{Int64}, U}} where {T,P<:SparseMat
     return findall(active)
 end
 
-function nzrows(b::SubArray{T,2,P,Tuple{M, U}} where {T,P<:SparseMatrixCSC, U<:Union{M, Vector{Int}}} where M <: AbstractUnitRange{Int64}
+function nzrows(b::SubArray{T,2,P,Tuple{M, U}} where {T,P<:AbstractSparseCSC, U<:Union{M, Vector{Int}}} where M <: AbstractUnitRange{Int64}
   )
     pi = parentindices(b)
     rv = rowvals(b.parent)
@@ -138,7 +138,7 @@ function nzrows(b::SubArray{T,2,P,Tuple{M, U}} where {T,P<:SparseMatrixCSC, U<:U
 end
 
 _nnz(x::AbstractMatrix) = nnz(x)
-function _nnz(b::SubArray{T,2,P}) where {T,P<:SparseMatrixCSC}
+function _nnz(b::SubArray{T,2,P}) where {T,P<:AbstractSparseCSC}
     pi = parentindices(b)
     rv = rowvals(b.parent)
     # Mark the selected rows once (O(1) membership), instead of testing

@@ -34,8 +34,10 @@ matrixrandomizer(com::ComMatrix{Bool}, rng = Xoroshiro128Plus(); kwargs...) =
 matrixrandomizer(asm::SEAssemblage{Bool}, rng = Xoroshiro128Plus(); kwargs...) =
     _communityrandomizer(copy(asm), rng; kwargs...)
 
+# RandomBooleanMatrices' fast path takes a SparseMatrixCSC{Bool, Int} itself, so the
+# generator gets its own copy of the CSC matrix inside the community's OccMatrix.
 _communityrandomizer(com, rng; kwargs...) =
-    CommunityRandomizer(com, matrixrandomizer(occurrences(com), rng; kwargs...))
+    CommunityRandomizer(com, matrixrandomizer(copy(_csc(occurrences(com))), rng; kwargs...))
 
 Random.rand(r::CommunityRandomizer) = copy(Random.rand!(r))
 function Random.rand!(r::CommunityRandomizer)
@@ -46,10 +48,10 @@ end
 _commatrix(com::ComMatrix) = com
 _commatrix(asm::SEAssemblage) = commatrix(asm)
 
-# Install a new occurrence matrix, keeping the transposed copy in step with it. The
-# draw is copied so the community never shares storage with the generator's state.
+# Install a new occurrence matrix; the storage drops its transpose, which is rebuilt
+# on the next species query. The draw is copied so the community never shares
+# storage with the generator's state.
 function _setoccurrences!(com::ComMatrix, occ)
-    com.occurrences = copy(occ)
-    com.occurrences_t = sparse(occ')
+    _replacecsc!(com.occurrences, copy(occ))
     com
 end

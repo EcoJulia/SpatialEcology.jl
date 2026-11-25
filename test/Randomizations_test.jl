@@ -72,7 +72,7 @@ using Test
         gen = matrixrandomizer(cm, StableRNG(5))
         for _ in 1:3
             r = rand!(gen)
-            @test r.occurrences_t == permutedims(r.occurrences)
+            @test SpatialEcology.transposed(r.occurrences) == permutedims(r.occurrences)
             @test SpatialEcology.thingoccurrences(r, 1) == r.occurrences[1, :]
         end
         @test rand!(gen) === rand!(gen)     # rand! reuses the generator's community

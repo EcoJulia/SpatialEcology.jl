@@ -112,9 +112,18 @@ function dropbyindex!(site::Locations{GridData}, indicestokeep)
   site.coords.grid = newgrid
 end
 
+# Raster-backed sites keep the whole domain mask (a subset is still drawn on the
+# same map, as for `copy`); only the per-site cells and sitestats are subset.
+function dropbyindex!(site::Locations{<:RasterData}, indicestokeep)
+  site.coords = RasterData(site.coords.mask, site.coords.cellinds[indicestokeep])
+  site.sitestats = site.sitestats[indicestokeep,:]
+end
+
 function dropsites!(occ::ComMatrix, site::SELocations)
   hasspecies = occupied(occ)
-  occ.occurrences = occ.occurrences[:, hasspecies]
+  kept = occ[:, hasspecies]      # subsets occurrences and sitenames together
+  occ.occurrences = kept.occurrences
+  occ.sitenames = kept.sitenames
   dropbyindex!(site, hasspecies)
 end
 

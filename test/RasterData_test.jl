@@ -220,6 +220,19 @@ using SpatialEcology: RasterData, SubRasterData, indices, getcoords, places  # n
         @test coordinates(c) == coordinates(v3)
     end
 
+    @testset "dropemptysites keeps the domain and the site names" begin
+        # only sites 2 and 5 are occupied
+        occ = falses(2, nsite); occ[1, 2] = true; occ[2, 5] = true
+        sp = SpatialEcology.SpeciesData(ComMatrix(occ, ["a", "b"], sitenames(asm)),
+                                        DataFrame(name = ["a", "b"]))
+        d = Assemblage(copy(asm.site), sp; dropemptysites = true)
+        @test nsites(d) == 2
+        @test sitenames(commatrix(d)) == sitenames(d) == sitenames(asm)[[2, 5]]
+        @test cellindices(d) == cellindices(asm)[[2, 5]]
+        @test domain(d) == domain(asm)
+        @test occupied(commatrix(d), "b") == [2]
+    end
+
     @testset "dimension order (Y, X) is normalized" begin
         # Distinct X and Y ranges so a positional X/Y mix-up is detectable (and
         # would go out of bounds, since the grid is not square).

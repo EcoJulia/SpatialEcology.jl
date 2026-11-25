@@ -39,18 +39,20 @@ occurring(com::AbstractComMatrix, idx) = occurring(occurrences(com), asindices(i
 occupied(com::AbstractComMatrix) = occupied(occurrences(com))
 occupied(com::AbstractComMatrix, idx) = occupied(occurrences(com), asindices(idx, speciesnames(com)))
 
-# Fast per-species site lookup via the cached transpose.
+# Fast per-species site lookup via the transpose kept by the OccMatrix storage.
 #
 # The occurrence matrix is n_species × n_sites CSC — column access (site queries)
 # is O(nnz_per_site), but row access (species queries) requires scanning all
-# columns: O(nnz_total). `occurrences_t` (n_sites × n_species CSC) flips this:
+# columns: O(nnz_total). The transpose (n_sites × n_species CSC) flips this:
 # per-species site lookup is now a CSC column read, O(nnz_per_species).
 #
-# Only `ComMatrix` has `occurrences_t`; `SubComMatrix` keeps the slow fallback.
-occupied(com::ComMatrix, idx::Integer) =
-    rowvals(com.occurrences_t)[nzrange(com.occurrences_t, idx)]
+# Only `ComMatrix` keeps a transpose; `SubComMatrix` keeps the slow fallback.
+function occupied(com::ComMatrix, idx::Integer)
+    t = transposed(com.occurrences)
+    rowvals(t)[nzrange(t, idx)]
+end
 occupied(com::ComMatrix, idx::AbstractVector{<:Integer}) =
-    nzrows(view(com.occurrences_t, :, idx))
+    nzrows(view(transposed(com.occurrences), :, idx))
 occupied(com::ComMatrix, idx) = occupied(com, asindices(idx, speciesnames(com)))
 
 const nspecies = nthings
@@ -83,10 +85,12 @@ const getspecies = thingoccurrences
 """
 thingoccurrences(com::AbstractComMatrix, idx) = thingoccurrences(occurrences(com), asindices(idx, thingnames(com)))
 
-# Fast single-species occurrences: column of occ_t is the species' row of occ,
-# accessed in O(nnz_per_species) via the CSC column pointer rather than O(nnz_total)
-# for a CSC row scan.
-thingoccurrences(com::ComMatrix, idx::Integer) = view(com.occurrences_t, :, idx)
+# Fast single-species occurrences: a column of the transpose is the species' row of
+# the occurrences, read in O(nnz_per_species) via the CSC column pointer rather than
+# O(nnz_total) for a CSC row scan. It is returned as a copy (a SparseVector): a view
+# into the transpose would go stale after the next write, and writing through it
+# would change the transpose but not the occurrences.
+thingoccurrences(com::ComMatrix, idx::Integer) = transposed(com.occurrences)[:, idx]
 thingoccurrences(com::ComMatrix, idx) =
     thingoccurrences(com, asindices(idx, thingnames(com)))
 
@@ -123,13 +127,14 @@ sitetotals(com::AbstractComMatrix) = vec(colsum(com.occurrences))
 speciestotals(com::AbstractComMatrix) = vec(rowsum(com.occurrences))
 
 # Fast range-size count without allocating the sites vector: O(1) per species.
-noccupied(com::ComMatrix, idx::Integer) = length(nzrange(com.occurrences_t, idx))
+noccupied(com::ComMatrix, idx::Integer) = length(nzrange(transposed(com.occurrences), idx))
 noccupied(com::ComMatrix, idx) = noccupied(com, asindices(idx, speciesnames(com)))
 
-# For Bool assemblages, per-species counts are the colptr differences of occ_t
-# (O(n_species) read), not a rowval scan of occ (O(nnz_total)).
+# For Bool assemblages, per-species counts are the colptr differences of the
+# transpose (O(n_species) read), not a rowval scan of the occurrences (O(nnz_total)).
+# This counts stored entries, which is right because OccMatrix never stores zeros.
 occupancy(com::ComMatrix{Bool}) =
-    Vector{Int}(diff(SparseArrays.getcolptr(com.occurrences_t)))
+    Vector{Int}(diff(SparseArrays.getcolptr(transposed(com.occurrences))))
 speciestotals(com::ComMatrix{Bool}) = occupancy(com)
 
 size(com::AbstractComMatrix) = size(occurrences(com))
@@ -168,9 +173,85 @@ end
 
 #TODO also create render functions for Juno
 
-getindex(com::AbstractComMatrix, inds...) = ComMatrix(getindex(com.occurrences, inds...))
+#-------------------------------------------------------------------------------------------------
+# Indexing
 
-setindex!(com::AbstractComMatrix, X, inds...) = setindex!(com.occurrences, X, inds...)
+# Turn a species or site selector into positions. Positions, ranges and `:` pass
+# through, a Bool mask selects where it is true, and names (Strings or Symbols,
+# single or in a vector) are looked up in `names`. Unlike `asindices`, an unknown
+# name is an error rather than silently skipped.
+_toindices(::Colon, names) = Base.OneTo(length(names))
+_toindices(i::Integer, names) = i
+_toindices(I::AbstractVector{<:Integer}, names) = I
+function _toindices(I::AbstractVector{Bool}, names)
+    length(I) == length(names) ||
+        throw(BoundsError(names, I))
+    findall(I)
+end
+_toindices(I::Union{AbstractString, Symbol}, names) = (_checknames((I,), names); asindices(I, names))
+_toindices(I::AbstractVector{<:Union{AbstractString, Symbol}}, names) = (_checknames(I, names); asindices(I, names))
+_toindices(I, names) = asindices(I, names)
+
+function _checknames(I, names)
+    known = Set(String.(names))
+    unknown = [String(n) for n in I if !(String(n) in known)]
+    isempty(unknown) ||
+        throw(ArgumentError("no species or site named $(join(repr.(unknown), ", "))"))
+    nothing
+end
+
+# A single position keeps its dimension: com[1:3, 1] is a 3×1 ComMatrix.
+_keepdim(i::Integer) = i:i
+_keepdim(I) = I
+
+"""
+    com[species, sites]
+
+Index a `ComMatrix` (or `SubComMatrix`) like a matrix with species as rows and
+sites as columns. Each index can be a position, a range or vector of positions,
+`:`, a Bool mask, or species/site names (Strings or Symbols), alone or in a vector.
+
+A single species in a single site returns the value. Any other selection returns a
+new `ComMatrix` with the selected species and sites and their names, so
+`com[1:3, 1]` is a 3×1 `ComMatrix`; for a plain vector use `getspecies`/`getsite`.
+Use `view` (or `@view com[species, sites]`) to get a `SubComMatrix` instead of a copy.
+An unknown name throws an `ArgumentError`.
+"""
+function getindex(com::AbstractComMatrix, I, J)
+    i = _toindices(I, speciesnames(com))
+    j = _toindices(J, sitenames(com))
+    _getindex(com, i, j)
+end
+_getindex(com::AbstractComMatrix, i::Integer, j::Integer) = occurrences(com)[i, j]
+function _getindex(com::AbstractComMatrix, i, j)
+    ii, jj = _keepdim(i), _keepdim(j)
+    occ = _slice(occurrences(com), ii, jj)
+    ComMatrix{eltype(occ)}(occ, speciesnames(com)[ii], sitenames(com)[jj])
+end
+
+# Slice the CSC matrix itself, so the result is a fresh SparseMatrixCSC built by
+# SparseArrays' sparse getindex; for a view, index its parent at the view's positions.
+_slice(W::OccMatrix, ii, jj) = W.csc[ii, jj]
+function _slice(v::SubArray{<:Any, 2, <:OccMatrix}, ii, jj)
+    pi = parentindices(v)
+    parent(v).csc[pi[1][ii], pi[2][jj]]
+end
+
+"""
+    com[species, sites] = x
+
+Write into a `ComMatrix`, or through a `SubComMatrix` into its parent. Indices are as
+for `getindex`. Writing a zero removes the entry, so it is not counted as a presence.
+"""
+function setindex!(com::AbstractComMatrix, X, I, J)
+    setindex!(occurrences(com), X, _toindices(I, speciesnames(com)), _toindices(J, sitenames(com)))
+    com
+end
+
+Base.axes(com::AbstractComMatrix) = axes(occurrences(com))
+Base.axes(com::AbstractComMatrix, d) = axes(occurrences(com), d)
+Base.firstindex(com::AbstractComMatrix, d) = 1
+Base.lastindex(com::AbstractComMatrix, d) = size(com, d)
 
 getindex(site::SELocations, inds) = copy(view(site, inds))
 
