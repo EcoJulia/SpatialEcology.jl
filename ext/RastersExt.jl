@@ -129,6 +129,15 @@ for f in (:xmin, :xmax, :ymin, :ymax, :xcellsize, :ycellsize, :xcells, :ycells, 
     @eval SE.$f(l::SubLocations{<:SubRasterData}) = SE.$f(l.coords)
 end
 
+# The coordinate reference system, read off the domain raster, at every level
+# that holds one, so `crs(asm)` works the way `crs(raster)` does. Rasters'
+# exported `crs` is `GeoInterface.crs`, and these extend it for our own types.
+# GridData and PointData carry no CRS; for them GeoInterface's own fallback
+# already returns `nothing`, which is the true answer, so they get no method.
+const _RasterBacked = Union{AnyRasterData, SE.SELocations{<:AnyRasterData},
+                            SEAssemblage{<:Any, <:Any, <:SE.SELocations{<:AnyRasterData}}}
+Rasters.GeoInterface.crs(x::_RasterBacked) = Rasters.GeoInterface.crs(SE.domain(x))
+
 Base.show(io::IO, rd::RasterData) =
     println(io, "RasterData $(SE.xcells(rd))×$(SE.ycells(rd)) grid, $(nplaces(rd)) sites")
 Base.show(io::IO, rd::SubRasterData) =

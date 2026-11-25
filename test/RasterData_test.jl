@@ -279,6 +279,24 @@ using SpatialEcology: RasterData, SubRasterData, indices, getcoords, places  # n
         @test occurrences(aggregate(maximum, asm, 2)) == occurrences(agg)
     end
 
+    @testset "crs follows the domain raster" begin
+        @test crs(asm) === nothing                    # built without a CRS
+        c = EPSG(32633)
+        pasm = Assemblage(RasterSeries([Rasters.setcrs(r, c) for r in ranges], (; name = sp_names)),
+                          Rasters.setcrs(mask, c))
+        @test crs(domain(pasm)) == c
+        @test crs(pasm) == crs(pasm.site) == crs(pasm.site.coords) == c
+        v = view(pasm, sites = [5, 3, 1])
+        @test crs(v) == crs(v.site) == crs(v.site.coords) == c
+        @test crs(copy(v)) == c
+        @test crs(coarsen(pasm, 2)) == c
+        # a grid built from a coordinate matrix carries no CRS
+        gasm = Assemblage(ComMatrix(Bool[1 0 1; 0 1 1], ["a", "b"], ["s1", "s2", "s3"]),
+                          [1.5 10.5; 2.5 10.5; 1.5 11.5])
+        @test getcoords(places(gasm)) isa SpatialEcology.GridData
+        @test crs(gasm) === nothing
+    end
+
     @testset "show" begin
         @test occursin("RasterData", sprint(show, asm.site.coords))
         @test occursin("SubRasterData view", sprint(show, view(asm, sites = 1:5).site.coords))
