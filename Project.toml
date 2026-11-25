@@ -7,8 +7,10 @@ authors = ["mkborregaard <mkborregaard@snm.ku.dk"]
 version = "0.12.0"
 
 [deps]
+ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DataFramesMeta = "1313f7d8-7da2-5740-9ea0-a2ca25f37964"
+DimensionalData = "0703355e-b756-11e9-17c0-8b28908087d0"
 Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
 EcoBase = "a58aae7d-b440-5a11-b283-399458f99aac"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
@@ -26,8 +28,10 @@ Rasters = "a3a2b9e3-a471-40c9-b274-f788e487c689"
 RastersExt = "Rasters"
 
 [compat]
+ConstructionBase = "1"
 DataFrames = "1"
 DataFramesMeta = "0.5, 0.6, 0.7, 0.8, 0.9, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15"
+DimensionalData = "0.30"
 Distances = "0.8, 0.9, 0.10"
 EcoBase = "0.2.2"
 Random = "1"

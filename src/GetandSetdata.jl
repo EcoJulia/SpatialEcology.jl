@@ -86,7 +86,7 @@ copy. Writing into it with indexing or broadcasting keeps the `ComMatrix`
 consistent; see `SpatialEcology.OccMatrix`.
 """
 occurrences(asm::Union{SEAssemblage, SEThings}) = occurrences(commatrix(asm))
-occurrences(cm::AbstractComMatrix) = cm.occurrences
+occurrences(cm::AbstractComMatrix) = parent(cm)
 
 # Left-joins `new` onto `old` by `key`, keeping the row order of `old`. Columns of `old`
 # that `new` also has are replaced by the new ones, unless `makeunique` asks for suffixed

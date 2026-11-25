@@ -23,7 +23,7 @@ using Test
     @test cmi isa ComMatrix{<:Union{Int64, Int32}}
     cmf = ComMatrix(datf, sitecolumns = false)
 
-    @test ComMatrix(Matrix(datf)).occurrences == ComMatrix(datf).occurrences
+    @test occurrences(ComMatrix(Matrix(datf))) == occurrences(ComMatrix(datf))
 
     @test occupancy(cmb) == [6, 6, 8, 7, 5, 8, 7, 8, 6, 7, 7, 8]
     @test occupancy(cmi) == [11, 13, 13, 10, 12, 12, 11, 11]
@@ -98,8 +98,9 @@ using Test
     dist = pairwise(BrayCurtis(), view(cmi, sites=1:2))
     @test round.(dist, digits=1) == [0.0 0.3; 0.3 0.0]
 
-    @testset "indexing" begin
+    @testset "indexing (DimensionalData)" begin
         SE = SpatialEcology
+        DD = SpatialEcology.DD
         # internally consistent: the stored transpose matches, no stored zeros,
         # and one name per row and per column
         consistent(c::ComMatrix) =
@@ -114,44 +115,49 @@ using Test
         icom = ComMatrix([2 0 5; 0 1 0; 3 0 0], ["a", "b", "c"], ["s1", "s2", "s3"])
 
         @testset "getindex" begin
+            @test com isa AbstractMatrix{Bool}
             @test com[1, 3] === true
             @test com[2, 1] === false
             @test icom[1, 3] === 5
-            @test com["a", "s3"] == com[1, 3]
-            @test com[:c, :s1] == com[3, 1]
+            @test com[At("a"), At("s3")] == com[1, 3]
+            @test com[Species = At("c"), Sites = At("s1")] == com[3, 1]
 
-            col = com[1:2, 1]                   # a single site stays a dimension
-            @test col isa ComMatrix && size(col) == (2, 1)
-            @test speciesnames(col) == ["a", "b"] && sitenames(col) == ["s1"]
-            row = com[1, :]
-            @test size(row) == (1, 3)
-            @test speciesnames(row) == ["a"] && sitenames(row) == ["s1", "s2", "s3"]
+            # a single site drops its dimension, as for an Array, but keeps its name
+            col = com[1:2, 1]
+            @test col isa DD.AbstractDimVector && !(col isa ComMatrix)
+            @test parent(DD.lookup(col, Species)) == ["a", "b"]
+            @test parent(DD.lookup(only(DD.refdims(col)))) == ["s1"]
+            @test size(com[1:2, 1:1]) == (2, 1)    # a range keeps it
 
+            row1 = com[1:1, :]
+            @test row1 isa ComMatrix && speciesnames(row1) == ["a"]
             sub = com[[3, 1], 2:3]
+            @test sub isa ComMatrix
             @test speciesnames(sub) == ["c", "a"] && sitenames(sub) == ["s2", "s3"]
             @test Matrix(occurrences(sub)) == m[[3, 1], 2:3]
-            @test occurrences(com[["c", "a"], ["s2", "s3"]]) == occurrences(sub)
-            @test speciesnames(com[end, :]) == ["c"]
+            @test com[At(["c", "a"]), At(["s2", "s3"])] == sub
+            @test speciesnames(com[end:end, :]) == ["c"]
             @test speciesnames(com[[true, false, true], :]) == ["a", "c"]
+            @test sitenames(com[:, [false, true, true]]) == ["s2", "s3"]
             whole = com[:, :]
-            @test Matrix(occurrences(whole)) == m
-            @test speciesnames(whole) == speciesnames(com) && sitenames(whole) == sitenames(com)
-            @test all(consistent, (col, row, sub, whole))
-
-            @test_throws ArgumentError com["zzz", :]
-            @test_throws ArgumentError com[["a", "zzz"], :]
-            @test_throws BoundsError com[[true, false], :]
+            @test whole == com && speciesnames(whole) == speciesnames(com)
+            @test all(consistent, (row1, sub, whole, copy(com), com .> 0))
+            @test_throws DD.Lookups.SelectorError com[At("zzz"), :]
 
             sub[1, 1] = false                   # the result is a copy
             @test com[3, 2] == true
 
             v = view(com, species = [3, 1], sites = 2:3)
+            @test v isa SpatialEcology.SubComMatrix
             @test v[1, 1] == com[3, 2]
-            vsub = v[:, 2]
+            vsub = v[:, 2:2]
+            @test vsub isa ComMatrix && !(vsub isa SpatialEcology.SubComMatrix)
             @test speciesnames(vsub) == ["c", "a"] && sitenames(vsub) == ["s3"]
             @test Matrix(occurrences(vsub)) == m[[3, 1], 3:3]
             @test consistent(vsub)
-            @test speciesnames(v["a", :]) == ["a"]
+            # keyword views keep both dimensions
+            @test size(view(com, species = "a")) == (1, 3)
+            @test speciesnames(view(com, species = "a")) == ["a"]
         end
 
         @testset "setindex!" begin
@@ -170,16 +176,18 @@ using Test
             @test occupancy(b) == rowcounts(b)
             @test consistent(b)
 
-            b["b", "s1"] = true
+            b[At("b"), At("s1")] = true
             @test occupied(b, "b") == [1, 2, 3]
             b[1:2, 1:2] = falses(2, 2)
             @test Matrix(occurrences(b))[1:2, 1:2] == falses(2, 2)
             @test occupancy(b) == rowcounts(b) && consistent(b)
 
-            occurrences(b) .= false             # broadcasting assignment
+            b .= false                          # broadcasting assignment
             @test nrecords(b) == 0 && occupancy(b) == [0, 0, 0] && consistent(b)
             fill!(occurrences(b), true)
             @test occupancy(b) == [3, 3, 3] && consistent(b)
+            occurrences(b) .= false
+            @test nrecords(b) == 0 && consistent(b)
 
             ib = copy(icom)
             ib[1, 1] = 0
@@ -239,12 +247,11 @@ using Test
             @test sparse(occ(com)) isa SparseMatrixCSC && sparse(occ(com)) == occ(com)
         end
 
-        @testset "axes, colon views and missing names" begin
+        @testset "axes and colon views" begin
             @test axes(com) == (Base.OneTo(3), Base.OneTo(3))
             @test axes(com, 2) == Base.OneTo(3)
-            @test speciesnames(com[begin, :]) == ["a"]
+            @test speciesnames(com[begin:begin, :]) == ["a"]
             @test size(view(com, species = :)) == (3, 3)
-            @test_throws ArgumentError com[["a", missing], :]
         end
 
         @testset "getspecies is a copy" begin
@@ -266,19 +273,18 @@ using Test
             w = @view b[2:3, :]
             @test w isa SpatialEcology.SubComMatrix
             @test speciesnames(w) == ["b", "c"] && sitenames(w) == ["s1", "s2", "s3"]
-            w2 = view(w, 2, :)                  # a view of a view: species c
+            w2 = view(w, 2:2, :)                # a view of a view: species c
             @test size(w2) == (1, 3) && speciesnames(w2) == ["c"]
             w2[1, 3] = true
             @test b[3, 3] == true && occupied(b, 3) == [1, 2, 3] && consistent(b)
             w2[1, 1] = false
             @test occupied(b, 3) == [2, 3] && occupancy(b) == rowcounts(b) && consistent(b)
-            occurrences(w2) .= false            # broadcasting into a view of the storage
+            w2 .= false                         # broadcasting through a view
             @test isempty(occupied(b, 3)) && consistent(b)
             fill!(occurrences(view(b, sites = 1:2)), true)
             @test Matrix(occurrences(b))[:, 1:2] == trues(3, 2)
             @test occupancy(b) == rowcounts(b) && consistent(b)
-            @test (@view b["a", "s2"]) isa SpatialEcology.SubComMatrix
-            @test_throws ArgumentError (@view b["zzz", :])
+            @test (@view b[1, 2]) isa DD.AbstractDimArray{Bool, 0}
         end
 
         @test isempty(Test.detect_ambiguities(SpatialEcology; recursive = true))
@@ -288,7 +294,7 @@ using Test
         # occupied(com, integer) — fast path uses occ_t column, must agree with slow fallback
         for i in 1:nspecies(cmb)
             fast = occupied(cmb, i)
-            slow = findall(!iszero, Matrix(cmb.occurrences)[i, :])
+            slow = findall(!iszero, Matrix(occurrences(cmb))[i, :])
             @test sort(fast) == slow
         end
 
@@ -297,7 +303,7 @@ using Test
 
         # occupied(com, Vector{Int}) — multi-species union (uses nzrows on occ_t view)
         union2 = occupied(cmb, [1, 2])
-        @test all(j -> any(!iszero, cmb.occurrences[[1,2], j]), union2)
+        @test all(j -> any(!iszero, occurrences(cmb)[[1,2], j]), union2)
 
         # noccupied fast path — just a length(nzrange), no sites allocation
         for i in 1:nspecies(cmb)
@@ -307,7 +313,7 @@ using Test
 
         # getspecies fast path — column view of occ_t, same values as row of occ
         for i in 1:nspecies(cmb)
-            @test collect(getspecies(cmb, i)) == collect(cmb.occurrences[i, :])
+            @test collect(getspecies(cmb, i)) == collect(occurrences(cmb)[i, :])
         end
 
         # occupancy(ComMatrix{Bool}) uses fast colptr diff — must match old rowsum path

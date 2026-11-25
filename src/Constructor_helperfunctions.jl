@@ -119,15 +119,11 @@ function dropbyindex!(site::Locations{<:RasterData}, indicestokeep)
   site.sitestats = site.sitestats[indicestokeep,:]
 end
 
-function dropsites!(occ::ComMatrix, site::SELocations)
-  hasspecies = occupied(occ)
-  kept = occ[:, hasspecies]      # subsets occurrences and sitenames together
-  occ.occurrences = kept.occurrences
-  occ.sitenames = kept.sitenames
+function dropsites!(occ::SpeciesData, site::SELocations)
+  hasspecies = occupied(occ.commatrix)
+  occ.commatrix = occ.commatrix[:, hasspecies]   # subsets occurrences and site names together
   dropbyindex!(site, hasspecies)
 end
-
-dropsites!(occ::SpeciesData, site::SELocations) = dropsites!(occ.commatrix, site)
 
 function createsitenames(coords::AbstractMatrix)
   size(coords, 2) == 2 || error("Only defined for matrices with two columns")

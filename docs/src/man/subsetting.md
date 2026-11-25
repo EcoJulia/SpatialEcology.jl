@@ -63,18 +63,19 @@ Note that `view` does not copy the data. To create a new, independent `Assemblag
 
 ## Indexing a ComMatrix
 
-A `ComMatrix` can be indexed like a matrix with species as rows and sites as columns. Each index
-can be a position, a range or vector of positions, `:`, a Bool mask, or species and site names:
+A `ComMatrix` is a [DimensionalData](https://rafaqz.github.io/DimensionalData.jl/) array with
+the dimensions `Species` and `Sites`, so it indexes like any matrix, and species and site names are
+selected with `At`:
 ```julia
 com = commatrix(amph)
-com[1, 3]                       # the value for the first species in the third site
-com["_Bufo_bufo", :]            # a ComMatrix with that one species in all sites
-com[1:10, [1, 3]]               # the first ten species in the first and third sites
+com[1, 3]                           # the value for the first species in the third site
+com[At("_Bufo_bufo"), :]            # that species in all sites, as a vector named by site
+com[1:10, [1, 3]]                   # a ComMatrix with the first ten species in two sites
+com[Species = At(["_Bufo_bufo", "_Rana_temporaria"])]
 ```
-A single value is returned as is; any other selection is a new `ComMatrix` that keeps the names of
-its species and sites, so `com[1:3, 1]` is a 3×1 `ComMatrix` (use `getspecies` and `getsite` for
-plain vectors). An unknown name is an error. `@view com[1:10, :]` gives a `SubComMatrix` that
-shares the data instead of copying it.
+As for an `Array`, a single species or site drops that dimension (the dropped name is kept in
+the result's `refdims`); use a range, such as `com[1:1, :]`, to keep a one-row `ComMatrix`.
+`@view com[1:10, :]` and `view(com, species = names)` give a `SubComMatrix` that shares the data.
 
 You can also write into a `ComMatrix`, e.g. `com[1, 3] = true`, directly or through a view.
 Writing a zero removes the record.

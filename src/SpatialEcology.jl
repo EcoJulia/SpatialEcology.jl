@@ -9,6 +9,9 @@ using RandomBooleanMatrices
 import RandomNumbers.Xorshifts: Xoroshiro128Plus
 import RandomBooleanMatrices: matrixrandomizer
 
+import DimensionalData as DD
+import DimensionalData: At
+import ConstructionBase
 import EcoBase
 import EcoBase: asindices, nthings, nplaces, occupancy, richness, nrecords, placenames, thingnames,
         occurring, noccurring, occupied, noccupied, occurrences,
@@ -23,6 +26,7 @@ import Distances: pairwise, PreMetric
 
 export ComMatrix, Assemblage  #types and their constructors
 export AbstractComMatrix
+export Species, Sites, At     # ComMatrix dimensions, and the DimensionalData selector for names
 export RasterData, to_raster, to_rasterseries, richness_raster, domain, cellindices
 export nspecies, nsites, occupancy, richness, nrecords, sitenames, speciesnames, coordinates
 export occurring, noccurring, occupied, noccupied, occurrences, cooccurring

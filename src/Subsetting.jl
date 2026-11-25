@@ -2,12 +2,7 @@
 
 #SubDataTypes
 
-# Definition is the same, but importantly this keeps a Subarray
-mutable struct SubComMatrix{D <: Real} <: AbstractComMatrix{D}
-    occurrences::SubArray{D,2}
-    speciesnames::SubArray{<:AbstractString,1}
-    sitenames::SubArray{<:AbstractString,1}
-end
+# `SubComMatrix` is defined with `ComMatrix` in DataTypes.jl: a ComMatrix whose data is a view.
 
 mutable struct SubSpeciesData{D <: Real} <: SEThings{D}
     commatrix::SubComMatrix{D}
@@ -54,18 +49,14 @@ view(occ::SEThings; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubSpeci
 # `species`/`sites` take what `asindices` takes (positions, Bool masks, names; names
 # that are not found are skipped), plus `:`. A single species or site gives a
 # one-row or one-column view.
+# Positional views (`view(com, i, j)`, `@view com[...]`) are DimensionalData's.
 function view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com))
     sit = _keepdim(_viewindices(sites, sitenames(com)))
     spec = _keepdim(_viewindices(species, speciesnames(com)))
-    SubComMatrix(view(com.occurrences, spec, sit), view(com.speciesnames, spec), view(com.sitenames, sit)) #TODO change the order of these in the object to fit the array index order
+    view(com, spec, sit)
 end
 _viewindices(::Colon, names) = Base.OneTo(length(names))
 _viewindices(I, names) = asindices(I, names)
-
-# `@view com[species, sites]`: indices as for `getindex` (an unknown name is an error).
-# Writes through the view go to the parent's storage, which keeps its transpose in step.
-view(com::AbstractComMatrix, I, J) =
-    view(com; species = _toindices(I, speciesnames(com)), sites = _toindices(J, sitenames(com)))
 
 view(pd::SEPoints, sites) = SubPointData(view(pd.coords, sites, :))
 view(gd::SEGrid, sites) = SubGridData(view(gd.indices, sites, :), gd.grid)
