@@ -39,6 +39,12 @@ SparseArrays.nonzeros(W::OccMatrix) = nonzeros(W.csc)
 Base.dataids(W::OccMatrix) = Base.dataids(W.csc)
 Base.copy(W::OccMatrix) = OccMatrix(copy(W.csc))
 SparseArrays.sparse(W::OccMatrix) = copy(W.csc)
+# Some SparseArrays methods for AbstractSparseMatrixCSC (e.g. getindex(A, I, j) in
+# recent Julia 1.13 releases) first ask for the plain SparseMatrixCSC behind `A`
+# through this internal function, which has no fallback.
+if isdefined(SparseArrays, :_unsafe_unfix)
+    SparseArrays._unsafe_unfix(W::OccMatrix) = W.csc
+end
 
 _csc(W::OccMatrix) = W.csc
 
