@@ -43,6 +43,18 @@ read from disk (e.g. GeoTIFFs) are often `(Y, X)` — and are normalized
 internally, so coordinates always come out correctly. Each species layer is
 checked to share the mask's dimensions and extent.
 
+The assemblage keeps the mask raster as its domain, so the grid's dimensions,
+extent and coordinate reference system travel with it through views, `copy`,
+`coarsen` and `to_raster`. `crs(asm)` returns the CRS (a GeoFormatTypes value
+such as `EPSG(4326)`), or `nothing` if the rasters had none:
+
+```@example raster
+crs(Assemblage(Rasters.setcrs(species, EPSG(4326))))
+```
+
+Assemblages built from a coordinate matrix (`GridData` or `PointData` sites)
+carry no CRS, and `crs` returns `nothing` for them.
+
 Per-site covariates and species traits go in `sitestats` and `traits`:
 
 ```@example raster
