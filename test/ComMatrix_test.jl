@@ -214,6 +214,11 @@ using Test
             @test b[3, 3] == true && occupied(b, 3) == [1, 2, 3] && consistent(b)
             w2[1, 1] = false
             @test occupied(b, 3) == [2, 3] && occupancy(b) == rowcounts(b) && consistent(b)
+            occurrences(w2) .= false            # broadcasting into a view of the storage
+            @test isempty(occupied(b, 3)) && consistent(b)
+            fill!(occurrences(view(b, sites = 1:2)), true)
+            @test Matrix(occurrences(b))[:, 1:2] == trues(3, 2)
+            @test occupancy(b) == rowcounts(b) && consistent(b)
             @test (@view b["a", "s2"]) isa SpatialEcology.SubComMatrix
             @test_throws ArgumentError (@view b["zzz", :])
         end

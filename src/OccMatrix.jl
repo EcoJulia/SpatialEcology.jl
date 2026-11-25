@@ -106,3 +106,13 @@ Base.copyto!(W::OccMatrix, bc::Broadcast.Broadcasted{SparseArrays.HigherOrderFns
     (copyto!(W.csc, bc); _written!(W))
 Base.fill!(W::OccMatrix, x) = (fill!(W.csc, x); _written!(W))
 SparseArrays.dropzeros!(W::OccMatrix) = _written!(W)
+
+# SparseArrays fills a view of a sparse matrix by writing into the parent's arrays
+# directly, not through setindex! (and `v .= x` on a view ends up here), so a view
+# of an OccMatrix needs the same treatment.
+function Base.fill!(V::SubArray{Tv, <:Any, <:OccMatrix{Tv}, <:Tuple{Union{Integer, AbstractVector{<:Integer}}, Union{Integer, AbstractVector{<:Integer}}}}, x) where Tv
+    W = parent(V)
+    fill!(view(W.csc, parentindices(V)...), x)
+    _written!(W)
+    V
+end
