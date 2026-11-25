@@ -189,6 +189,64 @@ using Test
             @test consistent(ib)
         end
 
+        @testset "every write path of the storage keeps it consistent" begin
+            occ(c) = occurrences(c)
+            check(c, expected) = Matrix(occ(c)) == expected && consistent(c)
+            notm = .!m
+
+            # an array into one entry fails as it does for a SparseMatrixCSC
+            c = copy(com)
+            @test_throws MethodError (occ(c)[1, 1] = fill(false, 1, 1))
+            @test check(c, m)
+            c = copy(com); occ(c)[1:2, :] .= false              # one value into a block
+            e = copy(m); e[1:2, :] .= false
+            @test check(c, e)
+            c = copy(com); occ(c)[m] = falses(count(m))         # a logical matrix index
+            @test check(c, falses(3, 3))
+            c = copy(com); occ(c)[[1, 5]] = [false, false]      # linear indices
+            e = copy(m); e[[1, 5]] .= false
+            @test check(c, e)
+
+            c = copy(com); copyto!(occ(c), sparse(notm));         @test check(c, notm)
+            c = copy(com); copyto!(occ(c), sparsevec(vec(notm))); @test check(c, notm)
+            c = copy(com); copyto!(occ(c), notm);                 @test check(c, notm)
+
+            # broadcasting assignment, reading the storage it writes into
+            c = copy(com); occ(c) .= occ(c) .& sparse(notm)     # all sparse
+            @test check(c, falses(3, 3))
+            c = copy(com); occ(c) .= occ(c) .| notm             # sparse and dense
+            @test check(c, trues(3, 3))
+            # these copyto! methods keep dispatch unambiguous; call them as Base would
+            c = copy(com)
+            copyto!(occ(c), Broadcast.instantiate(Broadcast.Broadcasted(identity, (notm,))))
+            @test check(c, notm)
+            c = copy(com)
+            copyto!(occ(c), Broadcast.Broadcasted{Nothing}(identity, (notm,), axes(occ(c))))
+            @test check(c, notm)
+            c = copy(com)
+            copyto!(occ(c), Broadcast.Broadcasted{Nothing}(() -> false, (), axes(occ(c))))
+            @test check(c, falses(3, 3))
+
+            # changing stored values by other means needs invalidate! (and dropzeros!)
+            c = copy(com)
+            nonzeros(occ(c)) .= false
+            SE.invalidate!(occ(c))
+            dropzeros!(occ(c))
+            @test check(c, falses(3, 3))
+
+            @test SE.OccMatrix(Matrix(m)) == occ(com)
+            @test copy(occ(com)) isa SE.OccMatrix && copy(occ(com)) == occ(com)
+            @test sparse(occ(com)) isa SparseMatrixCSC && sparse(occ(com)) == occ(com)
+        end
+
+        @testset "axes, colon views and missing names" begin
+            @test axes(com) == (Base.OneTo(3), Base.OneTo(3))
+            @test axes(com, 2) == Base.OneTo(3)
+            @test speciesnames(com[begin, :]) == ["a"]
+            @test size(view(com, species = :)) == (3, 3)
+            @test_throws ArgumentError com[["a", missing], :]
+        end
+
         @testset "getspecies is a copy" begin
             b = copy(com)
             g = getspecies(b, 1)

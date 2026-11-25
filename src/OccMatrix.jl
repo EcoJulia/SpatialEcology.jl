@@ -38,6 +38,9 @@ SparseArrays.nonzeros(W::OccMatrix) = nonzeros(W.csc)
 # The arrays are W.csc's, so broadcasting `W .= f.(W)` must see that they alias.
 Base.dataids(W::OccMatrix) = Base.dataids(W.csc)
 Base.copy(W::OccMatrix) = OccMatrix(copy(W.csc))
+# Broadcasting `W .= f.(W)` copies W before overwriting it (see `dataids`); SparseArrays'
+# own unaliascopy rebuilds a copy from its arrays, which an OccMatrix cannot take.
+Base.unaliascopy(W::OccMatrix) = copy(W)
 SparseArrays.sparse(W::OccMatrix) = copy(W.csc)
 # Some SparseArrays methods for AbstractSparseMatrixCSC (e.g. getindex(A, I, j) in
 # recent Julia 1.13 releases) first ask for the plain SparseMatrixCSC behind `A`
@@ -88,8 +91,6 @@ function Base.setindex!(W::OccMatrix, v, i::Integer, j::Integer)
 end
 Base.setindex!(W::OccMatrix, v::AbstractVecOrMat, i::Integer, j::Integer) =
     (setindex!(W.csc, v, i, j); _written!(W))
-Base.setindex!(W::OccMatrix, v, I::_CSCIndex, J::_CSCIndex) =
-    (setindex!(W.csc, v, I, J); _written!(W))
 Base.setindex!(W::OccMatrix, v::AbstractVecOrMat, I::_CSCIndex, J::_CSCIndex) =
     (setindex!(W.csc, v, I, J); _written!(W))
 Base.setindex!(W::OccMatrix, v::AbstractArray, I::AbstractMatrix{Bool}) =

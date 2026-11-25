@@ -189,14 +189,14 @@ function _toindices(I::AbstractVector{Bool}, names)
     findall(I)
 end
 _toindices(I::Union{AbstractString, Symbol}, names) = (_checknames((I,), names); asindices(I, names))
-_toindices(I::AbstractVector{<:Union{AbstractString, Symbol}}, names) = (_checknames(I, names); asindices(I, names))
-_toindices(I, names) = asindices(I, names)
+_toindices(I::AbstractVector{<:Union{Missing, AbstractString, Symbol}}, names) = (_checknames(I, names); asindices(I, names))
 
+# A `missing` is not a name either.
 function _checknames(I, names)
     known = Set(String.(names))
-    unknown = [String(n) for n in I if !(String(n) in known)]
+    unknown = [n === missing ? "missing" : repr(String(n)) for n in I if n === missing || !(String(n) in known)]
     isempty(unknown) ||
-        throw(ArgumentError("no species or site named $(join(repr.(unknown), ", "))"))
+        throw(ArgumentError("no species or site named $(join(unknown, ", "))"))
     nothing
 end
 
