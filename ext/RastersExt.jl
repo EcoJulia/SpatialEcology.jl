@@ -248,31 +248,90 @@ SE.richness_raster(asm::SEAssemblage) = SE.to_raster(vec(sum(occurrences(asm), d
 # coarsen (the raster-backed grid) — uses Rasters.aggregate under the hood
 # ----------------------------------------------------------------------------
 
-"""
-    coarsen(asm::Assemblage{Bool, …RasterData…}, factor; fun = maximum)
-
-Coarsen a raster-backed assemblage by `factor` (an `Integer`, or a
-`(x, y)` tuple). Each species is occupied in a coarse cell when `fun` over the
-covered fine cells is true — the default `maximum` means *any* fine cell, the
-presence-absence analogue of the grid `coarsen`. The coarse domain keeps any
-fine cell that was in the original domain. Species traits are carried over.
-"""
-function SE.coarsen(asm::Assemblage{Bool, <:Locations{<:RasterData}},
-                    factor::Union{Integer, Tuple{Integer, Integer}}; fun = maximum)
-    rd        = getcoords(places(asm))
-    series    = SE.to_rasterseries(asm)
-    agglayers = [Rasters.aggregate(fun, r, factor) for r in series]
-    aggmask   = Rasters.aggregate(maximum, rd.mask, factor)
-    aggseries = RasterSeries(agglayers, (; name = collect(speciesnames(asm))))
-    SE.Assemblage(aggseries, aggmask; traits = traits(asm))
+# the dimension `d` lengthened to `n` cells, or `nothing` if its spacing is uneven
+function _lengthen(d, n)
+    l = lookup(d)
+    l isa LU.NoLookup && return rebuild(d, rebuild(l; data = Base.OneTo(n)))
+    if LU.span(l) isa LU.Regular
+        values = range(first(l); step = step(l), length = n)
+    else
+        steps = diff(collect(l))
+        even = !isempty(steps) && all(s -> isapprox(s, first(steps); rtol = 1e-6), steps)
+        (even && LU.sampling(l) isa LU.Points) || return nothing
+        values = vcat(collect(l), last(l) .+ first(steps) .* (1:(n - length(d))))
+    end
+    rebuild(d, rebuild(l; data = values))
 end
+
+# `Rasters.aggregate` drops an incomplete block at the far edge, so first pad
+# with empty cells up to a whole number of blocks
+function _pad_to_blocks(r, factor)
+    blocks = factor isa Tuple ? factor : (factor, factor)
+    padded_dims = map(dims(r), blocks) do d, k
+        n = cld(length(d), k) * k
+        n == length(d) && return d
+        longer = _lengthen(d, n)
+        isnothing(longer) || return longer
+        @warn "$(Rasters.name(d)) is unevenly spaced, so the incomplete block at its end is dropped" maxlog = 1
+        d
+    end
+    map(length, padded_dims) == size(r) && return r
+    padded = Raster(fill(false, map(length, padded_dims)), padded_dims;
+                    missingval = false, name = Rasters.name(r))
+    view(parent(padded), axes(r)...) .= parent(r)
+    padded
+end
+
+# Aggregate a Bool raster block by block. `false` is the masks' `missingval`, and
+# `Rasters.aggregate` answers "missing" for any block holding one, so it is taken
+# off while aggregating: `fun` then sees every cell of the block.
+function _aggregate_blocks(fun, r, factor)
+    cells = rebuild(_pad_to_blocks(r, factor); missingval = nothing)
+    rebuild(Rasters.aggregate(fun, cells, factor); missingval = false)
+end
+
+const _RasterAssemblage = SEAssemblage{Bool, <:Any, <:SE.SELocations{<:AnyRasterData}}
+
+"""
+    coarsen(asm::Assemblage{Bool, …RasterData…}, factor [, fun])
+
+Coarsen a raster-backed assemblage by `factor` (a positive `Integer`, or an
+`(x, y)` tuple): blocks of that many cells, counted from the first cell of the
+raster, become one cell. A block reaching past the far edge of the raster is
+kept.
+
+`fun` is given every cell of a block, those outside the domain counting as
+`false`, and a species is present in the coarse cell if it returns `true`. The
+default, `maximum`, means present in *any* cell, and `minimum` in *all* of them.
+It can also be passed as a keyword. A coarse cell is a site if any of its cells
+was one. Species traits are carried over, and a view is coarsened over its own
+species and sites.
+"""
+function SE.coarsen(asm::_RasterAssemblage, factor::Union{Integer, Tuple{Integer, Integer}};
+                    fun = maximum)
+    SE._check_factor(factor)
+    rd = getcoords(places(asm))
+    mask = copy(rd.mask)
+    mask .= false
+    mask[rd.cellinds] .= true       # a site view covers only its own sites
+
+    agglayers = [_aggregate_blocks(fun, r, factor) for r in SE.to_rasterseries(asm)]
+    aggmask   = _aggregate_blocks(maximum, mask, factor)
+    aggseries = RasterSeries(agglayers, (; name = collect(speciesnames(asm))))
+    SE.Assemblage(aggseries, aggmask; traits = copy(traits(asm)))
+end
+
+SE.coarsen(asm::_RasterAssemblage, factor::Union{Integer, Tuple{Integer, Integer}}, fun::Function) =
+    SE.coarsen(asm, factor; fun = fun)
 
 # Make Rasters' own `aggregate` verb work on SpatialEcology assemblages, routing
 # to `coarsen`. Defining methods on Rasters.aggregate for *our* types is not
 # piracy. The upshot: with Rasters loaded, `aggregate(asm, 2)` works unqualified
 # (there is no name clash, since SpatialEcology no longer exports `aggregate`),
-# in addition to the always-available `coarsen(asm, 2)`.
-Rasters.aggregate(fun, asm::SEAssemblage, factor) = SE.coarsen(asm, factor; fun = fun)
-Rasters.aggregate(asm::SEAssemblage, factor; fun = maximum) = SE.coarsen(asm, factor; fun = fun)
+# in addition to the always-available `coarsen(asm, 2)`. Without a `fun` each
+# kind of assemblage gets `coarsen`'s own default.
+Rasters.aggregate(fun, asm::SEAssemblage, factor) = SE.coarsen(asm, factor, fun)
+Rasters.aggregate(asm::SEAssemblage, factor; fun = nothing) =
+    isnothing(fun) ? SE.coarsen(asm, factor) : SE.coarsen(asm, factor, fun)
 
 end # module

@@ -98,7 +98,10 @@ unselected cells left missing.
 
 `coarsen` lumps a raster-backed assemblage to a coarser grain by an integer
 factor (or an `(x, y)` tuple), using `Rasters.aggregate` underneath. The default
-`fun = maximum` gives presence-absence "*any* fine cell occupied" semantics.
+`fun = maximum` gives presence-absence "*any* fine cell occupied" semantics, and
+`coarsen(asm, 2, minimum)` instead asks for *every* cell of a block. Blocks are
+counted from the first cell of the raster, and one reaching past the far edge is
+kept.
 
 ```@example raster
 coarse = coarsen(asm, 2)

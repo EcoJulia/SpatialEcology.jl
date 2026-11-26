@@ -293,6 +293,73 @@ using SpatialEcology: RasterData, SubRasterData, indices, getcoords, places  # n
 
         # a non-integer cellsize is only meaningful for point data
         @test_throws ArgumentError coarsen(asm, 1.5)
+        @test_throws ArgumentError coarsen(asm, 0)
+    end
+
+    # a one-species assemblage whose range is the whole domain `r`
+    everywhere(r) = Assemblage(RasterSeries([r], (; name = ["a"])), r)
+
+    @testset "coarsen: present in any cell of a block" begin
+        d = (X(1.0:2.0), Y(1.0:2.0))
+        block = Raster(trues(2, 2), d; missingval = false)
+        one_cell = Raster(Bool[1 0; 0 0], d; missingval = false, name = :a)
+        fine = Assemblage(RasterSeries([one_cell], (; name = ["a"])), block)
+        @test occupancy(coarsen(fine, 2)) == [1]
+        @test occupancy(coarsen(fine, 2, any)) == [1]
+        every_cell = coarsen(fine, 2, minimum)
+        @test nsites(every_cell) == 1 && occupancy(every_cell) == [0]
+        # a block only partly in the domain is a site
+        partial = Raster(Bool[1 1; 1 0], d; missingval = false, name = :a)
+        @test nsites(coarsen(everywhere(partial), 2)) == 1
+
+        # against a direct computation on the 4x5 domain
+        blocks(m) = [any(m[i, j] for i in (2I - 1):min(2I, 4), j in (2J - 1):min(2J, 5))
+                     for I in 1:2, J in 1:3]
+        agg = coarsen(asm, 2)
+        @test parent(domain(agg)) == blocks(Bool.(mask))
+        @test [parent(r) for r in to_rasterseries(agg)] == [blocks(r .& mask) for r in ranges]
+    end
+
+    @testset "coarsen keeps the block past the far edge" begin
+        xdims = (X(1.0:5.0), X([1.0, 2.0, 3.0, 4.0, 5.0]), X(),
+                 X(range(10.0; step = -0.5, length = 5); sampling = Intervals(Start())))
+        for xdim in xdims
+            agg = coarsen(everywhere(Raster(trues(5, 5), (xdim, Y(1.0:5.0)); missingval = false, name = :a)), 2)
+            @test nsites(agg) == 9
+            @test occupancy(agg) == [9]
+        end
+        # padding leaves the other cells where they were
+        full = Raster(trues(5, 5), (X(1.0:5.0), Y(1.0:5.0)); missingval = false, name = :a)
+        padded = domain(coarsen(everywhere(full), 2))
+        trimmed = domain(coarsen(everywhere(full[1:4, 1:4]), 2))
+        @test collect(lookup(padded, X))[1:2] == collect(lookup(trimmed, X))
+        # an unevenly spaced dimension cannot be extended
+        uneven = Raster(trues(5, 4), (X([1.0, 2.0, 4.0, 8.0, 9.0]), Y(1.0:4.0)); missingval = false, name = :a)
+        agg = @test_logs (:warn, r"unevenly spaced") match_mode = :any coarsen(everywhere(uneven), 2)
+        @test nsites(agg) == 4
+    end
+
+    @testset "coarsen views" begin
+        v = view(asm, sites = [5, 3, 1])
+        expected = falses(2, 3)
+        for c in cellindices(v)
+            expected[fld1(c[1], 2), fld1(c[2], 2)] = true
+        end
+        @test parent(domain(coarsen(v, 2))) == expected
+        two = coarsen(view(asm, species = 2:3), 2)
+        @test speciesnames(two) == sp_names[2:3]
+        @test occurrences(two) == occurrences(coarsen(asm, 2))[2:3, :]
+    end
+
+    @testset "aggregate on gridded and point data" begin
+        occ = [1 2 3 4; 0 1 0 1]
+        xy = [1.5 10.5; 2.5 10.5; 1.5 11.5; 2.5 11.5]
+        grid = Assemblage(occ, xy, string.(1:4), ["a", "b"])
+        @test occurrences(aggregate(grid, 2)) == occurrences(coarsen(grid, 2))
+        @test occurrences(aggregate(maximum, grid, 2)) == occurrences(coarsen(grid, 2, maximum))
+        @test occurrences(aggregate(grid, 2; fun = maximum)) == occurrences(coarsen(grid, 2, maximum))
+        pts = Assemblage(occ, xy, string.(1:4), ["a", "b"]; cdtype = SpatialEcology.pointdata)
+        @test nsites(aggregate(pts, 0.5)) == 4
     end
 
     @testset "crs follows the domain raster" begin
