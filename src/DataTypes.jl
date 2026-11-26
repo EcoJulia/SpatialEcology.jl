@@ -80,15 +80,18 @@ A type that holds a species-by-sites matrix of either presence data or
 abundances, along with the names of species and sites
 """
 mutable struct ComMatrix{D} <: AbstractComMatrix{D}
-    occurrences::SparseMatrixCSC{D}      # n_species × n_sites  — fast for site-based queries
-    occurrences_t::SparseMatrixCSC{D}    # n_sites × n_species  — fast for species-based queries
+    # n_species × n_sites, plus its transpose for species-based queries; see OccMatrix
+    occurrences::OccMatrix{D}
     speciesnames::Vector{String}
     sitenames::Vector{String}
     # Names are stored as String whatever AbstractString they arrive as (CSV.jl
-    # reads DataStrings), as EcoBase's thingnames/placenames promise
-    function ComMatrix{D}(occ::SparseMatrixCSC{D}, spn::AbstractVector{<:AbstractString}, sin::AbstractVector{<:AbstractString}) where {D}
-        dropzeros!(occ)
-        new(occ, sparse(occ'), String.(spn), String.(sin))
+    # reads DataStrings), as EcoBase's thingnames/placenames promise.
+    # A SparseMatrixCSC{D, Int} is taken over without a copy (its stored zeros are
+    # dropped in place); other sparse matrices are converted.
+    function ComMatrix{D}(occ::SparseArrays.AbstractSparseMatrixCSC{D}, spn::AbstractVector{<:AbstractString}, sin::AbstractVector{<:AbstractString}) where {D}
+        W = occ isa SparseMatrixCSC{D, Int} ? OccMatrix(occ) : OccMatrix(SparseMatrixCSC{D, Int}(occ))
+        transposed(W)   # build the transpose up front, so the first species query is fast
+        new(W, String.(spn), String.(sin))
     end
 end
 

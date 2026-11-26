@@ -51,11 +51,21 @@ end
 # creating views
 view(occ::SEThings; species = 1:nspecies(occ), sites = 1:nsites(occ)) = SubSpeciesData(view(occ.commatrix, sites = sites, species = species), view(occ.traits,species, :))
 # The SELocations things are missing as of yet - need to go by the dropbyindex functionality
+# `species`/`sites` take what `asindices` takes (positions, Bool masks, names; names
+# that are not found are skipped), plus `:`. A single species or site gives a
+# one-row or one-column view.
 function view(com::AbstractComMatrix; species = 1:nspecies(com), sites = 1:nsites(com))
-    sit = asindices(sites, sitenames(com))
-    spec = asindices(species, speciesnames(com))
+    sit = _keepdim(_viewindices(sites, sitenames(com)))
+    spec = _keepdim(_viewindices(species, speciesnames(com)))
     SubComMatrix(view(com.occurrences, spec, sit), view(com.speciesnames, spec), view(com.sitenames, sit)) #TODO change the order of these in the object to fit the array index order
 end
+_viewindices(::Colon, names) = Base.OneTo(length(names))
+_viewindices(I, names) = asindices(I, names)
+
+# `@view com[species, sites]`: indices as for `getindex` (an unknown name is an error).
+# Writes through the view go to the parent's storage, which keeps its transpose in step.
+view(com::AbstractComMatrix, I, J) =
+    view(com; species = _toindices(I, speciesnames(com)), sites = _toindices(J, sitenames(com)))
 
 view(pd::SEPoints, sites) = SubPointData(view(pd.coords, sites, :))
 view(gd::SEGrid, sites) = SubGridData(view(gd.indices, sites, :), gd.grid)
@@ -94,7 +104,7 @@ Assemblage(assm::SubAssemblage) = copy(assm)
 
 copy(asm::SEAssemblage) = Assemblage(copy(asm.site), copy(asm.occ))
 copy(pd::SEPoints) = PointData(copy(pd.coords))
-copy(pd::AbstractComMatrix) = ComMatrix(copy(pd.occurrences), copy(pd.speciesnames), copy(pd.sitenames))
+copy(com::AbstractComMatrix) = com[:, :]
 copy(occ::SEThings) = SpeciesData(copy(occ.commatrix), my_dataframe_copy(occ.traits))
 copy(lo::SELocations) = Locations(copy(lo.coords), my_dataframe_copy(lo.sitestats))
 

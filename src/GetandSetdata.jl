@@ -79,6 +79,11 @@ commatrix(occ::SEThings) = occ.commatrix
 
 """
     occurrences(asm)
+
+The species × sites occurrence matrix of an `Assemblage` or `ComMatrix`, as the
+sparse `OccMatrix` the `ComMatrix` stores (a view of it for `SubComMatrix`), not a
+copy. Writing into it with indexing or broadcasting keeps the `ComMatrix`
+consistent; see `SpatialEcology.OccMatrix`.
 """
 occurrences(asm::Union{SEAssemblage, SEThings}) = occurrences(commatrix(asm))
 occurrences(cm::AbstractComMatrix) = cm.occurrences

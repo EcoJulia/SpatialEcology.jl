@@ -39,6 +39,7 @@ export matrixrandomizer, matrixrandomizations
 export dispersionfield
 export pairwise
 
+include("OccMatrix.jl")
 include("DataTypes.jl")
 include("Constructor_helperfunctions.jl")
 include("Constructors.jl")
