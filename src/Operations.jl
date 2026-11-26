@@ -55,7 +55,7 @@ function coarsen(asm::SEAssemblage{D}, gt::GridTopology, fun = _default_fun(D)) 
     newsitenames = string.(["agg_"], 1:size(retmat, 2))
     sit = Locations{GridData}(GridData(tmpsites, gt), DataFrame(sites = newsitenames))
     retcommat = ComMatrix{D}(retmat, speciesnames(asm), newsitenames)
-    sp = SpeciesData(retcommat, traits(asm))
+    sp = SpeciesData(retcommat, copy(traits(asm)))   # its own table, not the source's
     Assemblage(sit,sp)
 end
 

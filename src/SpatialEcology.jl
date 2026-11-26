@@ -11,6 +11,7 @@ import RandomBooleanMatrices: matrixrandomizer
 
 import EcoBase
 import EcoBase: asindices, nthings, nplaces, occupancy, richness, nrecords, placenames, thingnames,
+        placenames!, thingnames!,
         occurring, noccurring, occupied, noccupied, occurrences,
         placeoccurrences, thingoccurrences, cooccurring, places, things,
         indices, coordinates, xcells, ycells, cells, xmin, xmax, ymin, ymax,
@@ -28,6 +29,7 @@ export nspecies, nsites, occupancy, richness, nrecords, sitenames, speciesnames,
 export occurring, noccurring, occupied, noccupied, occurrences, cooccurring
 export traits, sitestats, sitestatnames, traitnames, commatrix
 export addtraits!, addsitestats!
+export sitenames!, speciesnames!
 export asquantiles, asquantiles!
 export coordstype
 export xcells, ycells, cells, xmin, xmax, ymin, ymax, xrange, yrange, xcellsize, ycellsize, cellsize, boundingbox #it is possible that I will export none of these

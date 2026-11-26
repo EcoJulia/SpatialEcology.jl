@@ -131,4 +131,118 @@ end
         @test_throws ErrorException asm[:does_not_exist]
         @test_throws ErrorException asm[!, :does_not_exist]
     end
+
+    @testset "speciesnames! / sitenames! keep every copy in step" begin
+        asm = makeasm(rng)
+        newsp = ["Abies alba", "Betula pendula", "Corylus avellana", "Dryas octopetala", "Erica tetralix"]
+        @test speciesnames!(asm, newsp) === asm
+        @test speciesnames(asm) == newsp
+        @test traits(asm).name == newsp
+        @test speciesnames(things(asm)) == newsp
+        @test traits(asm).name !== commatrix(asm).speciesnames      # no shared vector
+
+        newsi = ["plot$i" for i in 1:nsites(asm)]
+        @test sitenames!(asm, newsi) === asm
+        @test sitenames(asm) == newsi
+        @test sitestats(asm).sites == newsi
+        @test sitenames(things(asm)) == newsi
+        @test sitestats(asm).sites !== commatrix(asm).sitenames
+
+        # the new names work wherever names do
+        @test speciesnames(view(asm, species = ["Corylus avellana"])) == ["Corylus avellana"]
+        @test occupied(asm, "Abies alba") == occupied(asm, 1)
+        @test getsite(asm, "plot3") == getsite(asm, 3)
+        addtraits!(asm, DataFrame(sp = newsp, mass = 1.0:nspecies(asm)), :sp)
+        @test traits(asm).mass == 1.0:nspecies(asm)
+    end
+
+    @testset "speciesnames! / sitenames! with pairs, a Dict or a function" begin
+        asm = makeasm(rng)
+        speciesnames!(asm, "sp1" => "Abies alba", :sp2 => "Betula pendula")
+        @test speciesnames(asm) == ["Abies alba", "Betula pendula", "sp3", "sp4", "sp5"]
+        @test traits(asm).name == speciesnames(asm)
+        speciesnames!(asm, "sp3" => "sp4", "sp4" => "sp3")                     # a swap
+        @test speciesnames(asm)[3:4] == ["sp4", "sp3"]
+        speciesnames!(asm, Dict("sp5" => "Erica tetralix"))
+        @test speciesnames(asm)[5] == "Erica tetralix"
+        speciesnames!(uppercase, asm)
+        @test speciesnames(asm) == ["ABIES ALBA", "BETULA PENDULA", "SP4", "SP3", "ERICA TETRALIX"]
+        @test traits(asm).name == speciesnames(asm)
+
+        sitenames!(s -> "plot" * s, asm)
+        @test sitenames(asm) == ["plot$i" for i in 1:nsites(asm)]
+        sitenames!(asm, "plot1" => "first")
+        @test sitenames(asm)[1] == "first" == sitenames(things(asm))[1]
+
+        # whatever comes in is stored as String
+        speciesnames!(asm, split("a b c d e"))
+        @test speciesnames(asm) isa Vector{String}
+        @test traits(asm).name isa Vector{String}
+        speciesnames!(asm, [:v, :w, :x, :y, :z])
+        @test speciesnames(asm) == ["v", "w", "x", "y", "z"]
+    end
+
+    @testset "speciesnames! / sitenames! on a ComMatrix" begin
+        cm = commatrix(makeasm(rng))
+        @test speciesnames!(cm, ["a", "b", "c", "d", "e"]) === cm
+        @test speciesnames(cm) == ["a", "b", "c", "d", "e"]
+        sitenames!(cm, "1" => "one")
+        @test sitenames(cm)[1] == "one"
+        @test cm["a", "one"] == cm[1, 1]
+    end
+
+    @testset "a failing rename changes nothing" begin
+        asm = makeasm(rng)
+        sp, tr, si, ss = copy(speciesnames(asm)), copy(traits(asm)), copy(sitenames(asm)), copy(sitestats(asm))
+        unchanged() = speciesnames(asm) == sp && traits(asm) == tr &&
+                      sitenames(asm) == si && sitenames(things(asm)) == si && sitestats(asm) == ss
+        @test_throws ArgumentError speciesnames!(asm, ["a", "b"])                  # wrong length
+        @test_throws ArgumentError speciesnames!(asm, ["a", "a", "b", "c", "d"])   # duplicates
+        @test_throws ArgumentError speciesnames!(asm, ["a", missing, "b", "c", "d"])
+        @test_throws ArgumentError speciesnames!(asm, "nosuch" => "a")
+        @test_throws ArgumentError speciesnames!(asm, "sp1" => "sp2")              # makes a duplicate
+        @test_throws ArgumentError speciesnames!(asm, 1 => "a")                    # names, not positions
+        @test_throws ArgumentError speciesnames!(asm, "sp1" => missing)
+        @test_throws ArgumentError speciesnames!(n -> "same", asm)
+        @test_throws ArgumentError sitenames!(asm, fill("x", nsites(asm)))
+        @test_throws ArgumentError sitenames!(asm, si[1:end-1])
+        @test_throws ArgumentError sitenames!(asm, "nosuch" => "x")
+        @test unchanged()
+    end
+
+    @testset "views follow a renamed parent, but cannot be renamed" begin
+        asm = makeasm(rng)
+        v = view(asm, species = [1, 3], sites = 2:5)
+        vv = view(v, sites = 2:3)
+        speciesnames!(asm, ["a", "b", "c", "d", "e"])
+        sitenames!(asm, ["s$i" for i in 1:nsites(asm)])
+        @test speciesnames(v) == ["a", "c"] == traits(v).name
+        @test sitenames(v) == ["s2", "s3", "s4", "s5"] == sitenames(things(v))
+        @test sitenames(vv) == ["s3", "s4"] == sitenames(things(vv))
+
+        @test_throws ArgumentError speciesnames!(v, ["x", "y"])
+        @test_throws ArgumentError speciesnames!(v, "a" => "x")
+        @test_throws ArgumentError speciesnames!(uppercase, v)
+        @test_throws ArgumentError sitenames!(v, ["w", "x", "y", "z"])
+        @test_throws ArgumentError sitenames!(uppercase, vv)
+        @test_throws ArgumentError speciesnames!(commatrix(v), ["x", "y"])
+        @test_throws ArgumentError sitenames!(places(v), ["w", "x", "y", "z"])
+        @test speciesnames(asm) == ["a", "b", "c", "d", "e"]
+        @test sitenames(asm) == ["s$i" for i in 1:nsites(asm)]
+    end
+
+    @testset "a coarsened assemblage renames on its own" begin
+        asm = makeasm(rng)
+        agg = coarsen(asm, 2)
+        speciesnames!(agg, ["a", "b", "c", "d", "e"])
+        @test traits(asm).name == speciesnames(asm) == ["sp$i" for i in 1:nspecies(asm)]
+    end
+
+    @testset "sitenames! makes a non-String sites column a String one" begin
+        gc = reduce(vcat, [Float64[x y] for x in 0.0:2.0 for y in 0.0:2.0])
+        asm = Assemblage(trues(2, 9), gc, string.(1:9), ["a", "b"]; sitestat = DataFrame(sites = 1:9))
+        sitenames!(asm, string.('a':'i'))
+        @test sitestats(asm).sites == string.('a':'i')
+        @test eltype(sitestats(asm).sites) == String
+    end
 end
