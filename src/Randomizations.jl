@@ -52,6 +52,6 @@ _commatrix(asm::SEAssemblage) = commatrix(asm)
 # on the next species query. The draw is copied so the community never shares
 # storage with the generator's state.
 function _setoccurrences!(com::ComMatrix, occ)
-    _replacecsc!(com.occurrences, copy(occ))
+    _replacecsc!(occurrences(com), copy(occ))
     com
 end

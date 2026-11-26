@@ -45,7 +45,7 @@ using Test
 
     @testset "draws follow the generator's rng" begin
         cm = ComMatrix(sprand(StableRNG(1), Bool, 15, 10, 0.4))
-        draw(seed) = rand(matrixrandomizer(cm, StableRNG(seed))).occurrences
+        draw(seed) = occurrences(rand(matrixrandomizer(cm, StableRNG(seed))))
         @test draw(7) == draw(7)
         @test draw(7) != draw(8)
 
@@ -53,7 +53,7 @@ using Test
         nsite = size(gc, 1)
         mat = Matrix(sprand(StableRNG(2), Bool, 8, nsite, 0.4))
         asm = Assemblage(mat, gc, string.(1:nsite), string.(1:8))
-        adraw(seed) = rand(matrixrandomizer(asm, StableRNG(seed))).occ.commatrix.occurrences
+        adraw(seed) = occurrences(rand(matrixrandomizer(asm, StableRNG(seed))))
         @test adraw(7) == adraw(7)
         @test adraw(7) != adraw(8)
 
@@ -72,8 +72,8 @@ using Test
         gen = matrixrandomizer(cm, StableRNG(5))
         for _ in 1:3
             r = rand!(gen)
-            @test SpatialEcology.transposed(r.occurrences) == permutedims(r.occurrences)
-            @test SpatialEcology.thingoccurrences(r, 1) == r.occurrences[1, :]
+            @test SpatialEcology.transposed(occurrences(r)) == permutedims(occurrences(r))
+            @test SpatialEcology.thingoccurrences(r, 1) == occurrences(r)[1, :]
         end
         @test rand!(gen) === rand!(gen)     # rand! reuses the generator's community
     end
@@ -95,7 +95,7 @@ using Test
         end
         cm = ComMatrix(occ)
         gen = matrixrandomizer(cm, StableRNG(13))
-        draws = [rand(gen).occurrences for _ in 1:20]
+        draws = [occurrences(rand(gen)) for _ in 1:20]
         @test all(d -> sum(d, dims = 1) == sum(occ, dims = 1), draws)
         @test minimum(i -> count(draws[i] .& .!draws[i + 1]), 1:19) >= 10
     end
