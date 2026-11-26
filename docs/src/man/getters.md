@@ -23,6 +23,8 @@ richness
 nrecords
 sitenames
 speciesnames
+sitenames!
+speciesnames!
 coordinates
 occurring
 occupied

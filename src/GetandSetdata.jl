@@ -88,6 +88,147 @@ consistent; see `SpatialEcology.OccMatrix`.
 occurrences(asm::Union{SEAssemblage, SEThings}) = occurrences(commatrix(asm))
 occurrences(cm::AbstractComMatrix) = cm.occurrences
 
+#--------------------------------------------------------------------------
+# Renaming species and sites (EcoBase's thingnames!/placenames!)
+#
+# An Assemblage holds each set of names twice: species in the ComMatrix and in the
+# `name` column of the traits, sites in the ComMatrix and in the `sites` column of
+# the sitestats. Renaming changes both, and gives each its own vector.
+
+const speciesnames! = thingnames!
+const sitenames! = placenames!
+
+# The new names as a fresh Vector{String}, after checking that there is one per
+# species (or site), that none is missing and that no two are alike. Every
+# rename checks here before writing anything, so a failed one changes nothing.
+function _newnames(newnames::AbstractVector, n::Integer, what::AbstractString)
+    length(newnames) == n ||
+        throw(ArgumentError("expected $n $what names, got $(length(newnames))"))
+    any(ismissing, newnames) && throw(ArgumentError("$what names cannot be missing"))
+    names = String[string(x) for x in newnames]
+    seen, dups = Set{String}(), String[]
+    for nm in names
+        nm in seen ? push!(dups, nm) : push!(seen, nm)
+    end
+    isempty(dups) ||
+        throw(ArgumentError("$what names must be unique, but $(join(repr.(unique(dups)), ", ")) appear more than once"))
+    names
+end
+
+# The ComMatrix's vectors are overwritten in place, not replaced, because a
+# SubComMatrix holds views of them: views taken earlier then show the new names.
+function thingnames!(com::ComMatrix, newnames::AbstractVector)
+    com.speciesnames .= _newnames(newnames, nspecies(com), "species")
+    com
+end
+
+function placenames!(com::ComMatrix, newnames::AbstractVector)
+    com.sitenames .= _newnames(newnames, nsites(com), "site")
+    com
+end
+
+# The DataFrame columns are replaced instead. A SubDataFrame reads its parent's
+# columns when asked, so views still see the new names, and a `sites` column of
+# another type (an Int one, say) becomes a String one.
+function thingnames!(occ::SpeciesData, newnames::AbstractVector)
+    names = _newnames(newnames, nspecies(occ), "species")
+    thingnames!(occ.commatrix, names)      # copied into the ComMatrix's own vector
+    occ.traits[!, :name] = names
+    occ
+end
+
+placenames!(occ::SpeciesData, newnames::AbstractVector) = (placenames!(occ.commatrix, newnames); occ)
+
+function placenames!(lo::Locations, newnames::AbstractVector)
+    lo.sitestats[!, :sites] = _newnames(newnames, nsites(lo), "site")
+    lo
+end
+
+"""
+    speciesnames!(asm, newnames)
+    speciesnames!(asm, old => new, ...)
+    speciesnames!(asm, dict)
+    speciesnames!(f, asm)
+
+Rename the species of an `Assemblage` (or a `ComMatrix`) in place, and return it.
+
+`newnames` gives a new name for every species, in order. `old => new` pairs, or a
+`Dict` of them, rename only the species they name; all are looked up before any is
+renamed, so `"a" => "b", "b" => "a"` swaps two names. A function `f` is applied to
+every name. Names are stored as `String`s, must be unique and cannot be `missing`;
+if they are not, nothing is renamed.
+
+The names in the community matrix and the `name` column of the traits change
+together, and views of `asm` taken earlier show the new names. A view cannot be
+renamed itself: rename its parent.
+
+```julia
+speciesnames!(asm, "sp1" => "Abies alba")
+speciesnames!(n -> replace(n, "_" => " "), asm)
+```
+"""
+thingnames!(asm::Assemblage, newnames::AbstractVector) = (thingnames!(asm.occ, newnames); asm)
+
+"""
+    sitenames!(asm, newnames)
+    sitenames!(asm, old => new, ...)
+    sitenames!(asm, dict)
+    sitenames!(f, asm)
+
+Rename the sites of an `Assemblage` (or a `ComMatrix`) in place, and return it.
+The forms and rules are those of [`speciesnames!`](@ref). The names in the
+community matrix and the `sites` column of the sitestats change together.
+
+```julia
+sitenames!(s -> "plot_" * s, asm)
+```
+"""
+function placenames!(asm::Assemblage, newnames::AbstractVector)
+    _newnames(newnames, nsites(asm), "site")       # check before changing either copy
+    placenames!(asm.occ, newnames)
+    placenames!(asm.site, newnames)
+    asm
+end
+
+const _HasThingNames = Union{ComMatrix, SpeciesData, Assemblage}
+const _HasPlaceNames = Union{ComMatrix, SpeciesData, Locations, Assemblage}
+
+thingnames!(f::Function, x::_HasThingNames) = thingnames!(x, map(f, _currentnames(thingnames(x))))
+placenames!(f::Function, x::_HasPlaceNames) = placenames!(x, map(f, _currentnames(placenames(x))))
+
+thingnames!(x::_HasThingNames, p::Pair, ps::Pair...) = thingnames!(x, _renamed(thingnames(x), (p, ps...), "species"))
+placenames!(x::_HasPlaceNames, p::Pair, ps::Pair...) = placenames!(x, _renamed(placenames(x), (p, ps...), "site"))
+thingnames!(x::_HasThingNames, d::AbstractDict) = thingnames!(x, _renamed(thingnames(x), d, "species"))
+placenames!(x::_HasPlaceNames, d::AbstractDict) = placenames!(x, _renamed(placenames(x), d, "site"))
+
+# A user-supplied `sites` column need not hold Strings.
+_currentnames(names) = String[string(n) for n in names]
+
+# The names after renaming each `old => new` in `ps`. Every old name is looked up
+# among the current names before any is changed, so a swap works.
+function _renamed(current, ps, what::AbstractString)
+    current = _currentnames(current)
+    names = collect(Any, current)      # `_newnames` checks and converts the new ones
+    for (old, new) in ps
+        old isa Union{AbstractString, Symbol} ||
+            throw(ArgumentError("rename $what by name, as old => new; got $(repr(old)) => $(repr(new))"))
+        i = findfirst(==(String(old)), current)
+        i === nothing && throw(ArgumentError("no $what named $(repr(String(old)))"))
+        names[i] = new
+    end
+    names
+end
+
+# Views refuse, so a rename cannot reach the parent's names behind its back.
+const _ThingNameViews = Union{SubComMatrix, SubSpeciesData, SubAssemblage}
+const _PlaceNameViews = Union{SubComMatrix, SubSpeciesData, SubLocations, SubAssemblage}
+
+_noviewrename(what) = throw(ArgumentError("cannot rename the $what of a view; rename them in its parent instead (pass old => new pairs to rename only some)"))
+thingnames!(::_ThingNameViews, args...) = _noviewrename("species")
+thingnames!(::Function, ::_ThingNameViews) = _noviewrename("species")
+placenames!(::_PlaceNameViews, args...) = _noviewrename("sites")
+placenames!(::Function, ::_PlaceNameViews) = _noviewrename("sites")
+
 # Left-joins `new` onto `old` by `key`, keeping the row order of `old`. Columns of `old`
 # that `new` also has are replaced by the new ones, unless `makeunique` asks for suffixed
 # copies instead. Returns a new DataFrame and leaves `old` untouched, so a join that
