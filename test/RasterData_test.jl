@@ -290,6 +290,9 @@ using SpatialEcology: RasterData, SubRasterData, indices, getcoords, places  # n
         # agrees with `coarsen`.
         @test occurrences(aggregate(asm, 2)) == occurrences(agg)
         @test occurrences(aggregate(maximum, asm, 2)) == occurrences(agg)
+
+        # a non-integer cellsize is only meaningful for point data
+        @test_throws ArgumentError coarsen(asm, 1.5)
     end
 
     @testset "crs follows the domain raster" begin
