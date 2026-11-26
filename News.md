@@ -5,6 +5,22 @@
 - **breaking:** `occurrences(com)` returns that `OccMatrix` (an `AbstractSparseMatrixCSC`) instead of a `SparseMatrixCSC`, and `getspecies(com, sp)` returns a `SparseVector` copy instead of a view: the view was into the stored transpose, so it went stale after writes, and writing through it changed the transpose but not the occurrences.
 - `coarsen` accepts a non-integer cellsize for point data ([#21](https://github.com/EcoJulia/SpatialEcology.jl/issues/21)), e.g. `coarsen(points, 0.5)` or `coarsen(points, (0.5, 0.25))`. A non-integer factor for gridded data now throws an `ArgumentError` rather than a `MethodError`.
 - **fixed:** gridding point data no longer errors when the largest x or y coordinate falls on a cell edge. In longitude/latitude data a point at latitude 90 is placed in the cell below the pole.
+- **breaking:** for gridded data, `coarsen(x, n)` now merges blocks of `n × n` cells, as documented, also for a `GridTopology`. Since 2019 `n` had been used as the new cellsize in coordinate units, which is only the same thing for a cellsize of 1; other grids got the wrong grain or an error.
+- **breaking:** coarsened cells sit at the centre of the cells they merge. For grids with a cellsize of 1 and cell centres at whole numbers, this moves the coordinates by half a cell.
+- **breaking:** coarsening a raster-backed assemblage now marks a species as present in a coarse cell if it is present in *any* of its cells, as documented. Before, a coarse cell was a site only if all its cells were in the domain, and held a species only if the species filled it, whatever `fun` was. `minimum` gives that answer for species.
+- **fixed:** coarsening a raster-backed assemblage dropped the incomplete block at the far edge when the size was not a multiple of the factor.
+- **fixed:** coarsening gridded data onto a `GridTopology` with a different origin could put cells in the wrong place. A new grid (or `xmin`/`ymin`) that leaves out sites now throws an `ArgumentError`.
+- **fixed:** `coarsen` works on views of sites or species, `coarsen(places(x), factor)` works for point data and tuple factors, and `Rasters.aggregate` works again for gridded and point assemblages (it threw a `MethodError`). A coarsened assemblage no longer shares its traits table with the original.
+- `addtraits!` and `addsitestats!` with a `DataFrame` are safe to re-run: columns the assemblage already has are replaced, with an `@info` naming them (`makeunique = true` keeps both), and a failing join leaves the assemblage unchanged.
+
+# version 0.11.3
+- **fixed:** copying a site view of a gridded `Assemblage`, or dropping its empty sites, threw an `InexactError` for cell sizes that are not exact in binary, such as 1/12 degree.
+- **fixed:** gridding coordinates used half the x cellsize as the y offset, giving wrong y indices when the two cellsizes differ.
+- requires EcoBase 0.2.2 and RandomBooleanMatrices 0.2.1.
+
+# version 0.11.2
+- supports RandomBooleanMatrices 0.2. `matrixrandomizer` on a Boolean `ComMatrix` or `Assemblage` now wraps RandomBooleanMatrices' own generator, and forwards `method` and `trades`.
+- **fixed:** random draws ignored the `rng` given to `matrixrandomizer`, and `rand!` left the transposed occurrence matrix stale.
 
 # version 0.11.1
 - **fixed:** species and site names are now always stored as `String`, as EcoBase's `thingnames`/`placenames` promise. Names read with CSV.jl 1.x are `DataStrings.DataString`s, which the constructors' `string.()` passed through unchanged, so name selectors such as `view(asm, species = ["sp_a"])` threw a `MethodError` on CSV-read assemblages.

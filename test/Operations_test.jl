@@ -110,6 +110,68 @@ gridcoords() = reduce(vcat, [Float64[x y] for x in 0.0:5.0 for y in 0.0:5.0])
         @test_throws ArgumentError coarsen(asm, 1.5)
         @test_throws ArgumentError coarsen(asm, 2.0)
         @test_throws ArgumentError coarsen(asm, (2, 1.5))
+        @test_throws ArgumentError coarsen(asm, 0)
+        @test_throws ArgumentError coarsen(places(asm).coords.grid, 1.5)
+    end
+
+    # one species with one individual in every cell of a grid with these centres along x and y
+    function filled(centres)
+        xy = reduce(vcat, [Float64[x y] for x in centres for y in centres])
+        Assemblage(ones(Int, 1, size(xy, 1)), xy, string.(axes(xy, 1)), ["a"])
+    end
+
+    @testset "the factor counts cells, whatever their size" begin
+        for h in (0.5, 2.0, 100.0, 1 / 12)
+            asm = filled((0.5:5.5) .* h)
+            coarse = coarsen(asm, 2)
+            @test nsites(coarse) == 9
+            @test all(SE.cellsize(places(coarse).coords.grid) .≈ 2h)
+            @test coordinates(coarse)[1, :] ≈ [h, h]
+            @test all(==(4), Matrix(occurrences(coarse)))
+            @test nsites(coarsen(asm, (2, 3))) == 6
+            @test nsites(coarsen(places(asm), (2, 3))) == 6
+            @test cells(coarsen(places(asm).coords.grid, 2)) == (3, 3)
+        end
+    end
+
+    @testset "coarse cells sit at the centre of the cells they merge" begin
+        coarse = coarsen(filled(0.0:4.0), 2)
+        @test coordinates(coarse)[:, 1] == repeat([0.5, 2.5, 4.5], inner = 3)
+        @test coordinates(coarse)[:, 2] == repeat([0.5, 2.5, 4.5], 3)
+        @test Matrix(occurrences(coarse)) == [4 4 2 4 4 2 2 2 1]
+    end
+
+    @testset "onto a given grid" begin
+        asm = filled(0.0:4.0)
+        offset = SE.GridTopology(range(-3.0, step = 2.0, length = 8), range(-3.0, step = 2.0, length = 8))
+        coarse = coarsen(asm, offset)
+        # a centre on a new cell edge goes up or right, so 0 and 1 share a cell
+        @test coordinates(coarse)[:, 1] == repeat([1.0, 3.0, 5.0], inner = 3)
+        @test Matrix(occurrences(coarse)) == [4 4 2 4 4 2 2 2 1]
+
+        # a new grid must cover every site
+        small = SE.GridTopology(range(0.0, step = 1.0, length = 2), range(0.0, step = 1.0, length = 2))
+        @test_throws ArgumentError coarsen(asm, small)
+        @test_throws ArgumentError coarsen(asm, 2; xmin = 3.0)
+        @test_throws ArgumentError coarsen(points([1 1], [0.5 0.5; 0.7 0.5]), 1; xmin = 3.0)
+    end
+
+    @testset "views and Locations" begin
+        asm = Assemblage(rand(rng, 0:3, 2, nsite), gc, string.(1:nsite), ["a", "b"])
+        sub = view(asm, sites = 1:7)
+        coarse = coarsen(sub, 2)
+        @test coordinates(coarse) == coordinates(coarsen(copy(sub), 2))
+        @test occurrences(coarse) == occurrences(coarsen(copy(sub), 2))
+        @test sum(occurrences(coarsen(sub, 2, maximum))) <= sum(occurrences(coarse))
+        one = coarsen(view(asm, species = 2:2), 2)
+        @test occurrences(one) == occurrences(coarsen(asm, 2))[2:2, :]
+        # the traits are copied, not shared with the source
+        @test SE.traits(coarsen(asm, 2)) !== SE.traits(asm)
+
+        pts = points([1 2 3], [0.5 0.5; 2.5 1.5; 1.5 0.5])
+        @test nsites(coarsen(view(pts, sites = 1:2), 1)) == 2
+        @test nsites(coarsen(places(pts), 1)) == 3
+        @test nsites(coarsen(places(pts), (4.0, 2.0))) == 1
     end
 
     @testset "_default_fun" begin
